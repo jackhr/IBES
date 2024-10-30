@@ -79,7 +79,7 @@ if (isset($order_request) && !!$order_request) {
     <?php } ?>
 
     <h5><?php echo $vehicle_name; ?></h5>
-    <?php if (!!$order_request) { ?>
+    <?php if (isset($order_request)) { ?>
         <h6><?php echo $vehicle_type . ($has_collion_insurance ? " - USD\${$vehicle['insurance']}/day Insurance" : ""); ?></h6>
     <?php } else { ?>
         <h6><?php echo $vehicle_type . (isset($vehicle) ? " - USD\${$vehicle['insurance']}/day Insurance" : ""); ?></h6>
