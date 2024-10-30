@@ -18,7 +18,7 @@ $(function () {
     $(".checkbox-container").on('click', function () {
         const checkbox = $(this).find('input');
         const isChecked = checkbox.prop('checked');
-        const onReservationPage = $('body').prop('id') === 'reservation-page';
+        const onReservationPage = $('body').prop('id') === 'reservation-page' || $('body').prop('id') === 'taxi-page';
         const elementToToggle = onReservationPage ? $('.custom-select.return').parent('div') : $('.custom-select.return');
 
         checkbox.prop('checked', !isChecked);

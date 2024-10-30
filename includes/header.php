@@ -11,6 +11,7 @@ $title = isset($title_override) ? $title_override : (isset($title_suffix) ? $bas
 $page_lookup = [
     "about" => "../",
     "reservation" => "../",
+    "taxi" => "../",
     "confirmation" => "../",
     "contact" => "../",
     "faq" => "../",
@@ -19,11 +20,13 @@ $page_lookup = [
 $swal_load_lookup = [
     "index" => 1,
     "reservation" => 1,
+    "taxi" => 1,
     "contact" => 1,
 ];
 $flatpick_load_lookup = [
     "index" => 1,
     "reservation" => 1,
+    "taxi" => 1,
 ];
 
 $style_prefix = $page_lookup[$page] ?? "";
@@ -154,6 +157,7 @@ $load_flatpick = !!$flatpick_load_lookup[$page];
             <nav>
                 <a href="/">Home</a>
                 <a href="/reservation/">Book Now</a>
+                <a href="/taxi/">Taxi</a>
                 <a href="/about/">About</a>
                 <a href="/faq/">FAQ</a>
                 <a href="/contact/">Contact</a>
@@ -175,6 +179,7 @@ $load_flatpick = !!$flatpick_load_lookup[$page];
                 <nav>
                     <a href="/">Home</a>
                     <a href="/reservation/">Book Now</a>
+                    <a href="/taxi/">Taxi</a>
                     <a href="/about/">About</a>
                     <a href="/faq/">FAQ</a>
                     <a href="/contact/">Contact</a>
