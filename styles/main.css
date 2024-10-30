@@ -525,7 +525,7 @@ html.viewing-hamburger-menu #hamburger-nav {
     flex-wrap      : wrap;
     gap            : 30px;
     justify-content: space-between;
-    max-width      : 650px;
+    max-width      : 960px;
     margin         : auto;
 }
 
