@@ -42,7 +42,7 @@
     <div id="main-container">
         <img src="/assets/images/misc/hardhat.avif" alt="Hardhat">
         <h1>Under Construction</h1>
-        <p>The site is getting an upgrade! We should be finished soon, but in case you have any inquiries, please feel free to us a call at <a href="tel:+1 (268) 773-2900">+1 (268) 773-2900</a> or send us an email at <a href="mailto:info@<?php echo $domain; ?>">info@<?php echo $domain; ?></a></p>
+        <p>The site is getting an upgrade! We should be finished soon, but in case you have any inquiries, please feel free to us a call at <a href="tel:+1 (268) 773-2900">+1 (268) 773-2900</a> or send us an email at <a href="mailto:ibescarrentals@gmail.com">ibescarrentals@gmail.com</a></p>
     </div>
 </body>
 
