@@ -22,16 +22,16 @@ $structured_data = [
         "url" => "https://$www_domain/",
         "address" => [
             "@type" => "PostalAddress",
-            "streetAddress" => "Herbert's road",
-            "addressLocality" => "Piggots",
+            "streetAddress" => "Antigua road",
+            "addressLocality" => "St. John's",
             "addressRegion" => "Antigua",
             "postalCode" => "",
             "addressCountry" => "AG"
         ],
-        "telephone" => "+1-268-771-1891",
+        "telephone" => "+1-268-773-2900",
         "contactPoint" => [
             "@type" => "ContactPoint",
-            "telephone" => "+1-268-771-1891",
+            "telephone" => "+1-268-773-2900",
             "contactType" => "Customer Service",
             "availableLanguage" => "English"
         ],
@@ -53,15 +53,15 @@ include_once '../includes/header.php';
         <h2><?php echo $company_name; ?></h2>
 
         <div class="contact-brief-info">
-            <span>Herbert’s road</span>
-            <span>Piggots</span>
+            <span>Antigua road</span>
+            <span>St. John’s</span>
             <span>Antigua, WI</span>
         </div>
 
         <div>
             <div class="contact-link">
                 <span>Phone:</span>
-                <a href="tel:+1 (268) 771-1891">+1 (268) 771-1891</a>
+                <a href="tel:+1 (268) 773-2900">+1 (268) 773-2900</a>
             </div>
             <div class="contact-link">
                 <span>Email:</span>

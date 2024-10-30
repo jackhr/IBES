@@ -24,7 +24,7 @@
                 <h6>Contact</h6>
                 <div class="contact-link">
                     <span>Phone:</span>
-                    <a href="tel:+1 (268) 771-1891">+1 (268) 771-1891</a>
+                    <a href="tel:+1 (268) 773-2900">+1 (268) 773-2900</a>
                 </div>
                 <div class="contact-link">
                     <span>Email:</span>
