@@ -1,11 +1,8 @@
-assets/images/vehicles/honda_fit.jpg filter=lfs diff=lfs merge=lfs -text
-assets/images/vehicles/honda_fit.avif filter=lfs diff=lfs merge=lfs -text
-assets/images/vehicles/toyota_corolla_axio.jpg filter=lfs diff=lfs merge=lfs -text
-assets/images/vehicles/toyota_corolla_axio.avif filter=lfs diff=lfs merge=lfs -text
-assets/images/vehicles/toyota_vitz.jpg filter=lfs diff=lfs merge=lfs -text
-assets/images/vehicles/toyota_vitz.avif filter=lfs diff=lfs merge=lfs -text
-assets/images/vehicles/toyota_yaris.jpg filter=lfs diff=lfs merge=lfs -text
-assets/images/vehicles/toyota_yaris.avif filter=lfs diff=lfs merge=lfs -text
+assets/images/vehicles/honda_cr-v.avif filter=lfs diff=lfs merge=lfs -text
+assets/images/vehicles/nissan_frontier.avif filter=lfs diff=lfs merge=lfs -text
+assets/images/vehicles/toyota_corolla_axio_1.avif filter=lfs diff=lfs merge=lfs -text
+assets/images/vehicles/toyota_corolla_axio_2.avif filter=lfs diff=lfs merge=lfs -text
+assets/images/vehicles/toyota_noah.avif filter=lfs diff=lfs merge=lfs -text
 assets/images/bg/antigua-aerial-shot-pearns-point.jpg filter=lfs diff=lfs merge=lfs -text
 assets/images/bg/car-under-mango-trees.jpg filter=lfs diff=lfs merge=lfs -text
 assets/images/bg/car-under-mango-trees.avif filter=lfs diff=lfs merge=lfs -text
