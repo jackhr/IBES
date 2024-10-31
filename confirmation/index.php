@@ -73,6 +73,11 @@ if (isset($order_request)) {
     $vehicle_result = mysqli_query($con, $vehicle_query);
     $vehicle = mysqli_fetch_assoc($vehicle_result);
 
+    // Get the vehicle discount
+    $discount_query = "SELECT * FROM vehicle_discounts WHERE `vehicle_id` = {$order_request['car_id']}";
+    $discount_result = mysqli_query($con, $discount_query);
+    $discount = mysqli_fetch_assoc($discount_result);
+
     // Get the contact infos
     $contact_info_query = "SELECT * FROM contact_info WHERE `id` = {$order_request['contact_info_id']}";
     $contact_info_result = mysqli_query($con, $contact_info_query);
