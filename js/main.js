@@ -687,7 +687,7 @@ $(function () {
         Swal.fire({
             title: emailJSON.success ? "Success" : emailJSON.message,
             text: emailJSON.success ? "Your message has been sent successfully." : "error",
-            icon: emailJSON.success ? "Success" : "Error"
+            icon: emailJSON.success ? "success" : "error"
         });
     });
 

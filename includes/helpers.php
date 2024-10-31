@@ -114,7 +114,7 @@ function handleSendEmail($email_str = "", $body = "", $reply_to = "")
 
 function generateAddress($first_name, $last_name, $country_region, $street, $town_city, $state_county, $phone, $email)
 {
-    return "{$first_name} {$last_name}<br>{$street}<br>{$town_city}, {$state_county}<br>{$country_region}<br><a href=\"tel:{$phone}\" style=\"color:#e55f4c;font-weight:normal;text-decoration:underline\" target=\"_blank\">{$phone}</a><br><a href=\"mailto:$email\" target=\"_blank\">{$email}</a>";
+    return "{$first_name} {$last_name}<br>{$street}<br>{$town_city}, {$state_county}<br>{$country_region}<br><a href=\"tel:{$phone}\" style=\"color:#586771;font-weight:normal;text-decoration:underline\" target=\"_blank\">{$phone}</a><br><a href=\"mailto:$email\" target=\"_blank\">{$email}</a>";
 }
 
 function generateEmailBody($hotel, $first_name, $last_name, $country_region, $street, $town_city, $state_county, $phone, $email, $order_request_id, $vehicle, $add_ons, $itinerary, $days, $sub_total, $timestamp, $key, $vehicle_subtotal, $is_admin_email = false)
@@ -142,7 +142,7 @@ function generateEmailBody($hotel, $first_name, $last_name, $country_region, $st
     <p style="margin:0 0 16px">Pay with cash or card when you pick-up your vehicle.</p>';
 
     if ($is_admin_email) {
-        $intro = '<p style="margin:0 0 16px">Hi Rasheed,</p>
+        $intro = '<p style="margin:0 0 16px">Hi Irwin,</p>
         <p style="margin:0 0 16px">Just to let you know, ' . $first_name . ' ' . $last_name . ' has just put in an order request.</p>
         <p style="margin:0 0 16px">The client\'s email address is ' . $email . '</p>
         <p style="margin:0 0 16px">Below are the details of the order:</p>';
@@ -154,7 +154,7 @@ function generateEmailBody($hotel, $first_name, $last_name, $country_region, $st
                 <tbody>
                     <tr>
                         <td align="center" valign="top">
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#e55f4c;color:#ffffff;border-bottom:0;font-weight:bold;line-height:100%;vertical-align:middle;' . $fontFamily . 'border-radius:3px 3px 0 0">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#586771;color:#ffffff;border-bottom:0;font-weight:bold;line-height:100%;vertical-align:middle;' . $fontFamily . 'border-radius:3px 3px 0 0">
                                 <tbody>
                                     <tr>
                                         <td style="padding:36px 48px;display:block">
@@ -177,7 +177,7 @@ function generateEmailBody($hotel, $first_name, $last_name, $country_region, $st
                                                         <td valign="top" style="padding:48px 48px 32px">
                                                             <div style="color:#636363;' . $fontFamily . 'font-size:14px;line-height:150%;text-align:left">
                                                                 ' . $intro . '
-                                                                <h2 style="color:#e55f4c;display:block;' . $fontFamily . 'font-size:18px;font-weight:bold;line-height:130%;margin:0 0 18px;text-align:left">Order #' . $order_request_id . ' (<time datetime="' . gmdate("Y-m-d\TH:i:s\+00:00", $timestamp) . '">' . (date("F d, Y", $timestamp)) . '</time>)</h2>
+                                                                <h2 style="color:#586771;display:block;' . $fontFamily . 'font-size:18px;font-weight:bold;line-height:130%;margin:0 0 18px;text-align:left">Order #' . $order_request_id . ' (<time datetime="' . gmdate("Y-m-d\TH:i:s\+00:00", $timestamp) . '">' . (date("F d, Y", $timestamp)) . '</time>)</h2>
                                                                 <table cellspacing="0" cellpadding="6" border="1" style="color:#636363;border:1px solid #e5e5e5;vertical-align:middle;width:100%;font-family:\"Helvetica Neue\"Helvetica,Roboto,Arial,sans-serif">
                                                                     <thead>
                                                                         <tr>
@@ -235,7 +235,7 @@ function generateEmailBody($hotel, $first_name, $last_name, $country_region, $st
                                                                     <tbody>
                                                                         <tr>
                                                                             <td valign="top" width="50%" style="text-align:left;' . $fontFamily . 'border:0;padding:0">
-                                                                                <h2 style="color:#e55f4c;display:block;' . $fontFamily . 'font-size:18px;font-weight:bold;line-height:130%;margin:18px 0;text-align:left">Billing address</h2>
+                                                                                <h2 style="color:#586771;display:block;' . $fontFamily . 'font-size:18px;font-weight:bold;line-height:130%;margin:18px 0;text-align:left">Billing address</h2>
 
                                                                                 <address style="' . $fontFamily . 'padding:12px;color:#636363;border:1px solid #e5e5e5">' . generateAddress($first_name, $last_name, $country_region, $street, $town_city, $state_county, $phone, $email) . ' </address>
                                                                             </td>
@@ -243,7 +243,7 @@ function generateEmailBody($hotel, $first_name, $last_name, $country_region, $st
                                                                     </tbody>
                                                                 </table>
                                                                 <h2 style="text-align: center;margin: 40px auto 0;">Click below to view your full reservation!</h2>
-                                                                <a href="https://www.irwincarrental.com/confirmation/?key=' . $key . '" style="width: max-content;padding: 12px;margin: 40px auto;font-weight: 800;font-size: 18px;letter-spacing: 0.5px;border: solid 1px #e55f4c;border-radius: 6px;display: block;color: black !important;text-decoration: none !important;box-shadow: 0 0 10px 1px #e55f4c50;">' . $key . '</a>
+                                                                <a href="https://www.irwincarrental.com/confirmation/?key=' . $key . '" style="width: max-content;padding: 12px;margin: 40px auto;font-weight: 800;font-size: 18px;letter-spacing: 0.5px;border: solid 1px #586771;border-radius: 6px;display: block;color: black !important;text-decoration: none !important;box-shadow: 0 0 10px 1px #58677150;">' . $key . '</a>
                                                                 <p style="margin:20px 0;text-align:center;line-height: 1.5;font-size: 14px;">Link not working? Copy and paste the following url into your browser to view your full rental summary on our website Can\'t wait to see you on the roads!</p>
                                                                 <p style="text-align:center;margin-bottom: 40px;"><strong>https://www.irwincarrental.com/confirmation/?key=' . $key . '</strong></p>
                                                                 <p style="margin:0 0 16px;text-align: center;">Thanks for using <a href="https://www.irwincarrental.com/" target="_blank">www.irwincarrental.com</a>!</p>

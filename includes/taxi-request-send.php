@@ -35,6 +35,7 @@ try {
     $passengers = trim($data['passengers']);
     $date = new DateTime(trim($data['pickUpTime']));
     $pickUpDateTime = $date->format('Y-m-d H:i:s.u');
+    $formattedPickUpDateTime = $date->format('F j, Y \a\t g:i A');
 
     $name = mysqli_real_escape_string($con, $name);
     $phone = mysqli_real_escape_string($con, $phone);
@@ -71,9 +72,9 @@ Drop Off Location: $dropOff
 
 Number of Passengers: $passengers
 
-Time of Pick Up: $pickUpTime
+Time of Pick Up: $formattedPickUpDateTime
 
-Message: $message";
+Special Requirements: $message";
 
     // Send email to Admin
     $mail_res = mail($contact_email_string, $subject, $body, $headers);

@@ -203,8 +203,9 @@ label sup {
 }
 
 #intro-section div.inner {
-    padding  : 36px 40px 90px;
-    max-width: unset;
+    padding    : 36px 40px 90px;
+    max-width  : unset;
+    align-items: flex-end;
 }
 
 .checkbox-container {
