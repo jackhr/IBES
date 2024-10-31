@@ -17,35 +17,38 @@ include_once '../includes/header.php';
 
 <section id="taxi-info-section">
     <div class="inner">
-        <div class="taxi-info-card">
-            <h2>Island Tour Package</h2>
-            <div>
-                <span>$100 per person</span>
-                <span>4-hour Island tour</span>
-                <span>Comfortable ride</span>
+        <h2>Transportation Tailored for You</h2>
+        <div id="taxi-info-card-container">
+            <div class="taxi-info-card">
+                <h2>Island Tour Package</h2>
+                <div>
+                    <span>$100 per person</span>
+                    <span>4-hour Island tour</span>
+                    <span>Comfortable ride</span>
+                </div>
             </div>
-        </div>
-        <div class="taxi-info-card">
-            <h2>Private Airport Transfer</h2>
-            <div>
-                <span>Transfer to/from Airport</span>
-                <span>Additional $10 regulation</span>
-                <span>Reliable taxi service</span>
+            <div class="taxi-info-card">
+                <h2>Private Airport Transfer</h2>
+                <div>
+                    <span>Transfer to/from Airport</span>
+                    <span>Additional $10 regulation</span>
+                    <span>Reliable taxi service</span>
+                </div>
             </div>
-        </div>
-        <div class="taxi-info-card">
-            <h2>Cruise Ship Pickup</h2>
-            <div>
-                <span>Pickup from cruise</span>
-                <span>Quick & Easy ride</span>
+            <div class="taxi-info-card">
+                <h2>Cruise Ship Pickup</h2>
+                <div>
+                    <span>Pickup from cruise</span>
+                    <span>Quick & Easy ride</span>
+                </div>
             </div>
-        </div>
-        <div class="taxi-info-card">
-            <h2>VIP Service</h2>
-            <div>
-                <span>Personalized requests</span>
-                <span>Tailored experience</span>
-                <span>Contact for more info</span>
+            <div class="taxi-info-card">
+                <h2>VIP Service</h2>
+                <div>
+                    <span>Personalized requests</span>
+                    <span>Tailored experience</span>
+                    <span>Contact for more info</span>
+                </div>
             </div>
         </div>
     </div>
@@ -53,7 +56,7 @@ include_once '../includes/header.php';
 
 <section id="contact-form-section">
     <div class="inner">
-        <h2>SEND US AN EMAIL</h2>
+        <h2>Reserve a Taxi</h2>
         <form action="">
             <div class="left">
                 <div class="mutiple-input-container">

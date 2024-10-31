@@ -515,11 +515,20 @@
     margin-top: auto;
 }
 
+#taxi-page #contact-form-section {
+    padding-bottom: 72px;
+}
+
 #taxi-info-section {
     padding: 72px 0;
 }
 
-#taxi-info-section div.inner {
+#taxi-info-section div.inner>h2 {
+    margin: 0 0 62px;
+}
+
+#taxi-info-card-container {
+    margin               : auto;
     display              : grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows   : 1fr 1fr;
@@ -528,16 +537,26 @@
 }
 
 .taxi-info-card {
-    background   : var(--primary);
-    border-radius: 12px;
-    padding      : 18px;
-    color        : var(--white);
-    transition   : transform ease 0.4s;
-    transform    : scale(1);
+    background     : #fff;
+    border-radius  : 12px;
+    padding        : 24px 18px;
+    color          : var(--white);
+    transition     : transform ease 0.4s;
+    transform      : scale(1);
+    color          : var(--primary);
+    border         : solid 1px var(--primary);
+    display        : flex;
+    flex-direction : column;
+    align-items    : center;
+    justify-content: center;
 }
 
 .taxi-info-card:hover {
     transform: scale(1.05);
+}
+
+.taxi-info-card h2 {
+    margin: 0 0 18px;
 }
 
 .taxi-info-card>div {
@@ -691,5 +710,10 @@
 
     #contact-form-section form>div.right {
         display: none;
+    }
+
+    #taxi-info-card-container {
+        grid-template-columns: 1fr;
+        grid-template-rows   : 1fr;
     }
 }
