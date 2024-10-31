@@ -106,12 +106,6 @@ $load_flatpick = isset($flatpick_load_lookup[$page]);
 
 <body id="<?php echo $page ?>-page">
 
-    <?php if ($prod) { ?>
-        <!-- Google Tag Manager (noscript) -->
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KKX5JN65" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        <!-- End Google Tag Manager (noscript) -->
-    <?php } ?>
-
     <div class="overlay"></div>
 
     <header>
