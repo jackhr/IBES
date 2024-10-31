@@ -565,6 +565,11 @@
     gap           : 12px;
 }
 
+.input-container.taxi-message,
+.input-container.taxi-message textarea {
+    height: 100%;
+}
+
 @media (hover: hover) {
     .add-on-btn:hover {
         background-color: var(--primary);
@@ -715,5 +720,9 @@
     #taxi-info-card-container {
         grid-template-columns: 1fr;
         grid-template-rows   : 1fr;
+    }
+
+    .input-container.name-container {
+        margin-bottom: 15px !important;
     }
 }

@@ -8,7 +8,8 @@ const STATE = {
     },
     pickUpFP: null,
     returnFP: null,
-    emailRegEx: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    emailRegEx: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    phoneRegEx: /[^0-9+().\- ]/
 };
 
 $(function () {
@@ -688,7 +689,48 @@ $(function () {
             text: emailJSON.success ? "Your message has been sent successfully." : "error",
             icon: emailJSON.success ? "Success" : "Error"
         });
-    })
+    });
+
+    $("#taxi-page #contact-form-section form").off('submit').on('submit', async function (e) {
+        e.preventDefault();
+
+        const data = {
+            "pickUp": $('#contact-form-section input[name="pick-up"]').val(),
+            "dropOff": $('#contact-form-section input[name="drop-off"]').val(),
+            "pickUpTime": $('#contact-form-section input[name="pick-up-time"]').val(),
+            "passengers": $('#contact-form-section input[name="passengers"]').val(),
+            "phone": $('#contact-form-section input[name="phone"]').val(),
+            "email": $('#contact-form-section input[name="email"]').val(),
+            "name": $('#contact-form-section input[name="name"]').val(),
+            "message": $('#contact-form-section textarea[name="message"]').val(),
+            "h826r2whj4fi_cjz8jxs2zuwahhhk6": ""
+        };
+
+        const formDataIsValid = handleInvalidFormData(data, "taxi");
+
+        if (!formDataIsValid) return;
+
+        Swal.fire({
+            title: "Submitting form...",
+            didOpen: () => Swal.showLoading()
+        });
+
+        const emailRes = await fetch('/includes/taxi-request-send.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',  // Set Content-Type to JSON
+            },
+            body: JSON.stringify(data)
+        });
+
+        const emailJSON = await emailRes.json();
+
+        Swal.fire({
+            title: emailJSON.success ? "Success" : emailJSON.message,
+            text: emailJSON.success ? "Your message has been sent successfully." : "error",
+            icon: emailJSON.success ? "success" : "error"
+        });
+    });
 
 });
 
@@ -765,6 +807,37 @@ function handleInvalidFormData(data, section) {
         } else if (data.message === '') {
             text = 'Please enter your message.';
             element = $('#contact-form-section textarea[name="message"]');
+        }
+
+    } else if (section === "taxi") {
+
+        if (data.pickUp === '') {
+            text = 'Please enter a pick up location.';
+            element = $('#contact-form-section input[name="pick-up"]');
+        } else if (data.dropOff === '') {
+            text = 'Please enter a drop off location.';
+            element = $('#contact-form-section input[name="drop-off"]');
+        } else if (data.pickUpTime === '') {
+            text = 'Please enter a time to be picked up.';
+            element = $('#contact-form-section input[name="pick-up-time"]');
+        } else if (data.passengers === '') {
+            text = 'Please enter how many passengers will be on the ride.';
+            element = $('#contact-form-section input[name="passengers"]');
+        } else if (data.phone === '') {
+            text = 'Please enter your phone number.';
+            element = $('#contact-form-section input[name="phone"]');
+        } else if (STATE.phoneRegEx.test(data.phone)) {
+            text = 'Please enter a proper phone number otherwise we will not be able to contact you.';
+            element = $('#contact-form-section input[name="phone"]');
+        } else if (data.email === '') {
+            text = 'Please enter your email address.';
+            element = $('#contact-form-section input[name="email"]');
+        } else if (!STATE.emailRegEx.test(data.email)) {
+            text = 'Please enter a valid email address.';
+            element = $('#contact-form-section input[name="email"]');
+        } else if (data.name === '') {
+            text = 'Please enter your name.';
+            element = $('#contact-form-section input[name="name"]');
         }
 
     }

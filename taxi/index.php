@@ -61,33 +61,47 @@ include_once '../includes/header.php';
             <div class="left">
                 <div class="mutiple-input-container">
                     <div class="input-container">
-                        <label for="contact-pick-up">Pick Up <sup>*</sup></label>
-                        <input id="contact-pick-up" name="pick-up" type="text" placeholder="Pick up location">
+                        <label for="contact-pick-up">Pick Up Location<sup>*</sup></label>
+                        <input class="form-input" id="contact-pick-up" name="pick-up" type="text" placeholder="Pick up location">
                     </div>
                     <div class="input-container">
-                        <label for="contact-drop-off">Drop Off <sup>*</sup></label>
-                        <input id="contact-drop-off" name="drop-off" type="text" placeholder="Drop off location">
+                        <label for="contact-drop-off">Drop Off Location<sup>*</sup></label>
+                        <input class="form-input" id="contact-drop-off" name="drop-off" type="text" placeholder="Drop off location">
                     </div>
                 </div>
                 <div class="mutiple-input-container">
                     <div class="input-container">
-                        <label for="contact-name">Name <sup>*</sup></label>
-                        <input id="contact-name" name="name" type="text" placeholder="Enter your name">
+                        <label for="contact-pick-up-time">Pick Up Time<sup>*</sup></label>
+                        <input class="form-input" id="contact-pick-up-time" name="pick-up-time" type="datetime-local" placeholder="Pick up time">
                     </div>
                     <div class="input-container">
-                        <label for="contact-email">Phone <sup>*</sup></label>
-                        <input id="contact-email" name="email" type="tel" placeholder="+1 (234) 565-4321">
+                        <label for="contact-passengers">Number of Passengers<sup>*</sup></label>
+                        <input class="form-input" id="contact-passengers" name="passengers" type="text" placeholder="5 People">
                     </div>
                 </div>
+                <div class="mutiple-input-container">
+                    <div class="input-container">
+                        <label for="contact-phone">Phone <sup>*</sup></label>
+                        <input class="form-input" id="contact-phone" name="phone" type="tel" placeholder="+1 (234) 565-4321">
+                    </div>
+                    <div class="input-container">
+                        <label for="contact-email">Email <sup>*</sup></label>
+                        <input class="form-input" id="contact-email" name="email" type="email" placeholder="my_name@email.com">
+                    </div>
+                </div>
+                <div class="input-container name-container">
+                    <label for="contact-name">Name <sup>*</sup></label>
+                    <input class="form-input" id="contact-name" name="name" type="text" placeholder="Enter your name">
+                </div>
                 <div class="input-container taxi-message" style="margin: 0;">
-                    <label for="contact-message">Extra Details</label>
+                    <label for="contact-message">Special Requirements</label>
                     <textarea name="message" cols="30" rows="10" placeholder="Enter any extra details..."></textarea>
                 </div>
                 <button type="submit">SUBMIT RESERVATION</button>
             </div>
             <div class="right">
                 <div class="input-container taxi-message" style="margin: 0;">
-                    <label for="contact-message">Extra Details</label>
+                    <label for="contact-message">Special Requirements</label>
                     <textarea name="message" cols="30" rows="10" placeholder="Enter any extra details..."></textarea>
                 </div>
             </div>
