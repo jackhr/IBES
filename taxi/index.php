@@ -20,7 +20,7 @@ include_once '../includes/header.php';
         <h2>Transportation Tailored for You</h2>
         <div id="taxi-info-card-container">
             <div class="taxi-info-card">
-                <h2>Island Tour Package</h2>
+                <h3>Island Tour Package</h3>
                 <div>
                     <span>$100 per person</span>
                     <span>4-hour Island tour</span>
@@ -28,7 +28,7 @@ include_once '../includes/header.php';
                 </div>
             </div>
             <div class="taxi-info-card">
-                <h2>Private Airport Transfer</h2>
+                <h3>Private Airport Transfer</h3>
                 <div>
                     <span>Transfer to/from Airport</span>
                     <span>Additional $10 regulation</span>
@@ -36,14 +36,14 @@ include_once '../includes/header.php';
                 </div>
             </div>
             <div class="taxi-info-card">
-                <h2>Cruise Ship Pickup</h2>
+                <h3>Cruise Ship Pickup</h3>
                 <div>
                     <span>Pickup from cruise</span>
                     <span>Quick & Easy ride</span>
                 </div>
             </div>
             <div class="taxi-info-card">
-                <h2>VIP Service</h2>
+                <h3>VIP Service</h3>
                 <div>
                     <span>Personalized requests</span>
                     <span>Tailored experience</span>
