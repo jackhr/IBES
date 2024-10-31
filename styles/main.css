@@ -309,7 +309,7 @@ html.viewing-custom-select-options .custom-select.active .custom-select-options 
 
 header {
     height    : var(--nav-height);
-    background: var(--white);
+    background: var(--black);
 }
 
 header div.inner {
@@ -329,6 +329,14 @@ header div.inner nav {
     gap        : 48px;
     font-weight: 700;
     font-size  : 20px;
+}
+
+header div.inner nav a {
+    color: var(--white);
+}
+
+header div.inner nav a:hover {
+    color: var(--grey-light);
 }
 
 #hamburger-button {
@@ -447,7 +455,8 @@ html.viewing-hamburger-menu #hamburger-nav {
 }
 
 #feature-section {
-    background: var(--white);
+    background: var(--black);
+    color     : var(--white);
 }
 
 #feature-section h1 {
