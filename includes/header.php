@@ -32,8 +32,8 @@ $flatpick_load_lookup = [
 $style_prefix = $page_lookup[$page] ?? "";
 $canonical_dir = $page === "index" ? "" : $page . "/";
 $canonical_url = "https://$www_domain/{$canonical_dir}";
-$load_swal = !!$swal_load_lookup[$page];
-$load_flatpick = !!$flatpick_load_lookup[$page];
+$load_swal = isset($swal_load_lookup[$page]);
+$load_flatpick = isset($flatpick_load_lookup[$page]);
 
 ?>
 
@@ -41,39 +41,6 @@ $load_flatpick = !!$flatpick_load_lookup[$page];
 <html>
 
 <head>
-    <?php if ($prod) { ?>
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-E980Y9SHKD"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-            gtag('js', new Date());
-
-            gtag('config', 'G-E980Y9SHKD');
-        </script>
-        <!-- Google Tag Manager -->
-        <script>
-            (function(w, d, s, l, i) {
-                w[l] = w[l] || [];
-                w[l].push({
-                    'gtm.start': new Date().getTime(),
-                    event: 'gtm.js'
-                });
-                var f = d.getElementsByTagName(s)[0],
-                    j = d.createElement(s),
-                    dl = l != 'dataLayer' ? '&l=' + l : '';
-                j.async = true;
-                j.src =
-                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-                f.parentNode.insertBefore(j, f);
-            })(window, document, 'script', 'dataLayer', 'GTM-KKX5JN65');
-        </script>
-        <!-- End Google Tag Manager -->
-    <?php } ?>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 
@@ -110,7 +77,7 @@ $load_flatpick = !!$flatpick_load_lookup[$page];
     <!-- END PLUGINS -->
 
     <!-- BEGIN PLUGINS -->
-    <script src="/plugins/jquery/jquery-3.7.1.min.js" defer></script>
+    <script src="/plugins/jquery/jquery-3.7.1.min.js"></script>
     <?php if ($load_swal) { ?>
         <link type="text/css" rel="stylesheet" href="/plugins/sweetalert2/styles/sweetalert2.min.css">
         <script src="/plugins/sweetalert2/js/sweetalert2.all.min.js" defer></script>
