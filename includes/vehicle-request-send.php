@@ -103,6 +103,11 @@ try {
         $order_request_add_on_result = mysqli_query($con, $order_request_add_on_query);
     }
 
+    if ($order_request_result) {
+        $vehicle_update_query = "UPDATE `vehicles` SET times_requested = times_requested + 1 WHERE id = {$vehicle['id']}";
+        $vehicle_update_result = mysqli_query($con, $vehicle_update_query);
+    }
+
     // Generate client email body
     $client_email_body = generateEmailBody($hotel_trimmed, $first_name_trimmed, $last_name_trimmed, $country_region_trimmed, $street_trimmed, $town_city_trimmed, $state_county_trimmed, $phone_trimmed, $email_trimmed, $order_request_id, $vehicle, $add_ons, $itinerary, $days, $sub_total, $timestamp, $key, $vehicle_subtotal);
 
@@ -144,6 +149,8 @@ try {
         $res["data"]["order_request_result"] = $order_request_result;
         $res["data"]["admin_email_body"] = $admin_email_body;
         $res["data"]["client_email_body"] = $client_email_body;
+        $res["data"]["vehicle_update_query"] = $vehicle_update_query;
+        $res["data"]["vehicle_update_result"] = $vehicle_update_result;
     }
 
     respond($res);
