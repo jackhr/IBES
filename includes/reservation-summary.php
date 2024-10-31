@@ -9,7 +9,7 @@ if (isset($order_request) && !!$order_request) {
     if ($apply_discount) {
         $price_day = (int)$discount['price_USD'];
     }
-    $vehicle['imgSrc'] = "/assets/images/vehicles/{$vehicle['slug']}.jpg";
+    $vehicle['imgSrc'] = "/assets/images/vehicles/{$vehicle['slug']}.avif";
     $vehicle_name = $vehicle['name'];
     $vehicle_type = $vehicle['type'];
     $vehicle_img_src = $vehicle['imgSrc'];
@@ -21,7 +21,7 @@ if (isset($order_request) && !!$order_request) {
     ];
 
     if ($apply_discount) {
-        $rate['rate'] .= '<div class="discount-tool-tip">i<div><span>Fixed price:</span><span><b>2</b> days or more: <b>' . $rate['rate'] . '</b></span></div></div>';
+        $rate['rate'] .= '<div class="discount-tool-tip">i<div><span>Fixed price:</span><span><b>' . $discount['days'] . '</b> days or more: <b>' . $rate['rate'] . '</b></span></div></div>';
     }
 
     $estimated_total = ($price_day * $days) + getAddOnsSubTotal($add_ons, $days, null, $vehicle);
@@ -55,7 +55,7 @@ if (isset($order_request) && !!$order_request) {
         $estimated_total = $price_day * $rate['days'];
 
         if ($apply_discount) {
-            $rate['rate'] .= '<div class="discount-tool-tip">i<div><span>Fixed price:</span><span><b>2</b> days or more: <b>' . $rate['rate'] . '</b></span></div></div>';
+            $rate['rate'] .= '<div class="discount-tool-tip">i<div><span>Fixed price:</span><span><b>' . $reservation['discount']['days'] . '</b> days or more: <b>' . $rate['rate'] . '</b></span></div></div>';
         }
     }
     if (isset($reservation['add_ons']) && count($reservation['add_ons']) > 0) {
@@ -74,13 +74,13 @@ if (isset($order_request) && !!$order_request) {
 
 <div id="reservation-summary">
 
-<?php if ($render_change_btn) { ?>
+    <?php if ($render_change_btn) { ?>
         <span class="change-car-btn continue-btn">Change?</span>
     <?php } ?>
 
     <h5><?php echo $vehicle_name; ?></h5>
     <?php if (isset($order_request)) { ?>
-        <h6><?php echo $vehicle_type . ($has_collion_insurance ? " - USD\${$vehicle['insurance']}/day Insurance" : ""); ?></h6>
+        <h6><?php echo $vehicle_type . (isset($vehicle['insurance']) ? " - USD\${$vehicle['insurance']}/day Insurance" : ""); ?></h6>
     <?php } else { ?>
         <h6><?php echo $vehicle_type . (isset($vehicle) ? " - USD\${$vehicle['insurance']}/day Insurance" : ""); ?></h6>
     <?php } ?>
@@ -162,7 +162,7 @@ if (isset($order_request) && !!$order_request) {
                         <td>Add-ons Subtotal</td>
                         <td></td>
                         <?php
-                        $add_ons_sub_total = !!$order_request ? (
+                        $add_ons_sub_total = isset($order_request) ? (
                             getAddOnsSubTotal($add_ons, $rate['days'], null, ($vehicle || null))
                         ) : (
                             getAddOnsSubTotal($add_ons, null, $reservation['itinerary'], ($vehicle ?? null))

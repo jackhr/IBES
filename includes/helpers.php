@@ -73,7 +73,7 @@ function getAddOnCostForTotalDays($add_on, $days = 1, $vehicle = null)
 {
     $new_cost = (int)$add_on['cost'];
     if ($add_on['name'] === "Collision Insurance") {
-        if (isset($vehicle)) {
+        if (isset($vehicle) && isset($vehicle['insurance'])) {
             $new_cost = (int)$vehicle['insurance'] * $days;
         } else {
             $new_cost = 0;

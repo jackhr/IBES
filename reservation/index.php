@@ -285,7 +285,7 @@ if ($testing) {
                     </div>
                     <h2>Return</h2>
                     <div class="main-itinerary-box">
-                        <div <?php if ($itinerary == null || $itinerary['returnToSameLocation']['value'] === 'on') echo 'style="display: none;"'; ?>>
+                        <div <?php if (!isset($itinerary) || $itinerary['returnToSameLocation']['value'] === 'on') echo 'style="display: none;"'; ?>>
                             <h6>Place to drop the Car<sup>*</sup></h6>
                             <div class="custom-select return form-input">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
@@ -330,7 +330,7 @@ if ($testing) {
         <h2>Select Vehicle</h2>
         <div id="vehicles">
             <?php foreach ($vehicles_arr as $v) {
-                $active_vehicle = $vehicle['id'] == $v['id'];
+                $active_vehicle = isset($vehicle) && ($vehicle['id'] == $v['id']);
             ?>
                 <div class="vehicle-container <?php echo $active_vehicle ? "active" : ""; ?>" data-vehicle-id="<?php echo $v['id']; ?>">
                     <img src="/assets/images/vehicles/<?php echo $v['slug']; ?>.avif" alt="<?php echo $v['name']; ?> thumbnail">
