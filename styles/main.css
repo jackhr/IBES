@@ -195,7 +195,8 @@ html.viewing-hamburger-menu .overlay {
     margin        : 0;
 }
 
-h6 sup {
+h6 sup,
+label sup {
     margin-left: 4px;
     color      : red;
     font-size  : 12px;

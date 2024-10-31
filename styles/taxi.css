@@ -1,5 +1,5 @@
 #taxi-page .general-header {
-    background-image: url("/assets/images/bg/red-car-palm-trees-sunshine-glare.jpg");
+    background-image: url("/assets/images/bg/Taxis-Parked-Under-Trees-on-a-Road-in-Playa-del-Carmen-Mexico.jpg");
 }
 
 #itinerary-section div.inner,
@@ -501,6 +501,51 @@
     color           : var(--white);
 }
 
+#taxi-page #contact-form-section form>div.left {
+    display       : flex;
+    flex-direction: column;
+}
+
+#taxi-page #contact-form-section form>div.left .input-container.taxi-message {
+    display: none;
+}
+
+#taxi-page #contact-form-section form>div.left button {
+    max-width : 100%;
+    margin-top: auto;
+}
+
+#taxi-info-section {
+    padding: 72px 0;
+}
+
+#taxi-info-section div.inner {
+    display              : grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows   : 1fr 1fr;
+    max-width            : calc(var(--max-width) - 200px);
+    grid-gap             : 24px;
+}
+
+.taxi-info-card {
+    background   : var(--primary);
+    border-radius: 12px;
+    padding      : 18px;
+    color        : var(--white);
+    transition   : transform ease 0.4s;
+    transform    : scale(1);
+}
+
+.taxi-info-card:hover {
+    transform: scale(1.05);
+}
+
+.taxi-info-card>div {
+    display       : flex;
+    flex-direction: column;
+    gap           : 12px;
+}
+
 @media (hover: hover) {
     .add-on-btn:hover {
         background-color: var(--primary);
@@ -632,28 +677,19 @@
 
 @media screen and (max-width: 768px) {
 
-    #reservation-steps div.inner {
-        padding: 0;
-    }
-
-    .reservation-flow-container {
-        padding: 12px;
-    }
-
-    .vehicle-container {
-        width: 100%;
-    }
-
     .mutiple-input-container {
         gap: 12px
     }
 
-    .add-on-container .top {
-        gap: 12px;
+    #taxi-page #contact-form-section form>div.left .input-container.taxi-message {
+        display: flex;
     }
 
-    .add-on-btn {
-        min-width: 70px;
-        width    : 70px;
+    #taxi-page #contact-form-section form>div.left button {
+        margin-top: 32px;
+    }
+
+    #contact-form-section form>div.right {
+        display: none;
     }
 }

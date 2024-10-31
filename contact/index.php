@@ -39,7 +39,6 @@ $structured_data = [
     ]
 ];
 
-
 include_once '../includes/header.php';
 
 ?>
