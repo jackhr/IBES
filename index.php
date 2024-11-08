@@ -66,6 +66,8 @@ while ($row = mysqli_fetch_assoc($result)) {
 
     <div class="inner">
 
+        <img src="/assets/images/logo.avif" alt="Website logo">
+
         <form action="">
 
             <h2>PICK UP</h2>

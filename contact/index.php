@@ -44,7 +44,7 @@ include_once '../includes/header.php';
 ?>
 
 <section class="general-header">
-    <h1>contact</h1>
+    <h1>Contact Ibes</h1>
 </section>
 
 <section id="contact-card-section">

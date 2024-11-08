@@ -119,7 +119,7 @@ div.inner {
     align-items        : center;
     position           : relative;
     gap                : 12px;
-    min-height         : 300px;
+    min-height         : 450px;
     background-position: center;
     background-size    : cover;
     background-repeat  : no-repeat;
@@ -128,11 +128,13 @@ div.inner {
 }
 
 .general-header h1 {
-    font-size  : 36px;
-    text-shadow: 0 1px 3px #000c;
-    line-height: 1.2;
-    font-weight: 700;
-    margin     : auto;
+    font-size     : 46px;
+    letter-spacing: 3px;
+    text-shadow   : 0 0 8px #000c;
+    line-height   : 1.2;
+    font-weight   : 700;
+    margin        : auto;
+    text-align    : center;
 }
 
 body>.overlay {
@@ -203,9 +205,16 @@ label sup {
 }
 
 #intro-section div.inner {
-    padding    : 36px 40px 90px;
-    max-width  : unset;
-    align-items: flex-end;
+    padding        : 90px 40px;
+    max-width      : unset;
+    align-items    : center;
+    justify-content: space-between;
+    flex-direction : row;
+}
+
+#intro-section div.inner img {
+    max-width  : 250px;
+    margin-left: min(140px, 10%);
 }
 
 .checkbox-container {
@@ -414,7 +423,7 @@ html.viewing-hamburger-menu #hamburger-nav {
 }
 
 #intro-section {
-    background     : url("/assets/images/bg/car-under-mango-trees.avif") center no-repeat;
+    background     : url("/assets/images/bg/freepik-white-car-under-palm-trees-tropical-beach-sunset-04-flipped.jpg") center no-repeat;
     background-size: cover;
 }
 
@@ -520,7 +529,7 @@ html.viewing-hamburger-menu #hamburger-nav {
 }
 
 #landing-cars-section {
-    background           : url("/assets/images/bg/shirley-heights-antigua-view.avif") center no-repeat;
+    background           : url("/assets/images/bg/MGA-HalfMoonBay-2409JMR80136.jpg") center no-repeat;
     background-position  : center;
     background-size      : cover;
     background-attachment: fixed;
@@ -923,6 +932,10 @@ table tr td:last-child {
 
     .feature-container {
         width: 100%;
+    }
+
+    #intro-section div.inner img {
+        display: none;
     }
 }
 

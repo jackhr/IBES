@@ -1,5 +1,6 @@
 #about-page .general-header {
-    background-image: url("/assets/images/bg/sunset-on-lagoon.jpg");
+    background-image     : url("/assets/images/bg/JR1_6492.jpg");
+    background-position-y: 35%;
 }
 
 #about-section {

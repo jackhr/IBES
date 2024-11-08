@@ -56,7 +56,7 @@ include_once '../includes/header.php';
 
 <section id="contact-form-section">
     <div class="inner">
-        <h2>Reserve a Taxi</h2>
+        <h2>Reserve Your Taxi</h2>
         <form action="">
             <div class="left">
                 <div class="mutiple-input-container">

@@ -1,5 +1,6 @@
 #taxi-page .general-header {
-    background-image: url("/assets/images/bg/Taxis-Parked-Under-Trees-on-a-Road-in-Playa-del-Carmen-Mexico.jpg");
+    background-image     : url("/assets/images/bg/freepik-white-car-under-palm-trees-tropical-beach-sunset-02.jpg");
+    background-position-y: 95%;
 }
 
 #itinerary-section div.inner,
