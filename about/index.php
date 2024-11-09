@@ -37,7 +37,7 @@ include_once '../includes/header.php';
                 <h2>WELCOME TO <?php echo $company_name; ?></h2>
                 <p><?php echo $company_name; ?> has been servicing the transport industry in Antigua for years and we are dedicated to growing our company as the tourism sector and economy of Antigua & Barbuda expands.</p>
                 <p>Whether you’re a new visitor to our islands or a national returning for a family gathering, we welcome all. <?php echo $company_name; ?> is here to provide quality transportation services customized to your specific needs.</p>
-                <em>— Tristan Hughes, Owner of <?php echo $company_name; ?></em>
+                <em>— <?php echo $company_owner_full; ?>, Owner of <?php echo $company_name; ?></em>
             </div>
         </div>
 
