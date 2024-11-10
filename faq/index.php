@@ -60,7 +60,7 @@ $structured_data = [
             ],
             [
                 "@type" => "Question",
-                "name" => "What exchange rate do you use from $USD to $ECD?",
+                "name" => "What exchange rate do you use from \$USD to \$ECD?",
                 "acceptedAnswer" => [
                     "@type" => "Answer",
                     "text" => "The local currency in Antigua is Eastern Caribbean Dollars (ECD). The fixed bank rate for conversion of USD to ECD is US$1.00 = EC$2.7169. We accept payment in both USD and ECD."
