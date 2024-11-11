@@ -747,7 +747,7 @@ function handleInvalidFormData(data, section) {
 
     if (section === "itinerary") {
 
-        if (data.pickUpLocation === 'Choose Office' || !data.pickUpLocation) {
+        if (data.pickUpLocation === 'Choose Location' || !data.pickUpLocation) {
             text = 'Please select a pick up location.';
             element = $('.custom-select.pick-up');
         } else if (!data.pickUpDate.date) {
@@ -756,7 +756,7 @@ function handleInvalidFormData(data, section) {
         } else if (!isWithinBusinessHours(data.pickUpDate.date)) {
             text = 'Pick up time must be between 8am and 6pm.';
             element = $('#pick-up-flatpickr + input');
-        } else if (!data.returnToSameLocation.checked && (data.returnLocation === 'Choose Office' || !data.returnLocation)) {
+        } else if (!data.returnToSameLocation.checked && (data.returnLocation === 'Choose Location' || !data.returnLocation)) {
             text = 'Please select a return location.';
             element = $('.custom-select.return');
         } else if (!data.returnDate.date) {
