@@ -30,9 +30,9 @@ $structured_data = [
         "url" => "https://$www_domain/",
         "address" => [
             "@type" => "PostalAddress",
-            "streetAddress" => "Antigua road",
-            "addressLocality" => "St. John's",
-            "addressRegion" => "Antigua",
+            "streetAddress" => "Ibes Car Rental",
+            "addressLocality" => "Coolidge",
+            "addressRegion" => "St. George",
             "postalCode" => "",
             "addressCountry" => "AG"
         ],

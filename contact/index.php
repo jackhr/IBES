@@ -22,9 +22,9 @@ $structured_data = [
         "url" => "https://$www_domain/",
         "address" => [
             "@type" => "PostalAddress",
-            "streetAddress" => "Antigua road",
-            "addressLocality" => "St. John's",
-            "addressRegion" => "Antigua",
+            "streetAddress" => "Ibes Car Rental",
+            "addressLocality" => "Coolidge",
+            "addressRegion" => "St. George",
             "postalCode" => "",
             "addressCountry" => "AG"
         ],
@@ -52,9 +52,9 @@ include_once '../includes/header.php';
         <h2><?php echo $company_name; ?></h2>
 
         <div class="contact-brief-info">
-            <span>Antigua road</span>
-            <span>St. John’s</span>
-            <span>Antigua, WI</span>
+            <span>Ibes Car Rental</span>
+            <span>Coolidge</span>
+            <span>St. Goerge, Antigua</span>
         </div>
 
         <div>
@@ -71,7 +71,7 @@ include_once '../includes/header.php';
         <div class="contact-brief-info">
             <span>Service Hours</span>
             <span>Monday to Sunday</span>
-            <span>8:00 am to 6:00 pm</span>
+            <span>8:00 am to 8:00 pm</span>
         </div>
     </div>
 </section>
