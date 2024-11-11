@@ -18,7 +18,7 @@
             </div>
             <div class="footer-logo">
                 <div>
-                    <img src="/assets/images/logo.avif" alt="Site Logo">
+                    <img src="/assets/images/logo.jpeg" alt="Website logo">
                 </div>
             </div>
             <div class="footer-contact">

@@ -501,6 +501,15 @@
     color           : var(--white);
 }
 
+.discount-banner {
+    color      : #5a5ae0;
+    font-size  : 18px;
+    font-weight: bold;
+    text-align : center;
+    margin     : 0 auto 18px;
+    display    : block;
+}
+
 @media (hover: hover) {
     .add-on-btn:hover {
         background-color: var(--primary);

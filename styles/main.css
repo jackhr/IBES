@@ -687,7 +687,7 @@ html.viewing-hamburger-menu #hamburger-nav {
 .car-container img {
     width     : 100%;
     height    : 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 #cars+a {
@@ -899,6 +899,16 @@ table tbody tr:last-child {
 table tr th:last-child,
 table tr td:last-child {
     text-align: right;
+}
+
+[data-hotel-name-input="required"] h6:first-child,
+[data-hotel-name-input="optional"] h6:nth-child(2) {
+    display: block;
+}
+
+[data-hotel-name-input="optional"] h6:first-child,
+[data-hotel-name-input="required"] h6:nth-child(2) {
+    display: none;
 }
 
 @media screen and (max-width: 991px) {

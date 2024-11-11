@@ -71,13 +71,13 @@ $(function () {
                 value: returnToSameLocation ? "on" : "off"
             },
             pickUpDate: {
-                date: STATE.pickUpFP.selectedDates[0].toISOString(),
+                date: STATE.pickUpFP.selectedDates[0]?.toISOString?.(),
                 ts: STATE.pickUpFP.selectedDates[0]?.getTime?.(),
                 value: STATE.pickUpFP.input.value,
                 altValue: STATE.pickUpFP.altInput.value
             },
             returnDate: {
-                date: STATE.returnFP.selectedDates[0].toISOString(),
+                date: STATE.returnFP.selectedDates[0]?.toISOString?.(),
                 ts: STATE.returnFP.selectedDates[0]?.getTime?.(),
                 value: STATE.returnFP.input.value,
                 altValue: STATE.returnFP.altInput.value
@@ -179,7 +179,7 @@ $(function () {
         }
 
         let rateHTML = rate.rate;
-        if (reservation.discount) rateHTML += `<div class="discount-tool-tip">i<div><span>Fixed price:</span><span><b>2</b> days or more: <b>${rate.rate}</b></span></div></div>`;
+        if (reservation.discount) rateHTML += `<div class="discount-tool-tip">i<div><span>Fixed price:</span><span><b>${reservation.discount.days}</b> days or more: <b>${rate.rate}</b></span></div></div>`;
 
         $("#reservation-summary div.rate.summary").html(`
             <h6>Rate</h6>
@@ -457,7 +457,7 @@ $(function () {
             };
 
             let rateHTML = rate.rate;
-            if (reservation.discount) rateHTML += `<div class="discount-tool-tip">i<div><span>Fixed price:</span><span><b>2</b> days or more: <b>${rate.rate}</b></span></div></div>`;
+            if (reservation.discount) rateHTML += `<div class="discount-tool-tip">i<div><span>Fixed price:</span><span><b>${reservation.discount.days}</b> days or more: <b>${rate.rate}</b></span></div></div>`;
 
             $("#reservation-summary div.rate.summary").html(`
                 <h6>Rate</h6>
@@ -545,6 +545,14 @@ $(function () {
 
             goToAddOns();
         }
+
+        let hotelNameInputStr = "optional";
+
+        if (data.pickUpLocation === "Your Hotel" || data.returnLocation === "Your Hotel") {
+            hotelNameInputStr = "required";
+        }
+
+        $('[data-hotel-name-input]').prop('dataset').hotelNameInput = hotelNameInputStr;
     });
 
     $(".form-input").on('focus change input click', function () {
@@ -766,8 +774,11 @@ function handleInvalidFormData(data, section) {
         }
 
     } else if (section === "final_details") {
-
-        if (data['first-name'] === '') {
+        console.log("data", data);
+        if ($('[data-hotel-name-input]').prop('dataset').hotelNameInput === "required") {
+            text = 'Please enter the name of your hotel.';
+            element = $('[data-hotel-name-input] input');
+        } else if (data['first-name'] === '') {
             text = 'Please enter your first name.';
             element = $('#final-details-form input[name="first-name"]');
         } else if (data['last-name'] === '') {

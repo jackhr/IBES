@@ -15,7 +15,7 @@ $structured_data = [
         "publisher" => [
             "@type" => "Organization",
             "name" => $company_name,
-            "logo" => "https://$www_domain/assets/images/logo.avif"
+            "logo" => "https://$www_domain/assets/images/logo.jpeg"
         ]
     ],
     [
@@ -23,7 +23,7 @@ $structured_data = [
         "@type" => "LocalBusiness",
         "name" => $company_name,
         "description" => "Rent affordable and well-maintained cars in Antigua and Barbuda.",
-        "image" => "https://$www_domain/logo.avif",
+        "image" => "https://$www_domain/logo.jpeg",
         "url" => "https://$www_domain/",
         "address" => [
             "@type" => "PostalAddress",
@@ -66,7 +66,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
     <div class="inner">
 
-        <img src="/assets/images/logo.avif" alt="Website logo">
+        <img src="/assets/images/logo.jpeg" alt="Website logo">
 
         <form action="">
 
@@ -82,6 +82,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                 <div class="custom-select-options">
                     <span class="selected">Choose Office</span>
                     <span>Airport</span>
+                    <span>Your Hotel</span>
                 </div>
             </div>
 
@@ -107,6 +108,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                 <div class="custom-select-options">
                     <span class="selected">Choose Office</span>
                     <span>Airport</span>
+                    <span>Your Hotel</span>
                 </div>
             </div>
             <div>

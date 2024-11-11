@@ -172,6 +172,8 @@ $session_add_ons = count($session_add_ons) ? $session_add_ons : [
     ]
 ];
 
+$hotel_is_required = (isset($pick_up_location) && $pick_up_location === "Your Hotel") || (isset($return_location) && $return_location === "Your Hotel");
+
 if ($testing) {
     // echo "<pre>";
     // print_r($_SESSION);
@@ -251,6 +253,7 @@ if ($testing) {
         <div class="reservation-flow-container">
             <div class="left">
                 <div>
+                    <span class="discount-banner">For discounted rate book 5 days or more!</span>
                     <h2>Pick Up</h2>
                     <div class="main-itinerary-box">
                         <div>
@@ -266,6 +269,7 @@ if ($testing) {
                                 <div class="custom-select-options">
                                     <span <?php echo (isset($pick_up_location) && $pick_up_location === "Choose Office") ? 'class="selected"' : "" ?>>Choose Office</span>
                                     <span <?php echo (isset($pick_up_location) && $pick_up_location === "Airport") ? 'class="selected"' : "" ?>>Airport</span>
+                                    <span <?php echo (isset($pick_up_location) && $pick_up_location === "Your Hotel") ? 'class="selected"' : "" ?>>Your Hotel</span>
                                 </div>
                             </div>
                         </div>
@@ -298,6 +302,7 @@ if ($testing) {
                                 <div class="custom-select-options">
                                     <span <?php echo isset($return_location) && $return_location === "Choose Office" ? 'class="selected"' : "" ?>>Choose Office</span>
                                     <span <?php echo isset($return_location) && $return_location === "Airport" ? 'class="selected"' : "" ?>>Airport</span>
+                                    <span <?php echo isset($return_location) && $return_location === "Your Hotel" ? 'class="selected"' : "" ?>>Your Hotel</span>
                                 </div>
                             </div>
                         </div>
@@ -441,9 +446,10 @@ if ($testing) {
             <div class="left">
                 <div id="final-details-form">
                     <h2>Contact Info</h2>
-                    <div class="input-container">
+                    <div class="input-container" data-hotel-name-input="<?php echo $hotel_is_required ? "required" : "optional"; ?>">
+                        <h6>Hotel in Antigua<sup>*</sup></h6>
                         <h6>Hotel in Antigua (optional)</h6>
-                        <input type="text" name="hotel">
+                        <input class="form-input" type="text" name="hotel">
                     </div>
                     <div class="mutiple-input-container">
                         <div class="input-container">
