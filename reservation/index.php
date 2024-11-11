@@ -253,7 +253,7 @@ if ($testing) {
         <div class="reservation-flow-container">
             <div class="left">
                 <div>
-                    <span class="discount-banner">For discounted rate book 5 days or more!</span>
+                    <span class="discount-banner">For discounted rate book 3 days or more!</span>
                     <h2>Pick Up</h2>
                     <div class="main-itinerary-box">
                         <div>
