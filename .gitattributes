@@ -3,6 +3,7 @@ assets/images/vehicles/nissan_frontier.avif filter=lfs diff=lfs merge=lfs -text
 assets/images/vehicles/toyota_corolla_axio_1.avif filter=lfs diff=lfs merge=lfs -text
 assets/images/vehicles/toyota_corolla_axio_2.avif filter=lfs diff=lfs merge=lfs -text
 assets/images/vehicles/toyota_noah.avif filter=lfs diff=lfs merge=lfs -text
+assets/images/vehicles/toyota_rav4_sport.avif filter=lfs diff=lfs merge=lfs -text
 assets/images/bg/antigua-aerial-shot-pearns-point.jpg filter=lfs diff=lfs merge=lfs -text
 assets/images/bg/car-under-mango-trees.jpg filter=lfs diff=lfs merge=lfs -text
 assets/images/bg/car-under-mango-trees.avif filter=lfs diff=lfs merge=lfs -text
@@ -27,5 +28,6 @@ assets/images/misc/shirley-heights.jpg filter=lfs diff=lfs merge=lfs -text
 assets/images/misc/smiley-couple-traveling-by-car.jpg filter=lfs diff=lfs merge=lfs -text
 assets/images/misc/hardhat.avif filter=lfs diff=lfs merge=lfs -text
 assets/images/misc/Taxis-Parked-Under-Trees-on-a-Road-in-Playa-del-Carmen-Mexico.jpg filter=lfs diff=lfs merge=lfs -text
-assets/images/logo.avif filter=lfs diff=lfs merge=lfs -text
 assets/images/logo-gray.avif filter=lfs diff=lfs merge=lfs -text
+assets/images/logo.avif filter=lfs diff=lfs merge=lfs -text
+assets/images/logo.jpeg filter=lfs diff=lfs merge=lfs -text
