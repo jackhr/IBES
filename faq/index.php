@@ -12,6 +12,14 @@ $structured_data = [
         "mainEntity" => [
             [
                 "@type" => "Question",
+                "name" => "Is insurance included in my rental agreement?",
+                "acceptedAnswer" => [
+                    "@type" => "Answer",
+                    "text" => "For the insurance policy, it is optional but we do recommend that you rent with the additional insurance because if you do not rent with the insurance and you damage the vehicle you are responsible to cover all damages for the vehicle. Whereas if you rent with the insurance and any damage occur you are only allowed to pay $1500 and the insurance will cover the rest."
+                ]
+            ],
+            [
+                "@type" => "Question",
                 "name" => "What is required when I rent a car?",
                 "acceptedAnswer" => [
                     "@type" => "Answer",
@@ -144,14 +152,6 @@ $structured_data = [
                 "acceptedAnswer" => [
                     "@type" => "Answer",
                     "text" => "Yes, but it's recommended to book in advance, especially during peak seasons."
-                ]
-            ],
-            [
-                "@type" => "Question",
-                "name" => "Is insurance included in my rental agreement?",
-                "acceptedAnswer" => [
-                    "@type" => "Answer",
-                    "text" => "Basic coverage is typically included, but it may not cover all damages. Ask about optional insurance for more protection."
                 ]
             ],
         ]
