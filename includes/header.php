@@ -112,7 +112,7 @@ $load_flatpick = isset($flatpick_load_lookup[$page]);
         <div class="inner">
 
             <a href="/">
-                <img src="/assets/images/logo.avif" alt="Website logo">
+                <img src="/assets/images/logo.jpeg" alt="Website logo">
             </a>
 
             <nav>
