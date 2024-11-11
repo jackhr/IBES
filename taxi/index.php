@@ -20,26 +20,19 @@ include_once '../includes/header.php';
         <h2>Transportation Tailored for You</h2>
         <div id="taxi-info-card-container">
             <div class="taxi-info-card">
+                <h3>Cruise Ship Pickup</h3>
+                <div>
+                    <span>Pickup from cruise</span>
+                    <span>Quick & Easy ride</span>
+                    <span>US$100 per person /<br>4-hour island tour</span>
+                </div>
+            </div>
+            <div class="taxi-info-card">
                 <h3>Island Tour Package</h3>
                 <div>
                     <span>$100 per person</span>
                     <span>4-hour Island tour</span>
                     <span>Comfortable ride</span>
-                </div>
-            </div>
-            <div class="taxi-info-card">
-                <h3>Private Airport Transfer</h3>
-                <div>
-                    <span>Transfer to/from Airport</span>
-                    <span>Additional $10 regulation</span>
-                    <span>Reliable taxi service</span>
-                </div>
-            </div>
-            <div class="taxi-info-card">
-                <h3>Cruise Ship Pickup</h3>
-                <div>
-                    <span>Pickup from cruise</span>
-                    <span>Quick & Easy ride</span>
                 </div>
             </div>
             <div class="taxi-info-card">
@@ -50,7 +43,16 @@ include_once '../includes/header.php';
                     <span>Contact for more info</span>
                 </div>
             </div>
+            <div class="taxi-info-card">
+                <h3>Private Airport Transfer</h3>
+                <div>
+                    <span>Transfer to/from Airport</span>
+                    <span>Additional $10 regulation</span>
+                    <span>Reliable taxi service</span>
+                </div>
+            </div>
         </div>
+        <p style="margin: 50px auto 0;font-weight: bold;">Send us your request details and we will reply within 24 hours</p>
     </div>
 </section>
 
