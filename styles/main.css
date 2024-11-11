@@ -563,6 +563,14 @@ html.viewing-hamburger-menu #hamburger-nav {
     color           : var(--black);
 }
 
+.car-container:nth-child(4) {
+    margin-right: 0;
+}
+
+.car-container:last-child {
+    margin-left: 0;
+}
+
 .car-container:hover,
 .car-container:focus {
     color: var(--black);
@@ -909,6 +917,16 @@ table tr td:last-child {
 [data-hotel-name-input="optional"] h6:first-child,
 [data-hotel-name-input="required"] h6:nth-child(2) {
     display: none;
+}
+
+@media screen and (min-width: 1007px) {
+    .car-container:nth-child(4) {
+        margin-right: 0;
+    }
+
+    .car-container:last-child {
+        margin-left: 0;
+    }
 }
 
 @media screen and (max-width: 991px) {
