@@ -563,14 +563,6 @@ html.viewing-hamburger-menu #hamburger-nav {
     color           : var(--black);
 }
 
-.car-container:nth-child(4) {
-    margin-right: 0;
-}
-
-.car-container:last-child {
-    margin-left: 0;
-}
-
 .car-container:hover,
 .car-container:focus {
     color: var(--black);
@@ -623,11 +615,14 @@ html.viewing-hamburger-menu #hamburger-nav {
     margin        : 0;
     font-size     : 22px;
     text-transform: capitalize;
+    transition    : color 0.3s;
 }
 
 .car-container .top .left h3 {
-    margin   : 0;
-    font-size: 14px;
+    margin        : 4px 0 12px;
+    font-size     : 12px;
+    text-transform: capitalize;
+    transition    : color 0.3s;
 }
 
 .car-container .top .left>div {
@@ -644,14 +639,6 @@ html.viewing-hamburger-menu #hamburger-nav {
 
 .car-container:hover .top .left>div {
     background-color: var(--black);
-}
-
-.car-container .top .left>div>* {
-    transition: color ease 0.5s;
-}
-
-.car-container:hover .top .left>div>* {
-    color: var(--primary);
 }
 
 .car-container .top .left>div span:nth-child(2) {
@@ -685,11 +672,16 @@ html.viewing-hamburger-menu #hamburger-nav {
 }
 
 .car-container:hover svg {
-    fill: var(--black);
+    fill: var(--white);
 }
 
 .car-container .top .right div span {
     font-weight: 500;
+    transition : color ease 0.3s;
+}
+
+.car-container:hover .top * {
+    color: var(--white);
 }
 
 .car-container img {

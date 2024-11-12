@@ -216,7 +216,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                     <div class="top">
                         <div class="left">
                             <h2><?php echo $vehicle['name']; ?></h2>
-                            <h3><?php echo $vehicle['type']; ?></h3>
+                            <h3><?php echo "{$vehicle['type']} - USD\${$vehicle['insurance']}/day Insurance"; ?></h3>
                             <div>
                                 <span>FROM</span>
                                 <span>USD$<?php echo $vehicle['base_price_USD']; ?><span style="font-size: 15px;">/</span></span>
