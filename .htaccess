@@ -10,8 +10,14 @@ RewriteEngine On
 # Force HTTPS and prepend www. to domain name
 RewriteCond %{HTTPS} off [OR]
 RewriteCond %{HTTP_HOST} !^www\.
-RewriteRule ^(.*)$ https://www.irwincarrental.com/$1 [R=301,L]
+RewriteRule ^(.*)$ https://www.ibescarrental.com/$1 [R=301,L]
 
 # Redirect index.php to root
 RewriteCond %{THE_REQUEST} ^.*/index\.php
 RewriteRule ^(.*)index.php$ /$1 [R=301,L]
+
+# Redirect everything to https://ibes.tropicalstudios.com/under-construction/
+# Prevent redirect loop by not redirecting the target URL
+# RewriteCond %{REQUEST_URI} !^/under-construction/?$ [NC]
+# RewriteCond %{REQUEST_URI} !\.(css|js|png|jpg|jpeg|gif|svg|avif|woff|woff2|ttf|eot)$ [NC]
+# RewriteRule ^.*$ https://www.ibescarrental.com/under-construction/ [R=301,L]
