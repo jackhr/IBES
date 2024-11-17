@@ -775,7 +775,10 @@ function handleInvalidFormData(data, section) {
 
     } else if (section === "final_details") {
         console.log("data", data);
-        if ($('[data-hotel-name-input]').prop('dataset').hotelNameInput === "required") {
+        if (
+            $('[data-hotel-name-input]').prop('dataset').hotelNameInput === "required" &&
+            data.hotel.length === 0
+        ) {
             text = 'Please enter the name of your hotel.';
             element = $('[data-hotel-name-input] input');
         } else if (data['first-name'] === '') {
