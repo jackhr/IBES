@@ -123,16 +123,18 @@ function generateEmailBody($hotel, $first_name, $last_name, $country_region, $st
 
     $add_ons_rows = "";
 
-    foreach ($add_ons as $add_on) {
-        $add_on_cost = getAddOnCostForTotalDays($add_on, $days, $vehicle);
-        $quantity = $add_on['fixed_price'] !== "1" ? $days : 1;
-        $add_ons_rows .= '<tr>
-            <td style="' . $fontFamily . 'color:#636363;border:1px solid #e5e5e5;padding:12px;text-align:left;vertical-align:middle;word-wrap:break-word">' . $add_on['name'] . '</td>
-            <td style="' . $fontFamily . 'color:#636363;border:1px solid #e5e5e5;padding:12px;text-align:left;vertical-align:middle;font-family:Helvetica,Roboto,Arial,sans-serif">' . $quantity . '</td>
-            <td style="' . $fontFamily . 'color:#636363;border:1px solid #e5e5e5;padding:12px;text-align:left;vertical-align:middle;font-family:Helvetica,Roboto,Arial,sans-serif">
-                <span><u></u>USD<span>$</span>' . $add_on_cost . '<u></u></span>
-            </td>
-        </tr>';
+    if (is_array($add_ons)) {
+        foreach ($add_ons as $add_on) {
+            $add_on_cost = getAddOnCostForTotalDays($add_on, $days, $vehicle);
+            $quantity = $add_on['fixed_price'] !== "1" ? $days : 1;
+            $add_ons_rows .= '<tr>
+                <td style="' . $fontFamily . 'color:#636363;border:1px solid #e5e5e5;padding:12px;text-align:left;vertical-align:middle;word-wrap:break-word">' . $add_on['name'] . '</td>
+                <td style="' . $fontFamily . 'color:#636363;border:1px solid #e5e5e5;padding:12px;text-align:left;vertical-align:middle;font-family:Helvetica,Roboto,Arial,sans-serif">' . $quantity . '</td>
+                <td style="' . $fontFamily . 'color:#636363;border:1px solid #e5e5e5;padding:12px;text-align:left;vertical-align:middle;font-family:Helvetica,Roboto,Arial,sans-serif">
+                    <span><u></u>USD<span>$</span>' . $add_on_cost . '<u></u></span>
+                </td>
+            </tr>';
+        }
     }
 
     if (is_null($hotel)) $hotel = "<i>Not provided</i>";
