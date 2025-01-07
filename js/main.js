@@ -882,12 +882,7 @@ function pickUpDateIsSameAsReturnDate(data) {
 }
 
 function pickUpDateIsAfterReturnDate(data) {
-    const pickUpDay = getDayFromDate(data.pickUpDate.altValue);
-    const returnDay = getDayFromDate(data.returnDate.altValue);
-    const pickUpYear = getYearFromDate(data.pickUpDate.altValue);
-    const returnYear = getYearFromDate(data.returnDate.altValue);
-    if (pickUpYear > returnYear) return true;
-    return pickUpDay > returnDay && (data.pickUpDate.ts - 86400000 > data.returnDate.ts); // could be same day but different month;
+    return data.pickUpDate.ts > data.returnDate.ts;
 }
 
 function getDayFromDate(dateStr) {
