@@ -163,7 +163,7 @@ if (isset($order_request) && !!$order_request) {
                         <td></td>
                         <?php
                         $add_ons_sub_total = isset($order_request) ? (
-                            getAddOnsSubTotal($add_ons, $rate['days'], null, ($vehicle || null))
+                            getAddOnsSubTotal($add_ons, $rate['days'], null, ($vehicle ?? null))
                         ) : (
                             getAddOnsSubTotal($add_ons, null, $reservation['itinerary'], ($vehicle ?? null))
                         );

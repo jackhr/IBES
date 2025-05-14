@@ -309,7 +309,7 @@ $(function () {
             const addOn = reservation.add_ons[id];
             let addOnRate = addOn.cost;
             let nameTdString = `1 x ${addOn.name}`;
-            if (addOn.fixed_price !== "1") nameTdString += ` for ${days} day(s)`;
+            if (addOn.fixed_price != "1") nameTdString += ` for ${days} day(s)`;
             if (addOn.name === "Collision Insurance") {
                 if (reservation.vehicle) {
                     addOnRate = reservation.vehicle.insurance;
@@ -925,6 +925,13 @@ function getAddOnCostForTotalDays(addOn, days = 1, vehicle = undefined) {
         } else {
             newCost = 0;
         }
+    } else if (addOn.name === "Child Seat (If Available)") {
+        if (vehicle) {
+            newCost *= days;
+        } else {
+            newCost = 0;
+        }
+        console.log("newCost", newCost);
     }
     return newCost;
 }

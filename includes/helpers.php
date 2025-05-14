@@ -3,7 +3,9 @@
 function makeAddOnDescriptionStr($add_on, $vehicles)
 {
     $add_on_str = $add_on['description'];
-    if ($add_on['name'] !== "Collision Insurance") return $add_on_str;
+    if ($add_on['name'] !== "Collision Insurance" || $add_on['name'] === "Child Seat (If Available)") {
+        return $add_on_str;
+    }
 
     $insurance_strings_arr = [];
     foreach ($vehicles as $vehicle) {
@@ -65,7 +67,7 @@ function respond($res)
 function getNameTdStr($add_on, $days)
 {
     $name_td_str = "1 x {$add_on['name']}";
-    if ($add_on['fixed_price'] !== "1") $name_td_str .= " for $days day(s)";
+    if ($add_on['fixed_price'] != "1") $name_td_str .= " for $days day(s)";
     return $name_td_str;
 }
 
@@ -75,6 +77,12 @@ function getAddOnCostForTotalDays($add_on, $days = 1, $vehicle = null)
     if ($add_on['name'] === "Collision Insurance") {
         if (isset($vehicle) && isset($vehicle['insurance'])) {
             $new_cost = (int)$vehicle['insurance'] * $days;
+        } else {
+            $new_cost = 0;
+        }
+    } else if ($add_on['name'] === "Child Seat (If Available)") {
+        if (isset($vehicle)) {
+            $new_cost = $new_cost * $days;
         } else {
             $new_cost = 0;
         }

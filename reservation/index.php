@@ -414,7 +414,10 @@ if ($testing) {
                                 <div class="left">
                                     <?php
                                     $add_on_text = $add_on['name'];
-                                    if ($add_on['name'] === "Collision Insurance" && isset($vehicle)) {
+                                    if (
+                                        ($add_on['name'] === "Collision Insurance" || $add_on['name'] === "Child Seat (If Available)")
+                                        && isset($vehicle)
+                                    ) {
                                         $add_on_text .= " - \${$vehicle['insurance']}/day";
                                     }
                                     ?>
