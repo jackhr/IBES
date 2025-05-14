@@ -5,6 +5,8 @@ session_start();
 include 'connection.php';
 include 'helpers.php';
 
+session_start();
+
 // Get the JSON data
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
@@ -141,6 +143,8 @@ try {
             "debugging" => $debugging,
         ]
     ];
+
+    unset($_SESSION['reservation']);
 
     if ($debugging) {
         $res["data"]["contact_info_query"] = $contact_info_query;

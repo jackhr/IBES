@@ -3,6 +3,8 @@
 include 'connection.php';
 include 'helpers.php';
 
+session_start();
+
 // Get the JSON data
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
@@ -78,6 +80,8 @@ Special Requirements: $message";
 
     // Send email to Admin
     $mail_res = mail($contact_email_string, $subject, $body, $headers);
+
+    unset($_SESSION['reservation']);
 
     respond([
         "success" => true,
