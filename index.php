@@ -206,6 +206,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 </section>
 
 <section id="landing-cars-section">
+    <div class="mobile-paralax"></div>
     <div class="inner">
         <div id="cars">
             <?php foreach ($vehicles_arr as $vehicle) { ?>
