@@ -553,6 +553,12 @@
     width: 18px;
 }
 
+.hq-rental-software-integration {
+    width        : 100%;
+    border-radius: 4px;
+    overflow     : hidden;
+}
+
 @media screen and (max-width: 991px) {
 
     #reservation-steps div.inner {
