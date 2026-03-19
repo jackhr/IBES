@@ -1,4 +1,11 @@
-<?php include_once '../includes/env.php'; ?>
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../server/bootstrap.php';
+
+$companyName = Config::get('COMPANY_NAME', 'Ibes Car Rental');
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,7 +13,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $company_name; ?></title>
+    <title><?php echo htmlspecialchars((string) $companyName, ENT_QUOTES, 'UTF-8'); ?></title>
     <link type="text/css" rel="stylesheet" href="/styles/main.css">
 
     <style>
