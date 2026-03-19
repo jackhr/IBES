@@ -12,9 +12,17 @@ RewriteCond %{HTTPS} off [OR]
 RewriteCond %{HTTP_HOST} !^www\.
 RewriteRule ^(.*)$ https://www.ibescarrental.com/$1 [R=301,L]
 
-# Redirect index.php to root
-RewriteCond %{THE_REQUEST} ^.*/index\.php
-RewriteRule ^(.*)index.php$ /$1 [R=301,L]
+# Serve real files directly (PHP APIs, images, JS, CSS, etc.)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Don't rewrite explicit file-extension requests that do not exist.
+# This keeps missing asset requests as real 404 responses.
+RewriteCond %{REQUEST_URI} \.[a-z0-9]{1,8}$ [NC]
+RewriteRule ^ - [L]
+
+# SPA fallback: all route paths render the React app entrypoint.
+RewriteRule ^ dist/index.html [L]
 
 # Redirect everything to https://ibes.tropicalstudios.com/under-construction/
 # Prevent redirect loop by not redirecting the target URL
