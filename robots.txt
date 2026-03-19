@@ -4,6 +4,5 @@ Disallow: /api/
 Disallow: /server/
 Disallow: /node_modules/
 Disallow: /.env
-Disallow: /under-construction/
 
 Sitemap: https://www.ibescarrental.com/sitemap.xml

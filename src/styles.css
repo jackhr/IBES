@@ -258,6 +258,45 @@ summary:focus-visible {
   background: var(--brand-dark);
 }
 
+.under-construction-page {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  display: grid;
+  place-items: center;
+}
+
+.under-construction-card {
+  width: min(680px, 100%);
+  padding: clamp(1.4rem, 4vw, 2.4rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 18px 46px rgba(9, 13, 20, 0.09);
+  text-align: center;
+}
+
+.under-construction-card img {
+  width: 140px;
+  margin: 0 auto 1.25rem;
+}
+
+.under-construction-card h1 {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.8rem, 4.2vw, 2.6rem);
+  line-height: 1.1;
+}
+
+.under-construction-card p {
+  margin: 0 auto;
+  max-width: 56ch;
+  color: var(--muted);
+}
+
+.under-construction-card a {
+  color: var(--brand-dark);
+  font-weight: 600;
+}
+
 .btn-outline {
   color: #fff;
   border-color: rgba(255, 255, 255, 0.75);

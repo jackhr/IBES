@@ -11,9 +11,7 @@ This project now uses:
 
 ## Current architecture
 
-- Apache rewrites all non-file requests to `server/web.php`, which serves:
-  - `under-construction/index.html` when `APP_UNDER_CONSTRUCTION=true`
-  - `dist/index.html` when `APP_UNDER_CONSTRUCTION=false`
+- Apache rewrites all non-file requests to `dist/index.html` (React Router handles routes).
 - Existing PHP backend endpoints remain active through the API front controller:
   - `POST /api/contact`
   - `POST /api/taxi-request`
@@ -58,7 +56,8 @@ This generates `dist/index.html` and `dist/assets/*`, which are served by `.htac
 Set this in `.env`:
 
 ```bash
-APP_UNDER_CONSTRUCTION=true
+UNDER_CONSTRUCTION=true
 ```
 
-Set it back to `false` to restore the live SPA and API endpoints.
+The React app checks this flag in `src/App.tsx` and routes every path to the React under-construction page when enabled.
+Set it back to `false` to restore normal routing.

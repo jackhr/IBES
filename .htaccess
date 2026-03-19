@@ -24,5 +24,5 @@ RewriteRule ^api(?:/.*)?$ server/api.php [QSA,L]
 RewriteCond %{REQUEST_URI} \.[a-z0-9]{1,8}$ [NC]
 RewriteRule ^ - [L]
 
-# SPA fallback: route requests through the PHP web front controller.
-RewriteRule ^ server/web.php [L]
+# SPA fallback: all route paths render the React app entrypoint.
+RewriteRule ^ dist/index.html [L]

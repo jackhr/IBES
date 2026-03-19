@@ -7,6 +7,7 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     base: command === "build" ? "/dist/" : "/",
+    envPrefix: ["VITE_", "UNDER_"],
     plugins: [react()],
     build: {
       outDir: "dist",
