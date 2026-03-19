@@ -4,6 +4,10 @@ This project now uses:
 
 - `React + Vite + TypeScript` for the full frontend app (single SPA entrypoint)
 - `PHP` for backend endpoints (`/includes/*.php`)
+- npm plugin packages in the React app:
+  - `flatpickr`
+  - `sweetalert2`
+  - `@fortawesome/fontawesome-free`
 
 ## Current architecture
 

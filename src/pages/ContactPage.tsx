@@ -1,11 +1,10 @@
 import { FormEvent, useState } from "react";
 import { siteData } from "../data/siteData";
+import { showErrorAlert, showSuccessAlert } from "../lib/alerts";
 import { postJson } from "../lib/http";
 
-type Status = "idle" | "sending" | "success" | "error";
-
 export default function ContactPage() {
-  const [status, setStatus] = useState<Status>("idle");
+  const [sending, setSending] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -19,14 +18,16 @@ export default function ContactPage() {
       h826r2whj4fi_cjz8jxs2zuwahhhk6: formData.get("h826r2whj4fi_cjz8jxs2zuwahhhk6")
     };
 
-    setStatus("sending");
+    setSending(true);
 
     try {
       await postJson("/includes/contact-send.php", payload);
       form.reset();
-      setStatus("success");
+      await showSuccessAlert("Message Sent", "Thanks for reaching out. Our team will respond shortly.");
     } catch {
-      setStatus("error");
+      await showErrorAlert("Send Failed", "Unable to send right now. Please try again.");
+    } finally {
+      setSending(false);
     }
   }
 
@@ -39,9 +40,19 @@ export default function ContactPage() {
           <p>
             Need help with a booking or airport transfer? Call or email us and we will respond as quickly as possible.
           </p>
-          <a href={`tel:${siteData.phone.replace(/[^\d+]/g, "")}`}>{siteData.phone}</a>
-          <a href={`mailto:${siteData.email}`}>{siteData.email}</a>
-          <p>{siteData.location}</p>
+
+          <a href={`tel:${siteData.phone.replace(/[^\d+]/g, "")}`} className="icon-link">
+            <i className="fa-solid fa-phone" aria-hidden />
+            {siteData.phone}
+          </a>
+          <a href={`mailto:${siteData.email}`} className="icon-link">
+            <i className="fa-solid fa-envelope" aria-hidden />
+            {siteData.email}
+          </a>
+          <p className="icon-text">
+            <i className="fa-solid fa-location-dot" aria-hidden />
+            {siteData.location}
+          </p>
           <p>Service hours: Monday to Sunday, 8:00 am to 8:00 pm</p>
         </div>
 
@@ -61,12 +72,9 @@ export default function ContactPage() {
 
           <input name="h826r2whj4fi_cjz8jxs2zuwahhhk6" type="text" autoComplete="off" tabIndex={-1} className="hp-field" />
 
-          <button type="submit" className="btn btn-primary" disabled={status === "sending"}>
-            {status === "sending" ? "Sending..." : "Send Message"}
+          <button type="submit" className="btn btn-primary" disabled={sending}>
+            {sending ? "Sending..." : "Send Message"}
           </button>
-
-          {status === "success" ? <p className="status success">Message sent successfully.</p> : null}
-          {status === "error" ? <p className="status error">Unable to send right now. Please try again.</p> : null}
         </form>
       </div>
     </section>

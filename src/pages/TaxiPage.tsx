@@ -1,11 +1,33 @@
-import { FormEvent, useState } from "react";
+import flatpickr from "flatpickr";
+import { Instance as FlatpickrInstance } from "flatpickr/dist/types/instance";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { siteData } from "../data/siteData";
+import { showErrorAlert, showSuccessAlert } from "../lib/alerts";
 import { postJson } from "../lib/http";
 
-type Status = "idle" | "sending" | "success" | "error";
-
 export default function TaxiPage() {
-  const [status, setStatus] = useState<Status>("idle");
+  const [sending, setSending] = useState(false);
+  const pickUpInputRef = useRef<HTMLInputElement | null>(null);
+  const pickUpPickerRef = useRef<FlatpickrInstance | null>(null);
+
+  useEffect(() => {
+    if (!pickUpInputRef.current) {
+      return;
+    }
+
+    pickUpPickerRef.current = flatpickr(pickUpInputRef.current, {
+      enableTime: true,
+      dateFormat: "Y-m-d\\TH:i",
+      altInput: true,
+      altFormat: "F j, Y h:i K",
+      minDate: "today"
+    });
+
+    return () => {
+      pickUpPickerRef.current?.destroy();
+      pickUpPickerRef.current = null;
+    };
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,14 +46,17 @@ export default function TaxiPage() {
       h826r2whj4fi_cjz8jxs2zuwahhhk6: formData.get("h826r2whj4fi_cjz8jxs2zuwahhhk6")
     };
 
-    setStatus("sending");
+    setSending(true);
 
     try {
       await postJson("/includes/taxi-request-send.php", payload);
       form.reset();
-      setStatus("success");
+      pickUpPickerRef.current?.clear();
+      await showSuccessAlert("Taxi Request Sent", "Thanks. We will reply with confirmation details shortly.");
     } catch {
-      setStatus("error");
+      await showErrorAlert("Send Failed", "Unable to send right now. Please try again.");
+    } finally {
+      setSending(false);
     }
   }
 
@@ -50,7 +75,10 @@ export default function TaxiPage() {
               <h2>{pkg.title}</h2>
               <ul>
                 {pkg.details.map((detail) => (
-                  <li key={detail}>{detail}</li>
+                  <li key={detail}>
+                    <i className="fa-solid fa-circle-check" aria-hidden />
+                    <span>{detail}</span>
+                  </li>
                 ))}
               </ul>
             </article>
@@ -84,7 +112,7 @@ export default function TaxiPage() {
           </label>
           <label>
             Pick-up Time
-            <input name="pickUpTime" type="datetime-local" required />
+            <input ref={pickUpInputRef} name="pickUpTime" type="text" placeholder="Select date and time" required />
           </label>
           <label className="full-width">
             Special Requirements
@@ -93,12 +121,9 @@ export default function TaxiPage() {
 
           <input name="h826r2whj4fi_cjz8jxs2zuwahhhk6" type="text" autoComplete="off" tabIndex={-1} className="hp-field" />
 
-          <button type="submit" className="btn btn-primary" disabled={status === "sending"}>
-            {status === "sending" ? "Sending..." : "Send Taxi Request"}
+          <button type="submit" className="btn btn-primary" disabled={sending}>
+            {sending ? "Sending..." : "Send Taxi Request"}
           </button>
-
-          {status === "success" ? <p className="status success">Taxi request sent successfully.</p> : null}
-          {status === "error" ? <p className="status error">Unable to send right now. Please try again.</p> : null}
         </form>
       </div>
     </section>

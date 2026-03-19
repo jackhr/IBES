@@ -22,9 +22,18 @@ export default function Footer() {
         </div>
 
         <div className="footer-contact">
-          <a href={`tel:${siteData.phone.replace(/[^\d+]/g, "")}`}>{siteData.phone}</a>
-          <a href={`mailto:${siteData.email}`}>{siteData.email}</a>
-          <p>US$ to EC$ Exchange at 2.7</p>
+          <a href={`tel:${siteData.phone.replace(/[^\d+]/g, "")}`} className="icon-link">
+            <i className="fa-solid fa-phone" aria-hidden />
+            {siteData.phone}
+          </a>
+          <a href={`mailto:${siteData.email}`} className="icon-link">
+            <i className="fa-solid fa-envelope" aria-hidden />
+            {siteData.email}
+          </a>
+          <p className="icon-text">
+            <i className="fa-solid fa-wallet" aria-hidden />
+            US$ to EC$ Exchange at 2.7
+          </p>
         </div>
       </div>
       <div className="footer-legal">Copyright {year} {siteData.companyName}</div>

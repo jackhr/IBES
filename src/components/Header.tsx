@@ -15,7 +15,7 @@ export default function Header() {
       <div className="container header-inner">
         <NavLink to="/" className="brand" aria-label={`${siteData.companyName} home`}>
           <span className="brand-mark" aria-hidden>
-            I
+            <i className="fa-solid fa-car" />
           </span>
           <span>{siteData.brand}</span>
         </NavLink>

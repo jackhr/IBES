@@ -125,6 +125,10 @@ summary:focus-visible {
   font-size: 0.98rem;
 }
 
+.brand-mark i {
+  font-size: 0.82rem;
+}
+
 .site-nav {
   display: flex;
   align-items: center;
@@ -447,6 +451,18 @@ summary:focus-visible {
   color: var(--muted);
 }
 
+.icon-link,
+.icon-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-link i,
+.icon-text i {
+  color: var(--brand);
+}
+
 .form {
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -470,6 +486,11 @@ summary:focus-visible {
   padding: 0.62rem 0.74rem;
   background: #fff;
   color: var(--ink);
+}
+
+.form input.flatpickr-input[readonly] {
+  background: #fff;
+  cursor: pointer;
 }
 
 .hp-field {
@@ -500,10 +521,23 @@ summary:focus-visible {
 
 .taxi-card ul {
   margin: 0.65rem 0 0;
-  padding-left: 1rem;
+  padding-left: 0;
+  list-style: none;
   display: grid;
   gap: 0.28rem;
   color: var(--muted);
+}
+
+.taxi-card li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.taxi-card li i {
+  color: var(--brand);
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
 }
 
 .taxi-form {
@@ -572,7 +606,8 @@ summary:focus-visible {
   justify-items: end;
 }
 
-.footer-contact a {
+.footer-contact a,
+.footer-contact .icon-text {
   font-weight: 700;
 }
 
