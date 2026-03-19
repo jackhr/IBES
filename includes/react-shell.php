@@ -21,11 +21,14 @@ $react_route = isset($react_route) ? (string) $react_route : ($page === 'index' 
 
 $app_env = strtolower((string) ($app_env ?? Config::get('APP_ENV', 'production')));
 $is_production = $app_env === 'production';
-$use_vite_dev_server = !$is_production && Config::bool('VITE_USE_DEV_SERVER', false);
 $vite_dev_server = rtrim((string) Config::get('VITE_DEV_SERVER', 'http://localhost:5173'), '/');
+$force_vite_dev_server = Config::bool('VITE_USE_DEV_SERVER', false);
 
 $manifest_path = dirname(__DIR__) . '/dist/.vite/manifest.json';
 $manifest_entry = null;
+$manifest_exists = is_file($manifest_path);
+
+$use_vite_dev_server = $force_vite_dev_server || (!$is_production && !$manifest_exists);
 
 if (!$use_vite_dev_server && is_file($manifest_path)) {
     $manifest_contents = file_get_contents($manifest_path);
@@ -114,6 +117,21 @@ $html_attrs = fn(string $value): string => htmlspecialchars($value, ENT_QUOTES, 
     <?php } elseif (is_string($entry_file)) { ?>
         <script type="module" src="/dist/<?php echo $html_attrs($entry_file); ?>"></script>
     <?php } else { ?>
+        <style>
+            #vite-build-missing {
+                margin: 2rem auto;
+                width: min(760px, calc(100vw - 2.5rem));
+                border-radius: 0.85rem;
+                border: 1px solid #f5b5b5;
+                background: #fff4f4;
+                color: #7f1111;
+                padding: 1rem;
+                font-family: "Space Grotesk", "Segoe UI", sans-serif;
+            }
+        </style>
+        <p id="vite-build-missing">
+            React build files are missing. Run <code>npm run build</code> (or enable <code>VITE_USE_DEV_SERVER=true</code>) before loading this page.
+        </p>
         <script>
             console.error("React build manifest not found. Run `npm run build` to generate /dist assets.");
         </script>
