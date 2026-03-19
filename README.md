@@ -17,6 +17,11 @@ This project now uses:
   - `/includes/taxi-request-send.php`
   - `/includes/vehicle-request-send.php`
   - `/includes/reservation.php`
+- Backend is organized as MVC-style layers under `server/App`:
+  - `Controllers`: endpoint entry handlers
+  - `Services`: business logic
+  - `Repositories`: database access
+  - `Support/Core`: shared infrastructure (settings, request/session/response, mail helpers)
 
 ## Local development
 
