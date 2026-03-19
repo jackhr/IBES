@@ -89,19 +89,6 @@ $load_flatpick = isset($flatpick_load_lookup[$page]);
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <!-- END FONTS -->
 
-    <!-- BEGIN PLUGINS -->
-    <script src="/plugins/jquery/jquery-3.7.1.min.js"></script>
-    <?php if ($load_swal) { ?>
-        <link type="text/css" rel="stylesheet" href="/plugins/sweetalert2/styles/sweetalert2.min.css">
-        <script src="/plugins/sweetalert2/js/sweetalert2.all.min.js" defer></script>
-    <?php } ?>
-    <?php if ($load_flatpick) { ?>
-        <link type="text/css" rel="stylesheet" href="/plugins/flatpickr/styles/flatpickr.min.css">
-        <link type="text/css" rel="stylesheet" href="/plugins/flatpickr/styles/theme.min.css">
-        <script src="/plugins/flatpickr/js/flatpickr.v4.6.13.min.js" defer></script>
-    <?php } ?>
-    <!-- END PLUGINS -->
-
     <!-- BEGIN STRUCTURED DATA -->
     <?php
     if (isset($structured_data) && is_array($structured_data)) {
