@@ -1,2 +1,9 @@
 User-agent: *
-Disallow: /includes/env.php
+Allow: /
+Disallow: /includes/
+Disallow: /server/
+Disallow: /node_modules/
+Disallow: /.env
+Disallow: /under-construction/
+
+Sitemap: https://www.ibescarrental.com/sitemap.xml
