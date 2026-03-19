@@ -24,11 +24,5 @@ RewriteRule ^api(?:/.*)?$ server/api.php [QSA,L]
 RewriteCond %{REQUEST_URI} \.[a-z0-9]{1,8}$ [NC]
 RewriteRule ^ - [L]
 
-# SPA fallback: all route paths render the React app entrypoint.
-RewriteRule ^ dist/index.html [L]
-
-# Redirect everything to https://ibes.tropicalstudios.com/under-construction/
-# Prevent redirect loop by not redirecting the target URL
-# RewriteCond %{REQUEST_URI} !^/under-construction/?$ [NC]
-# RewriteCond %{REQUEST_URI} !\.(css|js|png|jpg|jpeg|gif|svg|avif|woff|woff2|ttf|eot)$ [NC]
-# RewriteRule ^.*$ https://www.ibescarrental.com/under-construction/ [R=301,L]
+# SPA fallback: route requests through the PHP web front controller.
+RewriteRule ^ server/web.php [L]

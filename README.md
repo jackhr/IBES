@@ -11,7 +11,9 @@ This project now uses:
 
 ## Current architecture
 
-- Apache rewrites all non-file requests to `dist/index.html` (React Router handles routes).
+- Apache rewrites all non-file requests to `server/web.php`, which serves:
+  - `under-construction/index.html` when `APP_UNDER_CONSTRUCTION=true`
+  - `dist/index.html` when `APP_UNDER_CONSTRUCTION=false`
 - Existing PHP backend endpoints remain active through the API front controller:
   - `POST /api/contact`
   - `POST /api/taxi-request`
@@ -50,3 +52,13 @@ npm run build
 ```
 
 This generates `dist/index.html` and `dist/assets/*`, which are served by `.htaccess` SPA fallback rules.
+
+## Under construction mode
+
+Set this in `.env`:
+
+```bash
+APP_UNDER_CONSTRUCTION=true
+```
+
+Set it back to `false` to restore the live SPA and API endpoints.
