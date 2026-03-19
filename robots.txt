@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Disallow: /includes/
+Disallow: /api/
 Disallow: /server/
 Disallow: /node_modules/
 Disallow: /.env

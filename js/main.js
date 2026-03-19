@@ -109,7 +109,7 @@ $(function () {
         };
 
         if (step === 2) {
-            const ReservationSessionRes = await fetch('/includes/reservation.php', {
+            const ReservationSessionRes = await fetch('/api/reservation', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',  // Set Content-Type to JSON
@@ -135,7 +135,7 @@ $(function () {
             id,
         };
 
-        const ReservationSessionRes = await fetch('/includes/reservation.php', {
+        const ReservationSessionRes = await fetch('/api/reservation', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',  // Set Content-Type to JSON
@@ -285,7 +285,7 @@ $(function () {
             id: addOnContainer.data('id')
         };
 
-        const ReservationSessionRes = await fetch('/includes/reservation.php', {
+        const ReservationSessionRes = await fetch('/api/reservation', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',  // Set Content-Type to JSON
@@ -420,7 +420,7 @@ $(function () {
 
         if (!formDataIsValid) return;
 
-        const ReservationSessionRes = await fetch('/includes/reservation.php', {
+        const ReservationSessionRes = await fetch('/api/reservation', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',  // Set Content-Type to JSON
@@ -569,7 +569,7 @@ $(function () {
         });
 
         if (response.isConfirmed) {
-            await fetch('/includes/reservation.php', {
+            await fetch('/api/reservation', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',  // Set Content-Type to JSON
@@ -608,7 +608,7 @@ $(function () {
 
         if (!formDataIsValid) return;
 
-        const ReservationSessionRes = await fetch('/includes/reservation.php', {
+        const ReservationSessionRes = await fetch('/api/reservation', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',  // Set Content-Type to JSON
@@ -639,7 +639,7 @@ $(function () {
             didOpen: () => Swal.showLoading()
         });
 
-        const emailRes = await fetch('/includes/vehicle-request-send.php', {
+        const emailRes = await fetch('/api/vehicle-request', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',  // Set Content-Type to JSON
@@ -682,7 +682,7 @@ $(function () {
             didOpen: () => Swal.showLoading()
         });
 
-        const emailRes = await fetch('/includes/contact-send.php', {
+        const emailRes = await fetch('/api/contact', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',  // Set Content-Type to JSON
@@ -723,7 +723,7 @@ $(function () {
             didOpen: () => Swal.showLoading()
         });
 
-        const emailRes = await fetch('/includes/taxi-request-send.php', {
+        const emailRes = await fetch('/api/taxi-request', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',  // Set Content-Type to JSON

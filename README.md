@@ -3,7 +3,7 @@
 This project now uses:
 
 - `React + Vite + TypeScript` for the full frontend app (single SPA entrypoint)
-- `PHP` for backend endpoints (`/includes/*.php`)
+- `PHP` for backend endpoints (`/api/*`)
 - npm plugin packages in the React app:
   - `flatpickr`
   - `sweetalert2`
@@ -12,11 +12,11 @@ This project now uses:
 ## Current architecture
 
 - Apache rewrites all non-file requests to `dist/index.html` (React Router handles routes).
-- Existing PHP backend endpoints remain active:
-  - `/includes/contact-send.php`
-  - `/includes/taxi-request-send.php`
-  - `/includes/vehicle-request-send.php`
-  - `/includes/reservation.php`
+- Existing PHP backend endpoints remain active through the API front controller:
+  - `POST /api/contact`
+  - `POST /api/taxi-request`
+  - `POST /api/vehicle-request`
+  - `POST /api/reservation`
 - Backend is organized as MVC-style layers under `server/App`:
   - `Controllers`: endpoint entry handlers
   - `Services`: business logic
@@ -37,7 +37,7 @@ Run Vite frontend:
 npm run dev
 ```
 
-Optional proxy for PHP endpoints during Vite development:
+Optional proxy for API endpoints during Vite development:
 
 ```bash
 VITE_BACKEND_PROXY_TARGET=http://localhost:8000 npm run dev

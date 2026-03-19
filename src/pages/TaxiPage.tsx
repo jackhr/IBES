@@ -49,7 +49,7 @@ export default function TaxiPage() {
     setSending(true);
 
     try {
-      await postJson("/includes/taxi-request-send.php", payload);
+      await postJson("/api/taxi-request", payload);
       form.reset();
       pickUpPickerRef.current?.clear();
       await showSuccessAlert("Taxi Request Sent", "Thanks. We will reply with confirmation details shortly.");

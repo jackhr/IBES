@@ -21,7 +21,7 @@ export default function ContactPage() {
     setSending(true);
 
     try {
-      await postJson("/includes/contact-send.php", payload);
+      await postJson("/api/contact", payload);
       form.reset();
       await showSuccessAlert("Message Sent", "Thanks for reaching out. Our team will respond shortly.");
     } catch {
