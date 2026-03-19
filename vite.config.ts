@@ -15,7 +15,7 @@ export default defineConfig(({ command, mode }) => {
     server: proxyTarget
       ? {
           proxy: {
-            "/includes": {
+            "/api": {
               target: proxyTarget,
               changeOrigin: true
             }

@@ -16,6 +16,9 @@ RewriteRule ^(.*)$ https://www.ibescarrental.com/$1 [R=301,L]
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
+# Route backend API requests through the PHP front controller.
+RewriteRule ^api(?:/.*)?$ server/api.php [QSA,L]
+
 # Don't rewrite explicit file-extension requests that do not exist.
 # This keeps missing asset requests as real 404 responses.
 RewriteCond %{REQUEST_URI} \.[a-z0-9]{1,8}$ [NC]
