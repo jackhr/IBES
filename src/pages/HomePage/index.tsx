@@ -2,62 +2,12 @@ import flatpickr from "flatpickr";
 import { Instance as FlatpickrInstance } from "flatpickr/dist/types/instance";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Features, { type Feature } from "../../components/Features";
-import Testimonials, { type Testimonial } from "../../components/Testimonials";
+import Features from "../../components/Features";
+import Testimonials from "../../components/Testimonials";
 import Vehicles from "../../components/Vehicles";
 import { getLandingVehicles, type Vehicle } from "../../lib/api";
+import { siteData } from "../../data/siteData";
 import "./HomePage.scss";
-
-const FEATURES: Feature[] = [
-  {
-    title: "Quality Vehicles",
-    copy: "Our fleet is cleaned, inspected, and maintained regularly for safe and reliable island driving.",
-    icon: "fa-solid fa-star"
-  },
-  {
-    title: "Driving In Antigua",
-    copy: "We provide practical guidance for left-side driving so your trip starts smoothly from day one.",
-    icon: "fa-solid fa-car-side"
-  },
-  {
-    title: "Outstanding Service",
-    copy: "Friendly support, clear communication, and responsive assistance throughout your rental period.",
-    icon: "fa-solid fa-thumbs-up"
-  },
-  {
-    title: "Add-On Options",
-    copy: "Child seat and navigation requests are available to support your itinerary.",
-    icon: "fa-solid fa-compass"
-  },
-  {
-    title: "24 Hour Support",
-    copy: "Our local team can assist quickly when you need directions, support, or trip updates.",
-    icon: "fa-solid fa-headset"
-  },
-  {
-    title: "Payment",
-    copy: "We accept major cards and provide discounted rates on longer rentals.",
-    icon: "fa-solid fa-credit-card"
-  }
-];
-
-const TESTIMONIALS: Testimonial[] = [
-  {
-    quote:
-      "Amazing rentals this is my 3rd time renting. Clean cars and excellent service every time I arrive.",
-    name: "Dee Smith"
-  },
-  {
-    quote:
-      "They were prompt and friendly. The vehicle matched exactly what was advertised and had no hidden charges.",
-    name: "Derek Clive Matthews"
-  },
-  {
-    quote:
-      "Very accommodating team with a clean vehicle in great condition. I would definitely rent from them again.",
-    name: "Barbara Ann"
-  }
-];
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -74,6 +24,8 @@ export default function HomePage() {
   const returnPickerRef = useRef<FlatpickrInstance | null>(null);
 
   const locationOptions = useMemo(() => ["Airport", "Your Hotel"], []);
+
+  const { features, testimonials } = siteData;
 
   useEffect(() => {
     let cancelled = false;
@@ -280,7 +232,7 @@ export default function HomePage() {
       <section id="feature-section">
         <div className="inner">
           <h1>Antigua Car Rental Services</h1>
-          <Features features={FEATURES} />
+          <Features features={features} />
         </div>
       </section>
 
@@ -295,7 +247,7 @@ export default function HomePage() {
       {showTestimonials ? (
         <section id="testimonial-section">
           <div className="inner">
-            <Testimonials testimonials={TESTIMONIALS} />
+            <Testimonials testimonials={testimonials} />
           </div>
         </section>
       ) : null}
