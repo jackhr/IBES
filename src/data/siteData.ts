@@ -1,14 +1,23 @@
-import { Feature } from "../components/Features";
 import { Testimonial } from "../components/Testimonials";
+import {
+  faCarSide,
+  faCompass,
+  faCreditCard,
+  faHeadset,
+  faMedal,
+  faThumbsUp,
+  IconDefinition
+} from "@fortawesome/free-solid-svg-icons";
 
 export type NavItem = {
   label: string;
   path: string;
 };
 
-export type FeatureItem = {
+export type Feature = {
   title: string;
-  description: string;
+  copy: string;
+  icon: IconDefinition;
 };
 
 export type AboutSection = {
@@ -186,32 +195,32 @@ export const siteData = {
     {
       title: "Quality Vehicles",
       copy: "Each day, we prioritize our clients' well-being above all else. Ensuring safety, cleanliness, and reliability remains our foremost commitment. Our fleet undergoes rigorous maintenance, meeting the highest safety benchmarks for your peace of mind.",
-      icon: "medal"
+      icon: faMedal
     },
     {
       title: "Driving In Antigua",
       copy: "Welcome to our enchanting island nation! Our aim is to enrich your journey as you explore and uncover the beauty of Antigua. As a unique characteristic, we drive on the left, adhering to international driving norms and regulations to ensure a seamless and safe experience for all travelers.",
-      icon: "car-side"
+      icon: faCarSide
     },
     {
       title: "Outstanding Service",
       copy: "At Ibes Car Rental, we're dedicated to delivering a service experience that surpasses expectations. Our approach is rooted in honesty, professionalism, and a warm, friendly demeanor towards all our clients. We prioritize your user experience, understanding that the most powerful endorsement comes from satisfied customers sharing their positive experiences through word-of-mouth.",
-      icon: "thumbs-up"
+      icon: faThumbsUp
     },
     {
       title: "Add-On Options",
       copy: "We strive to enhance your journey by offering complimentary child safety seats and GPS turn-by-turn navigation whenever possible. If you're interested, simply inform us during the booking process. Additionally, maps of Antigua are readily available in every vehicle for your convenience. It's worth noting that according to the law, child seats are recommended for children under the age of four.",
-      icon: "compass"
+      icon: faCompass
     },
     {
       title: "24 Hour Support",
       copy: "In our ongoing commitment to exceptional service, we offer round-the-clock support to assist you whenever necessary. While roads and signage might not always be the most straightforward, our intimate knowledge of Antigua ensures that we can promptly reach all our customers in times of need.",
-      icon: "headset"
+      icon: faHeadset
     },
     {
       title: "Payment",
       copy: "We gladly accept major credit cards, including Visa, MasterCard, and American Express.\n\nFor discounted rates, simply book for two or more days.",
-      icon: "credit-card"
+      icon: faCreditCard
     }
   ] satisfies Feature[],
   testimonials: [
