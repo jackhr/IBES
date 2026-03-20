@@ -1,0 +1,18 @@
+.page.section {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page.section .container {
+  background: #fff;
+  border-radius: 6px;
+  padding: 24px;
+  text-align: center;
+  max-width: 560px;
+}
+
+.page.section .container h1 {
+  margin: 0 0 12px;
+}

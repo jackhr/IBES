@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { siteData } from "../data/siteData";
+import { siteData } from "../../data/siteData";
+import "./Footer.scss";
 
 export default function Footer() {
   const year = new Date().getFullYear();

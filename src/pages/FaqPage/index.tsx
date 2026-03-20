@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { siteData } from "../data/siteData";
+import { siteData } from "../../data/siteData";
+import "./FaqPage.scss";
 
 export default function FaqPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);

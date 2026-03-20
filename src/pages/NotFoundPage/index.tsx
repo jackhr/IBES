@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import "./NotFoundPage.scss";
 
 export default function NotFoundPage() {
   return (

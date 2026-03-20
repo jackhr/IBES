@@ -1,5 +1,6 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import "./ConfirmationPage.scss";
 
 export default function ConfirmationPage() {
   const location = useLocation();

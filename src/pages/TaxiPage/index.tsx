@@ -1,8 +1,9 @@
 import flatpickr from "flatpickr";
 import { Instance as FlatpickrInstance } from "flatpickr/dist/types/instance";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { showErrorAlert, showSuccessAlert } from "../lib/alerts";
-import { postJson } from "../lib/http";
+import { showErrorAlert, showSuccessAlert } from "../../lib/alerts";
+import { postJson } from "../../lib/http";
+import "./TaxiPage.scss";
 
 export default function TaxiPage() {
   const [sending, setSending] = useState(false);

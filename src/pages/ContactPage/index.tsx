@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
-import { siteData } from "../data/siteData";
-import { showErrorAlert, showSuccessAlert } from "../lib/alerts";
-import { postJson } from "../lib/http";
+import { siteData } from "../../data/siteData";
+import { showErrorAlert, showSuccessAlert } from "../../lib/alerts";
+import { postJson } from "../../lib/http";
+import "./ContactPage.scss";
 
 export default function ContactPage() {
   const [sending, setSending] = useState(false);

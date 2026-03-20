@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./ReservationPage.scss";
 
 const INTEGRATOR_SCRIPT_SRC =
   "https://ibes-car-rental-and-taxi-service.hqrentals.app/public/car-rental/integrations/assets/integrator";
