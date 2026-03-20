@@ -357,9 +357,9 @@ export default function HomePage() {
                 <div className="bottom">
                   <img loading="lazy" src={`/assets/images/vehicles/${vehicle.slug}.avif`} alt={`${vehicle.name} thumbnail`} />
                 </div>
-                {vehicle.discountDays && vehicle.discountDays > 0 ? (
+                {/* {vehicle.discountDays && vehicle.discountDays > 0 ? (
                   <div className="discount-text">{`${vehicle.discountDays}+ days are discounted`}</div>
-                ) : null}
+                ) : null} */}
               </Link>
             ))}
             {vehiclesError ? <p>{vehiclesError}</p> : null}

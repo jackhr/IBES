@@ -10,9 +10,14 @@ export default function ReservationPage() {
   const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
+    const triggerIntegrator = () => {
+      document.dispatchEvent(new Event("hqrs:integrator:trigger"));
+    };
+
     const existingScript = document.querySelector<HTMLScriptElement>("script[data-hq-integrator='true']");
 
     if (existingScript) {
+      triggerIntegrator();
       return;
     }
 
@@ -20,6 +25,7 @@ export default function ReservationPage() {
     script.src = INTEGRATOR_SCRIPT_SRC;
     script.async = true;
     script.dataset.hqIntegrator = "true";
+    script.onload = () => triggerIntegrator();
     script.onerror = () => setLoadError(true);
 
     document.body.appendChild(script);
