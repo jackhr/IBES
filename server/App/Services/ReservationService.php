@@ -24,7 +24,7 @@ final class ReservationService
         if (isset($data['step'])) {
             $step = trim((string) $data['step']);
 
-            if ($step === '' || mb_strlen($step) > 50) {
+            if ($step === '' || self::stringLength($step) > 50) {
                 throw new InvalidArgumentException('Invalid reservation step value.');
             }
 
@@ -177,5 +177,14 @@ final class ReservationService
         Session::clearReservation();
 
         return [];
+    }
+
+    private static function stringLength(string $value): int
+    {
+        if (function_exists('mb_strlen')) {
+            return mb_strlen($value);
+        }
+
+        return strlen($value);
     }
 }

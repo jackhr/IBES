@@ -25,7 +25,7 @@ final class Validator
             throw new InvalidArgumentException("$label is required.");
         }
 
-        $length = mb_strlen($value);
+        $length = self::stringLength($value);
 
         if ($length < $minLength || $length > $maxLength) {
             throw new InvalidArgumentException("$label must be between $minLength and $maxLength characters.");
@@ -45,7 +45,7 @@ final class Validator
     ): string {
         $value = self::stringValue($payload, $keys);
 
-        if ($value !== '' && mb_strlen($value) > $maxLength) {
+        if ($value !== '' && self::stringLength($value) > $maxLength) {
             throw new InvalidArgumentException("$label must not exceed $maxLength characters.");
         }
 
@@ -183,5 +183,14 @@ final class Validator
         }
 
         return null;
+    }
+
+    private static function stringLength(string $value): int
+    {
+        if (function_exists('mb_strlen')) {
+            return mb_strlen($value);
+        }
+
+        return strlen($value);
     }
 }
