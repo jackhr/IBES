@@ -88,7 +88,7 @@ export default function ConfirmationPage() {
                   <h5>Reservation Summary</h5>
                   <h6>{orderError ? orderError : "Your confirmation details were received successfully."}</h6>
                   <div className="summary car">
-                    <img src="/assets/images/logo-gray.avif" alt="Ibes logo" />
+                    <img src="/assets/images/logo.avif" alt="Ibes logo" />
                   </div>
                   <div className="summary rate">
                     <h6>Order Key</h6>
