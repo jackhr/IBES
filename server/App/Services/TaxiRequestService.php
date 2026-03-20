@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\TaxiRequest;
 use App\Repositories\TaxiRequestRepository;
 use App\Support\EmailSender;
+use App\Support\ReservationEmailBuilder;
 use App\Support\Settings;
 use App\Support\Validator;
 use RuntimeException;
@@ -53,12 +54,22 @@ final class TaxiRequestService
         $companyName = Settings::companyName();
         $domain = Settings::domain();
         $to = Settings::contactEmailString();
-        $specialRequirements = $message === '' ? 'None' : $message;
-
         $subject = "$companyName Website Taxi Reservation";
-        $body = "Someone has requested a taxi from $companyName website.\n\nName: $name\n\nEmail: $email\n\nPhone: $phone\n\nPick Up Location: $pickUp\n\nDrop Off Location: $dropOff\n\nNumber of Passengers: $passengers\n\nTime of Pick Up: $formattedPickUpDateTime\n\nSpecial Requirements: $specialRequirements";
+        $body = ReservationEmailBuilder::buildTaxiReservation(
+            $companyName,
+            $name,
+            $email,
+            $phone,
+            $pickUp,
+            $dropOff,
+            $passengers,
+            $formattedPickUpDateTime,
+            $message,
+            $requestId,
+            true
+        );
 
-        EmailSender::sendPlainText($to, $subject, $body, "no-reply@$domain", $email);
+        EmailSender::sendHtml($to, $subject, $body, "no-reply@$domain", $email);
 
         return TaxiRequest::fromArray($row)->toArray();
     }

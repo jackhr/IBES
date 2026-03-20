@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Core\Session;
 use App\Repositories\TaxiRequestRepository;
 use App\Support\EmailSender;
+use App\Support\ReservationEmailBuilder;
 use App\Support\Settings;
 use App\Support\Validator;
 
@@ -31,7 +32,7 @@ final class TaxiService
         $pickUpDateTime = $pickUpDate->format('Y-m-d H:i:s');
         $formattedPickUpDateTime = $pickUpDate->format('F j, Y \a\t g:i A');
 
-        $this->taxiRequestRepository->insertTaxiRequest(
+        $requestId = $this->taxiRequestRepository->insertTaxiRequest(
             $name,
             $phone,
             $pickUp,
@@ -46,9 +47,21 @@ final class TaxiService
         $to = Settings::contactEmailString();
 
         $subject = "$companyName Website Taxi Reservation";
-        $body = "Some has requested a taxi from $companyName website.\n\nName: $name\n\nEmail: $email\n\nPhone: $phone\n\nPick Up Location: $pickUp\n\nDrop Off Location: $dropOff\n\nNumber of Passengers: $passengers\n\nTime of Pick Up: $formattedPickUpDateTime\n\nSpecial Requirements: $message";
+        $body = ReservationEmailBuilder::buildTaxiReservation(
+            $companyName,
+            $name,
+            $email,
+            $phone,
+            $pickUp,
+            $dropOff,
+            $passengers,
+            $formattedPickUpDateTime,
+            $message,
+            $requestId,
+            true
+        );
 
-        $mailResult = EmailSender::sendPlainText($to, $subject, $body, "no-reply@$domain", $email);
+        $mailResult = EmailSender::sendHtml($to, $subject, $body, "no-reply@$domain", $email);
 
         Session::clearReservation();
 

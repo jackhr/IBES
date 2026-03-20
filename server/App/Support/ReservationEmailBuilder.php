@@ -6,6 +6,113 @@ namespace App\Support;
 
 final class ReservationEmailBuilder
 {
+    public static function buildTaxiReservation(
+        string $companyName,
+        string $name,
+        string $email,
+        string $phone,
+        string $pickUp,
+        string $dropOff,
+        int $passengers,
+        string $formattedPickUpDateTime,
+        string $specialRequirements,
+        ?int $requestId = null,
+        bool $isAdminEmail = false
+    ): string {
+        $fontFamily = 'font-family:"Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;';
+        $safeCompanyName = self::escape($companyName);
+        $safeName = self::escape($name);
+        $safeEmail = self::escape($email);
+        $safePhone = self::escape($phone);
+        $safePickUp = self::escape($pickUp);
+        $safeDropOff = self::escape($dropOff);
+        $safePassengers = self::escape((string) $passengers);
+        $safePickUpDateTime = self::escape($formattedPickUpDateTime);
+        $safeSpecialRequirements = trim($specialRequirements) === ''
+            ? '<i>None</i>'
+            : nl2br(self::escape($specialRequirements));
+
+        $title = $isAdminEmail ? 'New Taxi Reservation Request' : 'Taxi Reservation Request Received';
+        $requestLabel = $requestId !== null ? '#' . $requestId : 'Pending';
+
+        $intro = '<p style="margin:0 0 16px">Hi ' . $safeName . ',</p>
+            <p style="margin:0 0 16px">Thanks for your taxi request. Our team will review it and reply as soon as possible.</p>
+            <p style="margin:0 0 16px">Here is a copy of your request details:</p>';
+
+        if ($isAdminEmail) {
+            $intro = '<p style="margin:0 0 16px">Hi ' . $safeCompanyName . ' team,</p>
+                <p style="margin:0 0 16px">A new taxi request has been submitted on the website.</p>
+                <p style="margin:0 0 16px">Review the details below and follow up with the customer.</p>';
+        }
+
+        return '
+            <div style="background-color:#f7f7f7;margin:0;padding:70px 0;width:100%">
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color:#ffffff;border:1px solid #dedede;border-radius:3px;margin:auto;">
+                    <tbody>
+                        <tr>
+                            <td align="center" valign="top">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#586771;color:#ffffff;border-bottom:0;font-weight:bold;line-height:100%;vertical-align:middle;' . $fontFamily . 'border-radius:3px 3px 0 0">
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding:32px 40px;display:block">
+                                                <h1 style="' . $fontFamily . 'font-size:28px;font-weight:300;line-height:150%;margin:0;text-align:center;color:#ffffff;background-color:inherit">' . $title . '</h1>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" style="padding:40px">
+                                <div style="color:#636363;' . $fontFamily . 'font-size:14px;line-height:150%;text-align:left">
+                                    ' . $intro . '
+                                    <h2 style="color:#586771;display:block;' . $fontFamily . 'font-size:18px;font-weight:bold;line-height:130%;margin:0 0 18px;text-align:left">Taxi Request ' . self::escape($requestLabel) . '</h2>
+                                    <table cellspacing="0" cellpadding="10" border="1" style="color:#636363;border:1px solid #e5e5e5;vertical-align:middle;width:100%;border-collapse:collapse;' . $fontFamily . '">
+                                        <tbody>
+                                            <tr>
+                                                <th style="text-align:left;background:#f5f5f5;width:38%">Customer Name</th>
+                                                <td>' . $safeName . '</td>
+                                            </tr>
+                                            <tr>
+                                                <th style="text-align:left;background:#f5f5f5">Email</th>
+                                                <td><a href="mailto:' . $safeEmail . '" style="color:#586771;text-decoration:underline">' . $safeEmail . '</a></td>
+                                            </tr>
+                                            <tr>
+                                                <th style="text-align:left;background:#f5f5f5">Phone</th>
+                                                <td><a href="tel:' . $safePhone . '" style="color:#586771;text-decoration:underline">' . $safePhone . '</a></td>
+                                            </tr>
+                                            <tr>
+                                                <th style="text-align:left;background:#f5f5f5">Pick Up Location</th>
+                                                <td>' . $safePickUp . '</td>
+                                            </tr>
+                                            <tr>
+                                                <th style="text-align:left;background:#f5f5f5">Drop Off Location</th>
+                                                <td>' . $safeDropOff . '</td>
+                                            </tr>
+                                            <tr>
+                                                <th style="text-align:left;background:#f5f5f5">Pick Up Time</th>
+                                                <td>' . $safePickUpDateTime . '</td>
+                                            </tr>
+                                            <tr>
+                                                <th style="text-align:left;background:#f5f5f5">Passengers</th>
+                                                <td>' . $safePassengers . '</td>
+                                            </tr>
+                                            <tr>
+                                                <th style="text-align:left;background:#f5f5f5">Special Requirements</th>
+                                                <td>' . $safeSpecialRequirements . '</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <p style="margin:20px 0 0;text-align:center">Sent from <a href="https://www.ibescarrental.com/" target="_blank">www.ibescarrental.com</a></p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        ';
+    }
+
     /**
      * @param array<string, mixed> $vehicle
      * @param array<int|string, array<string, mixed>>|null $addOns
@@ -221,5 +328,10 @@ final class ReservationEmailBuilder
         string $email
     ): string {
         return "$firstName $lastName<br>$street<br>$townCity, $stateCounty<br>$countryRegion<br><a href=\"tel:$phone\" style=\"color:#586771;font-weight:normal;text-decoration:underline\" target=\"_blank\">$phone</a><br><a href=\"mailto:$email\" target=\"_blank\">$email</a>";
+    }
+
+    private static function escape(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 }
