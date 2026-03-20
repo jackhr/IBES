@@ -1,4 +1,4 @@
-import Faqs from "../../components/Faqs";
+import Faq from "../../components/Faq";
 import { siteData } from "../../data/siteData";
 import "./FaqPage.scss";
 
@@ -16,7 +16,11 @@ export default function FaqPage() {
             <div />
           </div>
 
-          <Faqs faqs={siteData.faqs} />
+          <div id="faqs">
+            {siteData.faqs.map((faq, index) => {
+              return <Faq key={index} faq={faq} />;
+            })}
+          </div>
         </div>
       </section>
     </>
