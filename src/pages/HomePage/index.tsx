@@ -71,6 +71,7 @@ function formatVehicleType(type: string): string {
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const showTestimonials = (import.meta.env.SHOW_TESTIMONIALS ?? "true") === "true";
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [vehiclesError, setVehiclesError] = useState<string | null>(null);
   const [activeSelect, setActiveSelect] = useState<"pickup" | "return" | null>(null);
@@ -368,22 +369,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="testimonial-section">
-        <div className="inner">
-          <div id="testimonials">
-            {TESTIMONIALS.map((testimonial) => (
-              <div key={testimonial.name} className="testimonial">
-                <i className="fa-solid fa-quote-left" aria-hidden />
-                <div>
-                  <p>{testimonial.quote}</p>
-                  <span>{testimonial.name}</span>
+      {showTestimonials ? (
+        <section id="testimonial-section">
+          <div className="inner">
+            <div id="testimonials">
+              {TESTIMONIALS.map((testimonial) => (
+                <div key={testimonial.name} className="testimonial">
+                  <i className="fa-solid fa-quote-left" aria-hidden />
+                  <div>
+                    <p>{testimonial.quote}</p>
+                    <span>{testimonial.name}</span>
+                  </div>
+                  <i className="fa-solid fa-quote-right" aria-hidden />
                 </div>
-                <i className="fa-solid fa-quote-right" aria-hidden />
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
     </>
   );
 }
