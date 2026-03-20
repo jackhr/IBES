@@ -30,7 +30,7 @@ export default function Header() {
 
   return (
     <>
-      <div className="overlay" onClick={() => setOpen(false)} aria-hidden />
+      <div className="header-overlay" onClick={() => setOpen(false)} aria-hidden />
       <header>
         <div className="inner">
           <Link to="/" aria-label="Ibes Car Rental Home">

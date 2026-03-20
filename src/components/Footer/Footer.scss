@@ -1,5 +1,183 @@
-/* Footer-specific styles are defined in HomePage/HomePage.scss to preserve legacy layout. */
+#contact-banner {
+    background-color: var(--primary);
+    display         : flex;
+    align-items     : center;
+    color           : var(--black);
+    height          : 30px;
+}
+
+#contact-banner h1,
+#contact-banner a {
+    margin     : 0;
+    font-size  : 24px;
+    font-weight: 700;
+}
+
+#contact-banner a {
+    margin-left: auto;
+    color      : var(--black);
+}
+
+#contact-banner div {
+    border          : solid 2px var(--white);
+    border-radius   : 4px;
+    transition      : background-color 0.3s;
+    background-color: var(--primary);
+    cursor          : pointer;
+    padding         : 12px 18px;
+    margin-left     : 24px;
+    font-weight     : 600;
+}
+
+#contact-banner div:hover {
+    background-color: var(--white);
+}
 
 footer {
-  position: relative;
+    background-color: var(--black);
+    color           : var(--white);
+    position        : relative;
+}
+
+footer div {
+    display       : flex;
+    flex-direction: column;
+}
+
+footer div.inner>div:first-child {
+    margin         : 60px 0;
+    flex-direction : row;
+    justify-content: space-between;
+    height         : 200px;
+}
+
+footer div.inner>div:first-child>div {
+    width: 100%;
+}
+
+footer h6 {
+    font-size: 14px;
+    margin   : 0 0 14px;
+    width    : max-content;
+}
+
+footer ul {
+    list-style-type: none;
+    text-align     : left;
+    padding        : 0;
+    margin         : 0;
+    font-size      : 14px;
+    font-weight    : 500;
+    line-height    : 1.5;
+    letter-spacing : 0.67px;
+}
+
+footer ul li.confirmation-link {
+    margin-bottom: 8px;
+}
+
+.footer-logo {
+    height         : 200px;
+    padding        : 12px;
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+}
+
+.footer-logo div {
+    padding: 24px;
+}
+
+.footer-logo img {
+    height: auto;
+    width : 160px;
+}
+
+.footer-contact {
+    align-items: flex-end;
+}
+
+footer .contact-link {
+    flex-direction: row;
+    gap           : 4px;
+    margin-bottom : 12px;
+}
+
+div#copyright {
+    font-size  : 13px;
+    color      : var(--grey-light);
+    padding-top: 20px;
+    border-top : solid 1px var(--grey-dark);
+}
+
+@media screen and (max-width: 768px) {
+    footer div.inner>div:first-child {
+        flex-direction: column;
+        height        : fit-content;
+        text-align    : center;
+        gap           : 18px;
+        margin        : 30px 0;
+    }
+
+    .footer-nav,
+    .footer-contact {
+        align-items: center;
+    }
+
+    footer ul {
+        display              : grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows   : 1fr 1fr;
+        gap                  : 12px 0;
+        list-style           : none;
+        margin-top           : 12px;
+    }
+
+    footer ul li.confirmation-link {
+        margin-bottom: 0;
+    }
+
+    footer ul {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows   : repeat(3, 1fr);
+        gap                  : 12px;
+    }
+
+    footer ul li:nth-child(1) {
+        grid-column: 1;
+        grid-row   : 1;
+    }
+
+    footer ul li:nth-child(2) {
+        grid-column: 1;
+        grid-row   : 2;
+    }
+
+    footer ul li:nth-child(3) {
+        grid-column: 2;
+        grid-row   : 2;
+        text-align : right;
+    }
+
+    footer ul li:nth-child(4) {
+        grid-column: 2;
+        grid-row   : 1;
+        text-align : right;
+    }
+
+    footer ul li:nth-child(5) {
+        grid-column: 1;
+        grid-row   : 3;
+    }
+
+    footer ul li:nth-child(6) {
+        grid-column: 2;
+        grid-row   : 3;
+        text-align : right;
+    }
+
+    footer ul li:nth-child(7) {
+        grid-column: 1;
+        grid-row   : 4;
+    }
 }
