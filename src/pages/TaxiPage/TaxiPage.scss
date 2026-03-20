@@ -577,6 +577,21 @@
     height: 100%;
 }
 
+#taxi-page #contact-form-section button[type="submit"] {
+  background-color: #273f44;
+  color: var(--white);
+  border: solid 2px #273f44;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all ease .3s;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  width: 100%;
+}
+
 @media (hover: hover) {
     .add-on-btn:hover {
         background-color: var(--primary);
@@ -737,7 +752,7 @@
         justify-content: center;
     }
 
-    #contact-form-section form>div.right {
+    #taxi-page #contact-form-section form>div.right {
         display: none;
     }
 
