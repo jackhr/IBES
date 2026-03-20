@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Vehicle;
-use App\Repositories\RentalRepository;
+use App\Repositories\VehicleRepository;
 
 final class VehicleService
 {
-    public function __construct(private RentalRepository $rentalRepository)
+    public function __construct(private VehicleRepository $vehicleRepository)
     {
     }
 
     /** @return array<int, array<string, mixed>> */
     public function list(bool $showingOnly = false): array
     {
-        $rows = $this->rentalRepository->findAllVehicles($showingOnly);
+        $rows = $this->vehicleRepository->findAllVehicles($showingOnly);
 
         return array_map(
             static fn(array $row): array => Vehicle::fromArray($row)->toArray(),
@@ -27,7 +27,7 @@ final class VehicleService
     /** @return array<int, array<string, mixed>> */
     public function landing(): array
     {
-        $rows = $this->rentalRepository->findLandingVehicles();
+        $rows = $this->vehicleRepository->findLandingVehicles();
         $vehicles = [];
 
         foreach ($rows as $row) {
@@ -42,7 +42,7 @@ final class VehicleService
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array
     {
-        $row = $this->rentalRepository->findVehicleById($id);
+        $row = $this->vehicleRepository->findVehicleById($id);
 
         if (!is_array($row)) {
             return null;

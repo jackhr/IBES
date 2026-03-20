@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\ContactInfo;
-use App\Repositories\RentalRepository;
+use App\Repositories\BookingRepository;
 use InvalidArgumentException;
 use RuntimeException;
 
 final class ContactInfoService
 {
-    public function __construct(private RentalRepository $rentalRepository)
+    public function __construct(private BookingRepository $bookingRepository)
     {
     }
 
@@ -36,7 +36,7 @@ final class ContactInfoService
         $townOrCity = trim((string) ($data['townOrCity'] ?? $data['town_or_city'] ?? ''));
         $stateOrCounty = trim((string) ($data['stateOrCounty'] ?? $data['state_or_county'] ?? ''));
 
-        $id = $this->rentalRepository->insertContactInfo([
+        $id = $this->bookingRepository->insertContactInfo([
             'first_name' => $firstName,
             'last_name' => $lastName,
             'driver_license' => $driverLicense,
@@ -49,7 +49,7 @@ final class ContactInfoService
             'email' => $email,
         ]);
 
-        $row = $this->rentalRepository->findContactInfoById($id);
+        $row = $this->bookingRepository->findContactInfoById($id);
 
         if (!is_array($row)) {
             throw new RuntimeException('Unable to load newly created contact info.');
@@ -61,7 +61,7 @@ final class ContactInfoService
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array
     {
-        $row = $this->rentalRepository->findContactInfoById($id);
+        $row = $this->bookingRepository->findContactInfoById($id);
 
         if (!is_array($row)) {
             return null;

@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Core\Session;
-use App\Repositories\RentalRepository;
+use App\Repositories\BookingRepository;
+use App\Repositories\VehicleRepository;
 use App\Support\EmailSender;
 use App\Support\ReservationEmailBuilder;
 use App\Support\ReservationMath;
@@ -14,8 +15,10 @@ use RuntimeException;
 
 final class VehicleRequestService
 {
-    public function __construct(private RentalRepository $rentalRepository)
-    {
+    public function __construct(
+        private BookingRepository $bookingRepository,
+        private VehicleRepository $vehicleRepository
+    ) {
     }
 
     /** @param array<string, mixed> $data */
@@ -70,7 +73,7 @@ final class VehicleRequestService
         $pickUpLocation = (string) ($itinerary['pickUpLocation'] ?? '');
         $dropOffLocation = (string) ($itinerary['returnLocation'] ?? '');
 
-        $contactInfoId = $this->rentalRepository->insertContactInfo([
+        $contactInfoId = $this->bookingRepository->insertContactInfo([
             'first_name' => $firstNameTrimmed,
             'last_name' => $lastNameTrimmed,
             'driver_license' => $driverLicenseTrimmed,
@@ -85,7 +88,7 @@ final class VehicleRequestService
 
         $key = $this->generateUniqueOrderKey();
 
-        $orderRequestId = $this->rentalRepository->insertOrderRequest(
+        $orderRequestId = $this->bookingRepository->insertOrderRequest(
             $key,
             $pickUpTs,
             $dropOffTs,
@@ -98,10 +101,10 @@ final class VehicleRequestService
         );
 
         foreach ($addOns as $addOnId => $_addOn) {
-            $this->rentalRepository->insertOrderRequestAddOn($orderRequestId, (int) $addOnId);
+            $this->bookingRepository->insertOrderRequestAddOn($orderRequestId, (int) $addOnId);
         }
 
-        $this->rentalRepository->incrementVehicleTimesRequested((int) ($vehicle['id'] ?? 0));
+        $this->vehicleRepository->incrementVehicleTimesRequested((int) ($vehicle['id'] ?? 0));
 
         $clientEmailBody = ReservationEmailBuilder::build(
             $hotelForStorage,
@@ -196,7 +199,7 @@ final class VehicleRequestService
     {
         do {
             $key = ReservationMath::generateRandomKey();
-        } while ($this->rentalRepository->keyExists($key));
+        } while ($this->bookingRepository->keyExists($key));
 
         return $key;
     }

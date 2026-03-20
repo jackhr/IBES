@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Core\Session;
-use App\Repositories\RentalRepository;
+use App\Repositories\AddOnRepository;
+use App\Repositories\VehicleRepository;
 use App\Support\ReservationMath;
 
 final class ReservationService
 {
-    public function __construct(private RentalRepository $rentalRepository)
-    {
+    public function __construct(
+        private VehicleRepository $vehicleRepository,
+        private AddOnRepository $addOnRepository
+    ) {
     }
 
     /** @param array<string, mixed> $data */
@@ -51,7 +54,7 @@ final class ReservationService
         $reservation['itinerary']['days'] = $days;
 
         if (isset($reservation['vehicle']['id'])) {
-            $discount = $this->rentalRepository->findDiscountForVehicleDays((int) $reservation['vehicle']['id'], $days);
+            $discount = $this->vehicleRepository->findDiscountForVehicleDays((int) $reservation['vehicle']['id'], $days);
             $reservation['discount'] = $discount;
         }
 
@@ -65,7 +68,7 @@ final class ReservationService
     {
         $vehicleId = (int) ($data['id'] ?? 0);
 
-        $vehicle = $this->rentalRepository->findVehicleById($vehicleId);
+        $vehicle = $this->vehicleRepository->findVehicleById($vehicleId);
 
         if ($vehicle === null) {
             return Session::getReservation() ?? [];
@@ -78,7 +81,7 @@ final class ReservationService
 
         if (isset($reservation['itinerary']['days'])) {
             $days = (int) $reservation['itinerary']['days'];
-            $discount = $this->rentalRepository->findDiscountForVehicleDays((int) $vehicle['id'], $days);
+            $discount = $this->vehicleRepository->findDiscountForVehicleDays((int) $vehicle['id'], $days);
             $reservation['discount'] = $discount;
         }
 
@@ -91,7 +94,7 @@ final class ReservationService
     private function addAddOn(array $data): array
     {
         $addOnId = (int) ($data['id'] ?? 0);
-        $addOn = $this->rentalRepository->findAddOnById($addOnId);
+        $addOn = $this->addOnRepository->findAddOnById($addOnId);
 
         $reservation = Session::getReservation() ?? [];
 

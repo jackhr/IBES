@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Core\Session;
-use App\Repositories\RentalRepository;
+use App\Repositories\TaxiRequestRepository;
 use App\Support\EmailSender;
 use App\Support\Settings;
 use DateTime;
 
 final class TaxiService
 {
-    public function __construct(private RentalRepository $rentalRepository)
+    public function __construct(private TaxiRequestRepository $taxiRequestRepository)
     {
     }
 
@@ -40,7 +40,7 @@ final class TaxiService
         $pickUpDateTime = $pickUpDate->format('Y-m-d H:i:s');
         $formattedPickUpDateTime = $pickUpDate->format('F j, Y \a\t g:i A');
 
-        $this->rentalRepository->insertTaxiRequest(
+        $this->taxiRequestRepository->insertTaxiRequest(
             $name,
             $phone,
             $pickUp,

@@ -6,151 +6,10 @@ namespace App\Repositories;
 
 use PDO;
 
-final class RentalRepository
+final class BookingRepository
 {
     public function __construct(private PDO $pdo)
     {
-    }
-
-    /** @return array<int, array<string, mixed>> */
-    public function findLandingVehicles(): array
-    {
-        $statement = $this->pdo->query(
-            'SELECT
-                v.*,
-                vd.max_days AS discount_days
-            FROM vehicles v
-            LEFT JOIN (
-                SELECT vehicle_id, MAX(`days`) AS max_days
-                FROM vehicle_discounts
-                GROUP BY vehicle_id
-            ) vd ON vd.vehicle_id = v.id
-            WHERE v.showing = 1
-                AND v.landing_order IS NOT NULL
-            ORDER BY v.landing_order ASC'
-        );
-
-        $vehicles = $statement->fetchAll();
-
-        return is_array($vehicles) ? $vehicles : [];
-    }
-
-    /** @return array<int, array<string, mixed>> */
-    public function findAllVehicles(bool $showingOnly = false): array
-    {
-        if ($showingOnly) {
-            $statement = $this->pdo->query('SELECT * FROM vehicles WHERE showing = 1 ORDER BY COALESCE(landing_order, 999999), id ASC');
-        } else {
-            $statement = $this->pdo->query('SELECT * FROM vehicles ORDER BY COALESCE(landing_order, 999999), id ASC');
-        }
-
-        $vehicles = $statement->fetchAll();
-
-        return is_array($vehicles) ? $vehicles : [];
-    }
-
-    /** @return array<string, mixed>|null */
-    public function findVehicleById(int $id): ?array
-    {
-        $statement = $this->pdo->prepare('SELECT * FROM vehicles WHERE id = :id LIMIT 1');
-        $statement->execute(['id' => $id]);
-        $vehicle = $statement->fetch();
-
-        return is_array($vehicle) ? $vehicle : null;
-    }
-
-    /** @return array<string, mixed>|null */
-    public function findDiscountForVehicleDays(int $vehicleId, int $days): ?array
-    {
-        $statement = $this->pdo->prepare(
-            'SELECT * FROM vehicle_discounts WHERE vehicle_id = :vehicle_id AND `days` <= :days ORDER BY `days` DESC LIMIT 1'
-        );
-        $statement->execute([
-            'vehicle_id' => $vehicleId,
-            'days' => $days,
-        ]);
-
-        $discount = $statement->fetch();
-
-        return is_array($discount) ? $discount : null;
-    }
-
-    /** @return array<int, array<string, mixed>> */
-    public function findVehicleDiscounts(?int $vehicleId = null): array
-    {
-        if ($vehicleId === null) {
-            $statement = $this->pdo->query('SELECT * FROM vehicle_discounts ORDER BY vehicle_id ASC, `days` ASC');
-            $discounts = $statement->fetchAll();
-
-            return is_array($discounts) ? $discounts : [];
-        }
-
-        $statement = $this->pdo->prepare(
-            'SELECT * FROM vehicle_discounts WHERE vehicle_id = :vehicle_id ORDER BY `days` ASC'
-        );
-        $statement->execute([
-            'vehicle_id' => $vehicleId,
-        ]);
-
-        $discounts = $statement->fetchAll();
-
-        return is_array($discounts) ? $discounts : [];
-    }
-
-    /** @return array<int, array<string, mixed>> */
-    public function findAllAddOns(): array
-    {
-        $statement = $this->pdo->query('SELECT * FROM add_ons ORDER BY id ASC');
-        $addOns = $statement->fetchAll();
-
-        return is_array($addOns) ? $addOns : [];
-    }
-
-    /** @return array<string, mixed>|null */
-    public function findAddOnById(int $id): ?array
-    {
-        $statement = $this->pdo->prepare('SELECT * FROM add_ons WHERE id = :id LIMIT 1');
-        $statement->execute(['id' => $id]);
-        $addOn = $statement->fetch();
-
-        return is_array($addOn) ? $addOn : null;
-    }
-
-    public function insertTaxiRequest(
-        string $name,
-        string $phone,
-        string $pickUp,
-        string $dropOff,
-        string $pickUpDateTime,
-        int $passengers,
-        string $message
-    ): int {
-        $statement = $this->pdo->prepare(
-            'INSERT INTO taxi_requests (customer_name, customer_phone, pickup_location, dropoff_location, pickup_time, number_of_passengers, special_requirements, created_at)
-            VALUES (:customer_name, :customer_phone, :pickup_location, :dropoff_location, :pickup_time, :number_of_passengers, :special_requirements, CURRENT_TIMESTAMP)'
-        );
-
-        $statement->execute([
-            'customer_name' => $name,
-            'customer_phone' => $phone,
-            'pickup_location' => $pickUp,
-            'dropoff_location' => $dropOff,
-            'pickup_time' => $pickUpDateTime,
-            'number_of_passengers' => $passengers,
-            'special_requirements' => $message,
-        ]);
-
-        return (int) $this->pdo->lastInsertId();
-    }
-
-    /** @return array<string, mixed>|null */
-    public function findTaxiRequestById(int $requestId): ?array
-    {
-        $statement = $this->pdo->prepare('SELECT * FROM taxi_requests WHERE request_id = :request_id LIMIT 1');
-        $statement->execute(['request_id' => $requestId]);
-        $request = $statement->fetch();
-
-        return is_array($request) ? $request : null;
     }
 
     /** @param array<string, mixed> $contactInfo */
@@ -284,11 +143,5 @@ final class RentalRepository
         }
 
         return array_map(static fn(mixed $value): int => (int) $value, $rows);
-    }
-
-    public function incrementVehicleTimesRequested(int $vehicleId): void
-    {
-        $statement = $this->pdo->prepare('UPDATE vehicles SET times_requested = times_requested + 1 WHERE id = :id');
-        $statement->execute(['id' => $vehicleId]);
     }
 }

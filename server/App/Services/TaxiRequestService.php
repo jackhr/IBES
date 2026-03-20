@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\TaxiRequest;
-use App\Repositories\RentalRepository;
+use App\Repositories\TaxiRequestRepository;
 use DateTime;
 use InvalidArgumentException;
 use RuntimeException;
 
 final class TaxiRequestService
 {
-    public function __construct(private RentalRepository $rentalRepository)
+    public function __construct(private TaxiRequestRepository $taxiRequestRepository)
     {
     }
 
@@ -36,7 +36,7 @@ final class TaxiRequestService
         $pickUpDate = new DateTime($pickUpTimeRaw);
         $pickUpDateTime = $pickUpDate->format('Y-m-d H:i:s');
 
-        $requestId = $this->rentalRepository->insertTaxiRequest(
+        $requestId = $this->taxiRequestRepository->insertTaxiRequest(
             $name,
             $phone,
             $pickUp,
@@ -46,7 +46,7 @@ final class TaxiRequestService
             $message
         );
 
-        $row = $this->rentalRepository->findTaxiRequestById($requestId);
+        $row = $this->taxiRequestRepository->findTaxiRequestById($requestId);
 
         if (!is_array($row)) {
             throw new RuntimeException('Unable to load newly created taxi request.');
@@ -58,7 +58,7 @@ final class TaxiRequestService
     /** @return array<string, mixed>|null */
     public function find(int $requestId): ?array
     {
-        $row = $this->rentalRepository->findTaxiRequestById($requestId);
+        $row = $this->taxiRequestRepository->findTaxiRequestById($requestId);
 
         if (!is_array($row)) {
             return null;

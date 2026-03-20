@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\OrderRequest;
-use App\Repositories\RentalRepository;
+use App\Repositories\BookingRepository;
 use App\Support\ReservationMath;
 use InvalidArgumentException;
 use RuntimeException;
 
 final class OrderRequestService
 {
-    public function __construct(private RentalRepository $rentalRepository)
+    public function __construct(private BookingRepository $bookingRepository)
     {
     }
 
@@ -45,7 +45,7 @@ final class OrderRequestService
             $key = $this->generateUniqueOrderKey();
         }
 
-        $orderRequestId = $this->rentalRepository->insertOrderRequest(
+        $orderRequestId = $this->bookingRepository->insertOrderRequest(
             $key,
             $pickUpTimestamp,
             $dropOffTimestamp,
@@ -60,17 +60,17 @@ final class OrderRequestService
         $addOnIds = $this->normalizeAddOnIds($data['addOnIds'] ?? $data['add_on_ids'] ?? []);
 
         foreach ($addOnIds as $addOnId) {
-            $this->rentalRepository->insertOrderRequestAddOn($orderRequestId, $addOnId);
+            $this->bookingRepository->insertOrderRequestAddOn($orderRequestId, $addOnId);
         }
 
-        $row = $this->rentalRepository->findOrderRequestById($orderRequestId);
+        $row = $this->bookingRepository->findOrderRequestById($orderRequestId);
 
         if (!is_array($row)) {
             throw new RuntimeException('Unable to load newly created order request.');
         }
 
         $orderRequest = OrderRequest::fromArray($row)->toArray();
-        $orderRequest['addOnIds'] = $this->rentalRepository->findOrderRequestAddOnIds($orderRequestId);
+        $orderRequest['addOnIds'] = $this->bookingRepository->findOrderRequestAddOnIds($orderRequestId);
 
         return $orderRequest;
     }
@@ -78,14 +78,14 @@ final class OrderRequestService
     /** @return array<string, mixed>|null */
     public function findByKey(string $key): ?array
     {
-        $row = $this->rentalRepository->findOrderRequestByKey($key);
+        $row = $this->bookingRepository->findOrderRequestByKey($key);
 
         if (!is_array($row)) {
             return null;
         }
 
         $orderRequest = OrderRequest::fromArray($row)->toArray();
-        $orderRequest['addOnIds'] = $this->rentalRepository->findOrderRequestAddOnIds((int) ($row['id'] ?? 0));
+        $orderRequest['addOnIds'] = $this->bookingRepository->findOrderRequestAddOnIds((int) ($row['id'] ?? 0));
 
         return $orderRequest;
     }
@@ -94,7 +94,7 @@ final class OrderRequestService
     {
         do {
             $key = ReservationMath::generateRandomKey();
-        } while ($this->rentalRepository->keyExists($key));
+        } while ($this->bookingRepository->keyExists($key));
 
         return $key;
     }
