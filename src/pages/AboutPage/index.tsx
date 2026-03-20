@@ -17,12 +17,12 @@ export default function AboutPage() {
             <div>
               <h2>WELCOME TO IBES CAR RENTAL</h2>
               <p>
-                Ibes Car Rental has been serving Antigua&apos;s transport industry for years and we remain focused on
-                reliable service as tourism and the local economy continue to grow.
+                Ibes Car Rental has been servicing the transport industry in Antigua for years and we are dedicated to
+                growing our company as the tourism sector and economy of Antigua & Barbuda expands.
               </p>
               <p>
-                Whether you are visiting for the first time or returning home for family events, we provide practical
-                transport options tailored to your plans.
+                Whether you’re a new visitor to our islands or a national returning for a family gathering, we welcome
+                all. Ibes Car Rental is here to provide quality transportation services customized to your specific needs.
               </p>
               <em>— Irwin Philo, Owner of Ibes Car Rental</em>
             </div>
@@ -33,15 +33,16 @@ export default function AboutPage() {
             <div>
               <h2>WELCOME TO ANTIGUA</h2>
               <p>
-                Antigua offers beaches, local heritage, and scenic drives in every direction. If you need suggestions,
-                our team can point you to destinations that match your schedule.
+                Antigua has so much to offer our visitors. We at Ibes Car Rental want to make your visit one of discovery
+                and exploration. Please don’t hesitate to ask us for guidance – we will do our best to point you in the
+                right direction.
               </p>
               <ul>
                 <li>365 beaches to explore</li>
-                <li>Nelson&apos;s Dockyard National Park</li>
-                <li>Fig Tree Drive and rainforest routes</li>
-                <li>Nightlife and entertainment</li>
-                <li>So much more</li>
+                <li>World Renowned Nelson’s Dockyard National Park</li>
+                <li>Fig Tree Drive & The Rainforest</li>
+                <li>Nightlife & Entertainment</li>
+                <li>So much more...</li>
               </ul>
             </div>
           </div>
