@@ -18,7 +18,20 @@ export default defineConfig(({ command, mode }) => {
     },
     build: {
       outDir: "dist",
-      emptyOutDir: true
+      emptyOutDir: true,
+      rollupOptions: {
+        output: {
+          entryFileNames: "assets/js/[name]-[hash].js",
+          chunkFileNames: "assets/js/[name]-[hash].js",
+          assetFileNames: (assetInfo) => {
+            if ((assetInfo.name ?? "").toLowerCase().endsWith(".css")) {
+              return "assets/css/[name]-[hash][extname]";
+            }
+
+            return "assets/[name]-[hash][extname]";
+          }
+        }
+      }
     },
     server: proxyTarget
       ? {
