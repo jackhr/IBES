@@ -1,5 +1,10 @@
 #contact-page .general-header {
-    background-image: url("/assets/images/bg/ShirleyHeightsView-JMR6312-Edit.jpg");
+    background-image: url("/assets/images/bg/optimized/ShirleyHeightsView-JMR6312-Edit-2560.jpg");
+    background-image: image-set(
+        url("/assets/images/bg/optimized/ShirleyHeightsView-JMR6312-Edit-2560.avif") type("image/avif"),
+        url("/assets/images/bg/optimized/ShirleyHeightsView-JMR6312-Edit-2560.webp") type("image/webp"),
+        url("/assets/images/bg/optimized/ShirleyHeightsView-JMR6312-Edit-2560.jpg") type("image/jpeg")
+    );
 }
 
 #contact-card-section div.inner {

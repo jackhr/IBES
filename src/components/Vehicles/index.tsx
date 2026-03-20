@@ -1,6 +1,13 @@
 import { Link } from "react-router-dom";
 import type { Vehicle } from "../../lib/api";
 import "./Vehicles.scss";
+import {
+  faDoorOpen,
+  faMountain,
+  faSnowflake,
+  faSuitcaseRolling,
+  faUserGroup
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type VehiclesProps = {
@@ -38,26 +45,26 @@ export default function Vehicles({ vehicles, vehiclesError }: VehiclesProps) {
             </div>
             <div className="right">
               <div>
-                <FontAwesomeIcon icon="user-group" aria-hidden />
+                <FontAwesomeIcon icon={faUserGroup} aria-hidden />
                 <span>{vehicle.people} Seats</span>
               </div>
               <div>
-                <FontAwesomeIcon icon="suitcase-rolling" aria-hidden />
+                <FontAwesomeIcon icon={faSuitcaseRolling} aria-hidden />
                 <span>{vehicle.bags ?? 0} Bags</span>
               </div>
               <div>
-                <FontAwesomeIcon icon="door-open" aria-hidden />
+                <FontAwesomeIcon icon={faDoorOpen} aria-hidden />
                 <span>{vehicle.doors} Doors</span>
               </div>
               {vehicle.fourWd ? (
                 <div>
-                  <FontAwesomeIcon icon="mountain" aria-hidden />
+                  <FontAwesomeIcon icon={faMountain} aria-hidden />
                   <span>4WD</span>
                 </div>
               ) : null}
               {vehicle.ac ? (
                 <div>
-                  <FontAwesomeIcon icon="snowflake" aria-hidden />
+                  <FontAwesomeIcon icon={faSnowflake} aria-hidden />
                   <span>A/C</span>
                 </div>
               ) : null}

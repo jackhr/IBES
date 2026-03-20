@@ -11,7 +11,7 @@ export default function AboutPage() {
         <div className="inner">
           <div className="about-panel">
             <img
-              src="/assets/images/misc/Freepik-whiteSUV-Palms-SandyBeach-Couple-09.jpg"
+              src="/assets/images/misc/optimized/Freepik-whiteSUV-Palms-SandyBeach-Couple-09-1800.jpg"
               alt="Couple standing by a parked car on the beach"
             />
             <div>
@@ -29,7 +29,7 @@ export default function AboutPage() {
           </div>
 
           <div className="about-panel">
-            <img src="/assets/images/misc/Harbour-NelsonsDockyard-Air-JMR18809.jpg" alt="Aerial view of English Harbour" />
+            <img src="/assets/images/misc/optimized/Harbour-NelsonsDockyard-Air-JMR18809-1800.jpg" alt="Aerial view of English Harbour" />
             <div>
               <h2>WELCOME TO ANTIGUA</h2>
               <p>

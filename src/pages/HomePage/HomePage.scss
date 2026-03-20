@@ -307,8 +307,15 @@ html.viewing-custom-select-options .custom-select.active .custom-select-options 
 }
 
 #intro-section {
-    background     : url("/assets/images/bg/freepik-white-car-under-palm-trees-tropical-beach-sunset-04-flipped.jpg") center no-repeat;
-    background-size: cover;
+    background-image   : url("/assets/images/bg/optimized/freepik-white-car-under-palm-trees-tropical-beach-sunset-04-flipped-2560.jpg");
+    background-image   : image-set(
+        url("/assets/images/bg/optimized/freepik-white-car-under-palm-trees-tropical-beach-sunset-04-flipped-2560.avif") type("image/avif"),
+        url("/assets/images/bg/optimized/freepik-white-car-under-palm-trees-tropical-beach-sunset-04-flipped-2560.webp") type("image/webp"),
+        url("/assets/images/bg/optimized/freepik-white-car-under-palm-trees-tropical-beach-sunset-04-flipped-2560.jpg") type("image/jpeg")
+    );
+    background-position: center;
+    background-repeat  : no-repeat;
+    background-size    : cover;
 }
 
 #intro-section form {
@@ -361,8 +368,14 @@ html.viewing-custom-select-options .custom-select.active .custom-select-options 
 }
 
 #landing-cars-section {
-    background           : url("/assets/images/bg/MGA-HalfMoonBay-2409JMR80136.jpg") center no-repeat;
+    background-image     : url("/assets/images/bg/optimized/MGA-HalfMoonBay-2409JMR80136-2560.jpg");
+    background-image     : image-set(
+        url("/assets/images/bg/optimized/MGA-HalfMoonBay-2409JMR80136-2560.avif") type("image/avif"),
+        url("/assets/images/bg/optimized/MGA-HalfMoonBay-2409JMR80136-2560.webp") type("image/webp"),
+        url("/assets/images/bg/optimized/MGA-HalfMoonBay-2409JMR80136-2560.jpg") type("image/jpeg")
+    );
     background-position  : center;
+    background-repeat    : no-repeat;
     background-size      : cover;
     background-attachment: fixed;
     position             : relative;
@@ -388,7 +401,12 @@ html.viewing-custom-select-options .custom-select.active .custom-select-options 
 }
 
 #landing-cars-section .mobile-paralax {
-    background-image: url("/assets/images/bg/MGA-HalfMoonBay-2409JMR80136.jpg");
+    background-image: url("/assets/images/bg/optimized/MGA-HalfMoonBay-2409JMR80136-2560.jpg");
+    background-image: image-set(
+        url("/assets/images/bg/optimized/MGA-HalfMoonBay-2409JMR80136-2560.avif") type("image/avif"),
+        url("/assets/images/bg/optimized/MGA-HalfMoonBay-2409JMR80136-2560.webp") type("image/webp"),
+        url("/assets/images/bg/optimized/MGA-HalfMoonBay-2409JMR80136-2560.jpg") type("image/jpeg")
+    );
 }
 
 .hp-field {

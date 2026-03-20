@@ -1,5 +1,10 @@
 #reservation-page .general-header {
-    background-image: url("/assets/images/bg/Freepik-CoupleCarNearBeach-01.jpg");
+    background-image: url("/assets/images/bg/optimized/Freepik-CoupleCarNearBeach-01-2560.jpg");
+    background-image: image-set(
+        url("/assets/images/bg/optimized/Freepik-CoupleCarNearBeach-01-2560.avif") type("image/avif"),
+        url("/assets/images/bg/optimized/Freepik-CoupleCarNearBeach-01-2560.webp") type("image/webp"),
+        url("/assets/images/bg/optimized/Freepik-CoupleCarNearBeach-01-2560.jpg") type("image/jpeg")
+    );
 }
 
 #itinerary-section div.inner,

@@ -38,7 +38,7 @@ export default function Footer() {
           </div>
           <div className="footer-logo">
             <div>
-              <img src="/assets/images/logo.jpeg" alt="Website logo" loading="lazy" />
+              <img src="/assets/images/logo.avif" alt="Website logo" loading="lazy" />
             </div>
           </div>
           <div className="footer-contact">

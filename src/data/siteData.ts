@@ -54,7 +54,7 @@ export const siteData = {
   ],
   aboutSections: [
     {
-      image: "/assets/images/misc/Freepik-whiteSUV-Palms-SandyBeach-Couple-09.jpg",
+      image: "/assets/images/misc/optimized/Freepik-whiteSUV-Palms-SandyBeach-Couple-09-1800.jpg",
       imageAlt: "Couple near their rental car by the beach",
       title: "Welcome to Ibes Car Rental",
       paragraphs: [
@@ -63,7 +63,7 @@ export const siteData = {
       ]
     },
     {
-      image: "/assets/images/misc/Harbour-NelsonsDockyard-Air-JMR18809.jpg",
+      image: "/assets/images/misc/optimized/Harbour-NelsonsDockyard-Air-JMR18809-1800.jpg",
       imageAlt: "Aerial view of English Harbour in Antigua",
       title: "Explore Antigua With Confidence",
       paragraphs: [

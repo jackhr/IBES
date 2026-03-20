@@ -8,6 +8,7 @@ import Vehicles from "../../components/Vehicles";
 import { getLandingVehicles, type Vehicle } from "../../lib/api";
 import { siteData } from "../../data/siteData";
 import "./HomePage.scss";
+import { faArrowRightLong, faChevronDown, faLocationPin } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function HomePage() {
@@ -137,7 +138,7 @@ export default function HomePage() {
     <>
       <section id="intro-section">
         <div className="inner">
-          <img src="/assets/images/logo.jpeg" alt="Website logo" />
+          <img src="/assets/images/logo.avif" alt="Website logo" />
 
           <form onSubmit={handleSubmit}>
             <h2>PICK UP</h2>
@@ -148,9 +149,9 @@ export default function HomePage() {
                 setActiveSelect((current) => (current === "pickup" ? null : "pickup"));
               }}
             >
-              <FontAwesomeIcon icon="location-pin" aria-hidden />
+              <FontAwesomeIcon icon={faLocationPin} aria-hidden />
               <span>{pickUpLocation}</span>
-              <FontAwesomeIcon icon="chevron-down" aria-hidden />
+              <FontAwesomeIcon icon={faChevronDown} aria-hidden />
               <div className="custom-select-options">
                 <span className={pickUpLocation === "Choose Location" ? "selected" : ""}>Choose Location</span>
                 {locationOptions.map((location) => (
@@ -199,9 +200,9 @@ export default function HomePage() {
                 setActiveSelect((current) => (current === "return" ? null : "return"));
               }}
             >
-              <FontAwesomeIcon icon="location-pin" aria-hidden />
+              <FontAwesomeIcon icon={faLocationPin} aria-hidden />
               <span>{returnLocation}</span>
-              <FontAwesomeIcon icon="chevron-down" aria-hidden />
+              <FontAwesomeIcon icon={faChevronDown} aria-hidden />
               <div className="custom-select-options">
                 <span className={returnLocation === "Choose Location" ? "selected" : ""}>Choose Location</span>
                 {locationOptions.map((location) => (
@@ -224,7 +225,7 @@ export default function HomePage() {
 
             <button type="submit">
               <span>Find a Vehicle</span>
-              <FontAwesomeIcon icon="arrow-right-long" aria-hidden />
+              <FontAwesomeIcon icon={faArrowRightLong} aria-hidden />
             </button>
           </form>
         </div>

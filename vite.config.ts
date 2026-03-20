@@ -9,6 +9,13 @@ export default defineConfig(({ command, mode }) => {
     base: command === "build" ? "/dist/" : "/",
     envPrefix: ["VITE_", "UNDER_", "SHOW_"],
     plugins: [react()],
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: "modern"
+        }
+      }
+    },
     build: {
       outDir: "dist",
       emptyOutDir: true

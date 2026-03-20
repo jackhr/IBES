@@ -1,20 +1,17 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import HomePage from "./pages/HomePage";
-import AboutPage from "./pages/AboutPage";
-import FaqPage from "./pages/FaqPage";
-import ContactPage from "./pages/ContactPage";
-import ReservationPage from "./pages/ReservationPage";
-import TaxiPage from "./pages/TaxiPage";
-import ConfirmationPage from "./pages/ConfirmationPage";
-import NotFoundPage from "./pages/NotFoundPage";
-import UnderConstructionPage from "./pages/UnderConstructionPage";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { fas } from "@fortawesome/free-solid-svg-icons";
-import { far } from "@fortawesome/free-regular-svg-icons";
-import { fab } from "@fortawesome/free-brands-svg-icons";
+
+const HomePage = lazy(() => import("./pages/HomePage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const FaqPage = lazy(() => import("./pages/FaqPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const ReservationPage = lazy(() => import("./pages/ReservationPage"));
+const TaxiPage = lazy(() => import("./pages/TaxiPage"));
+const ConfirmationPage = lazy(() => import("./pages/ConfirmationPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const UnderConstructionPage = lazy(() => import("./pages/UnderConstructionPage"));
 
 export default function App() {
   const location = useLocation();
@@ -43,28 +40,28 @@ export default function App() {
     document.body.id = routeIdMap[location.pathname] ?? "index-page";
   }, [location.pathname, underConstructionEnabled]);
 
-  library.add(fas, far, fab);
-
   return (
     <>
       {underConstructionEnabled ? null : <Header />}
       <main>
-        <Routes>
-          {underConstructionEnabled ? (
-            <Route path="*" element={<UnderConstructionPage />} />
-          ) : (
-            <>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/faq" element={<FaqPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/reservation" element={<ReservationPage />} />
-              <Route path="/taxi" element={<TaxiPage />} />
-              <Route path="/confirmation" element={<ConfirmationPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </>
-          )}
-        </Routes>
+        <Suspense fallback={null}>
+          <Routes>
+            {underConstructionEnabled ? (
+              <Route path="*" element={<UnderConstructionPage />} />
+            ) : (
+              <>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/faq" element={<FaqPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/reservation" element={<ReservationPage />} />
+                <Route path="/taxi" element={<TaxiPage />} />
+                <Route path="/confirmation" element={<ConfirmationPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </>
+            )}
+          </Routes>
+        </Suspense>
       </main>
       {underConstructionEnabled ? null : <Footer />}
     </>

@@ -1,5 +1,10 @@
 #taxi-page .general-header {
-    background-image     : url("/assets/images/bg/freepik-white-car-under-palm-trees-tropical-beach-sunset-02.jpg");
+    background-image     : url("/assets/images/bg/optimized/freepik-white-car-under-palm-trees-tropical-beach-sunset-02-2560.jpg");
+    background-image     : image-set(
+        url("/assets/images/bg/optimized/freepik-white-car-under-palm-trees-tropical-beach-sunset-02-2560.avif") type("image/avif"),
+        url("/assets/images/bg/optimized/freepik-white-car-under-palm-trees-tropical-beach-sunset-02-2560.webp") type("image/webp"),
+        url("/assets/images/bg/optimized/freepik-white-car-under-palm-trees-tropical-beach-sunset-02-2560.jpg") type("image/jpeg")
+    );
     background-position-y: 95%;
 }
 

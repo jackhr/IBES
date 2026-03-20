@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import "./Header.scss";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function Header() {
@@ -35,7 +36,7 @@ export default function Header() {
       <header>
         <div className="inner">
           <Link to="/" aria-label="Ibes Car Rental Home">
-            <img src="/assets/images/logo.jpeg" alt="Website logo" />
+            <img src="/assets/images/logo.avif" alt="Website logo" />
           </Link>
 
           <nav>
@@ -62,7 +63,7 @@ export default function Header() {
 
           <div id="hamburger-nav" aria-hidden={!open}>
             <button id="close-hamburger" type="button" aria-label="Close menu" onClick={() => setOpen(false)}>
-              <FontAwesomeIcon icon="xmark" />
+              <FontAwesomeIcon icon={faXmark} />
             </button>
             <nav>
               {navLinks.map((item) => (

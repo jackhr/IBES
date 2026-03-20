@@ -1,5 +1,10 @@
 #faq-page .general-header {
-    background-image: url("/assets/images/bg/Mood-RainbowSouthCoast-JR1-3566-edit.jpg");
+    background-image: url("/assets/images/bg/optimized/Mood-RainbowSouthCoast-JR1-3566-edit-2560.jpg");
+    background-image: image-set(
+        url("/assets/images/bg/optimized/Mood-RainbowSouthCoast-JR1-3566-edit-2560.avif") type("image/avif"),
+        url("/assets/images/bg/optimized/Mood-RainbowSouthCoast-JR1-3566-edit-2560.webp") type("image/webp"),
+        url("/assets/images/bg/optimized/Mood-RainbowSouthCoast-JR1-3566-edit-2560.jpg") type("image/jpeg")
+    );
 }
 
 #faq-header {
