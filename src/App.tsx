@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import RouteMeta from "./components/RouteMeta";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -42,6 +43,7 @@ export default function App() {
 
   return (
     <>
+      <RouteMeta pathname={location.pathname} underConstructionEnabled={underConstructionEnabled} />
       {underConstructionEnabled ? null : <Header />}
       <main>
         <Suspense fallback={null}>

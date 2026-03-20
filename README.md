@@ -72,6 +72,64 @@ npm run build
 
 This generates `dist/index.html` and `dist/assets/*`, which are served by `.htaccess` SPA fallback rules.
 
+## Production hardening
+
+Public POST endpoints now include:
+
+- IP-based rate limiting
+- Honeypot checks
+- Stricter backend payload validation
+- Optional captcha verification (`hCaptcha` or `reCAPTCHA`)
+
+Set these in `.env`:
+
+```bash
+# Global/default rate limiting
+RATE_LIMIT_MAX=15
+RATE_LIMIT_WINDOW=900
+
+# Per-endpoint overrides
+CONTACT_RATE_LIMIT_MAX=6
+CONTACT_RATE_LIMIT_WINDOW=900
+TAXI_RATE_LIMIT_MAX=6
+TAXI_RATE_LIMIT_WINDOW=900
+RESERVATION_RATE_LIMIT_MAX=8
+RESERVATION_RATE_LIMIT_WINDOW=900
+RESERVATION_API_RATE_LIMIT_MAX=60
+RESERVATION_API_RATE_LIMIT_WINDOW=300
+
+# Captcha backend verification
+CAPTCHA_ENABLED=true
+CAPTCHA_PROVIDER=hcaptcha # or recaptcha
+HCAPTCHA_SECRET_KEY=your-secret
+RECAPTCHA_SECRET_KEY=your-secret
+
+# Captcha frontend widget
+VITE_CAPTCHA_PROVIDER=hcaptcha # or recaptcha
+VITE_HCAPTCHA_SITE_KEY=your-site-key
+VITE_RECAPTCHA_SITE_KEY=your-site-key
+```
+
+If `CAPTCHA_ENABLED=false` or `CAPTCHA_PROVIDER=none`, captcha verification is bypassed.
+
+## SEO for SPA routes
+
+Route-level SEO metadata is managed in React and updated on client-side navigation:
+
+- `title`
+- `meta description`
+- `canonical`
+- Open Graph + Twitter tags
+- route-level `robots` directives (`noindex` for not-found/under-construction views)
+
+Route metadata lives in `src/data/routeSeo.ts`.
+
+Set canonical site origin in `.env`:
+
+```bash
+VITE_SITE_URL=https://www.ibescarrental.com
+```
+
 ## Under construction mode
 
 Set this in `.env`:
