@@ -186,32 +186,32 @@ export const siteData = {
     {
       title: "Quality Vehicles",
       copy: "Each day, we prioritize our clients' well-being above all else. Ensuring safety, cleanliness, and reliability remains our foremost commitment. Our fleet undergoes rigorous maintenance, meeting the highest safety benchmarks for your peace of mind.",
-      icon: "fa-solid fa-medal"
+      icon: "medal"
     },
     {
       title: "Driving In Antigua",
       copy: "Welcome to our enchanting island nation! Our aim is to enrich your journey as you explore and uncover the beauty of Antigua. As a unique characteristic, we drive on the left, adhering to international driving norms and regulations to ensure a seamless and safe experience for all travelers.",
-      icon: "fa-solid fa-car-side"
+      icon: "car-side"
     },
     {
       title: "Outstanding Service",
       copy: "At Ibes Car Rental, we're dedicated to delivering a service experience that surpasses expectations. Our approach is rooted in honesty, professionalism, and a warm, friendly demeanor towards all our clients. We prioritize your user experience, understanding that the most powerful endorsement comes from satisfied customers sharing their positive experiences through word-of-mouth.",
-      icon: "fa-solid fa-thumbs-up"
+      icon: "thumbs-up"
     },
     {
       title: "Add-On Options",
       copy: "We strive to enhance your journey by offering complimentary child safety seats and GPS turn-by-turn navigation whenever possible. If you're interested, simply inform us during the booking process. Additionally, maps of Antigua are readily available in every vehicle for your convenience. It's worth noting that according to the law, child seats are recommended for children under the age of four.",
-      icon: "fa-solid fa-compass"
+      icon: "compass"
     },
     {
       title: "24 Hour Support",
       copy: "In our ongoing commitment to exceptional service, we offer round-the-clock support to assist you whenever necessary. While roads and signage might not always be the most straightforward, our intimate knowledge of Antigua ensures that we can promptly reach all our customers in times of need.",
-      icon: "fa-solid fa-headset"
+      icon: "headset"
     },
     {
       title: "Payment",
       copy: "We gladly accept major credit cards, including Visa, MasterCard, and American Express.\n\nFor discounted rates, simply book for two or more days.",
-      icon: "fa-solid fa-credit-card"
+      icon: "credit-card"
     }
   ] satisfies Feature[],
   testimonials: [

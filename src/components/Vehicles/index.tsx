@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Vehicle } from "../../lib/api";
 import "./Vehicles.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type VehiclesProps = {
   vehicles: Vehicle[];
@@ -37,26 +38,26 @@ export default function Vehicles({ vehicles, vehiclesError }: VehiclesProps) {
             </div>
             <div className="right">
               <div>
-                <i className="fa-solid fa-user-group" aria-hidden />
+                <FontAwesomeIcon icon="user-group" aria-hidden />
                 <span>{vehicle.people} Seats</span>
               </div>
               <div>
-                <i className="fa-solid fa-suitcase-rolling" aria-hidden />
+                <FontAwesomeIcon icon="suitcase-rolling" aria-hidden />
                 <span>{vehicle.bags ?? 0} Bags</span>
               </div>
               <div>
-                <i className="fa-solid fa-door-open" aria-hidden />
+                <FontAwesomeIcon icon="door-open" aria-hidden />
                 <span>{vehicle.doors} Doors</span>
               </div>
               {vehicle.fourWd ? (
                 <div>
-                  <i className="fa-solid fa-mountain" aria-hidden />
+                  <FontAwesomeIcon icon="mountain" aria-hidden />
                   <span>4WD</span>
                 </div>
               ) : null}
               {vehicle.ac ? (
                 <div>
-                  <i className="fa-solid fa-snowflake" aria-hidden />
+                  <FontAwesomeIcon icon="snowflake" aria-hidden />
                   <span>A/C</span>
                 </div>
               ) : null}

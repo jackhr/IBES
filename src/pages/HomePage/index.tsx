@@ -8,6 +8,7 @@ import Vehicles from "../../components/Vehicles";
 import { getLandingVehicles, type Vehicle } from "../../lib/api";
 import { siteData } from "../../data/siteData";
 import "./HomePage.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -147,9 +148,9 @@ export default function HomePage() {
                 setActiveSelect((current) => (current === "pickup" ? null : "pickup"));
               }}
             >
-              <i className="fa-solid fa-location-dot" aria-hidden />
+              <FontAwesomeIcon icon="location-dot" aria-hidden />
               <span>{pickUpLocation}</span>
-              <i className="fa-solid fa-chevron-down" aria-hidden />
+              <FontAwesomeIcon icon="chevron-down" aria-hidden />
               <div className="custom-select-options">
                 <span className={pickUpLocation === "Choose Location" ? "selected" : ""}>Choose Location</span>
                 {locationOptions.map((location) => (
@@ -198,9 +199,9 @@ export default function HomePage() {
                 setActiveSelect((current) => (current === "return" ? null : "return"));
               }}
             >
-              <i className="fa-solid fa-location-dot" aria-hidden />
+              <FontAwesomeIcon icon="location-dot" aria-hidden />
               <span>{returnLocation}</span>
-              <i className="fa-solid fa-chevron-down" aria-hidden />
+              <FontAwesomeIcon icon="chevron-down" aria-hidden />
               <div className="custom-select-options">
                 <span className={returnLocation === "Choose Location" ? "selected" : ""}>Choose Location</span>
                 {locationOptions.map((location) => (
@@ -223,7 +224,7 @@ export default function HomePage() {
 
             <button type="submit">
               <span>Find a Vehicle</span>
-              <i className="fa-solid fa-arrow-right-long" aria-hidden />
+              <FontAwesomeIcon icon="arrow-right-long" aria-hidden />
             </button>
           </form>
         </div>

@@ -1,3 +1,4 @@
+import { FontAwesomeIcon, FontAwesomeIconProps } from "@fortawesome/react-fontawesome";
 import "./Features.scss";
 
 export type Feature = {
@@ -16,7 +17,7 @@ export default function Features({ features }: FeaturesProps) {
       {features.map((feature) => (
         <div key={feature.title} className="feature-container">
           <div className="feature-icon">
-            <i className={feature.icon} aria-hidden />
+            <FontAwesomeIcon className="feature-icon-fa" icon={feature.icon as FontAwesomeIconProps["icon"]} aria-hidden />
           </div>
           <div className="feature-info">
             <h2>{feature.title}</h2>

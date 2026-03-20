@@ -11,6 +11,10 @@ import TaxiPage from "./pages/TaxiPage";
 import ConfirmationPage from "./pages/ConfirmationPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnderConstructionPage from "./pages/UnderConstructionPage";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { fas } from "@fortawesome/free-solid-svg-icons";
+import { far } from "@fortawesome/free-regular-svg-icons";
+import { fab } from "@fortawesome/free-brands-svg-icons";
 
 export default function App() {
   const location = useLocation();
@@ -38,6 +42,8 @@ export default function App() {
 
     document.body.id = routeIdMap[location.pathname] ?? "index-page";
   }, [location.pathname, underConstructionEnabled]);
+
+  library.add(fas, far, fab);
 
   return (
     <>

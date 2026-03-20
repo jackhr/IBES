@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import "./Header.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -61,7 +62,7 @@ export default function Header() {
 
           <div id="hamburger-nav" aria-hidden={!open}>
             <button id="close-hamburger" type="button" aria-label="Close menu" onClick={() => setOpen(false)}>
-              <i className="fa-solid fa-xmark" />
+              <FontAwesomeIcon icon="xmark" />
             </button>
             <nav>
               {navLinks.map((item) => (
