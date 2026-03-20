@@ -12,27 +12,37 @@ import ConfirmationPage from "./pages/ConfirmationPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnderConstructionPage from "./pages/UnderConstructionPage";
 
-function ScrollToTop() {
+export default function App() {
   const location = useLocation();
+  const underConstructionEnabled = import.meta.env.UNDER_CONSTRUCTION === "true";
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [location.pathname]);
 
-  return null;
-}
+  useEffect(() => {
+    if (underConstructionEnabled) {
+      document.body.id = "under-construction-page";
+      return;
+    }
 
-export default function App() {
-  const underConstructionEnabled = import.meta.env.UNDER_CONSTRUCTION === "true";
+    const routeIdMap: Record<string, string> = {
+      "/": "index-page",
+      "/about": "about-page",
+      "/faq": "faq-page",
+      "/contact": "contact-page",
+      "/reservation": "reservation-page",
+      "/taxi": "taxi-page",
+      "/confirmation": "confirmation-page"
+    };
+
+    document.body.id = routeIdMap[location.pathname] ?? "index-page";
+  }, [location.pathname, underConstructionEnabled]);
 
   return (
-    <div className="app-shell">
-      <a href="#main-content" className="skip-link">
-        Skip to content
-      </a>
-      <ScrollToTop />
+    <>
       {underConstructionEnabled ? null : <Header />}
-      <main id="main-content" className="main-view">
+      <main>
         <Routes>
           {underConstructionEnabled ? (
             <Route path="*" element={<UnderConstructionPage />} />
@@ -51,6 +61,6 @@ export default function App() {
         </Routes>
       </main>
       {underConstructionEnabled ? null : <Footer />}
-    </div>
+    </>
   );
 }

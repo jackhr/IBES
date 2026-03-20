@@ -1,12 +1,12 @@
 import flatpickr from "flatpickr";
 import { Instance as FlatpickrInstance } from "flatpickr/dist/types/instance";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { siteData } from "../data/siteData";
 import { showErrorAlert, showSuccessAlert } from "../lib/alerts";
 import { postJson } from "../lib/http";
 
 export default function TaxiPage() {
   const [sending, setSending] = useState(false);
+  const [message, setMessage] = useState("");
   const pickUpInputRef = useRef<HTMLInputElement | null>(null);
   const pickUpPickerRef = useRef<FlatpickrInstance | null>(null);
 
@@ -51,6 +51,7 @@ export default function TaxiPage() {
     try {
       await postJson("/api/taxi-request", payload);
       form.reset();
+      setMessage("");
       pickUpPickerRef.current?.clear();
       await showSuccessAlert("Taxi Request Sent", "Thanks. We will reply with confirmation details shortly.");
     } catch {
@@ -61,71 +62,149 @@ export default function TaxiPage() {
   }
 
   return (
-    <section className="page section">
-      <div className="container">
-        <div className="page-header narrow">
-          <p className="eyebrow">Taxi</p>
-          <h1>Taxi Reservation</h1>
-          <p>Send your route details and we will reply with confirmation within 24 hours.</p>
+    <>
+      <section className="general-header">
+        <h1>Taxi Reservation</h1>
+      </section>
+
+      <section id="taxi-info-section">
+        <div className="inner">
+          <h2>Transportation Tailored for You</h2>
+          <div id="taxi-info-card-container">
+            <div className="taxi-info-card">
+              <h3>Cruise Ship Pickup</h3>
+              <div>
+                <span>Pickup from cruise</span>
+                <span>Quick and easy ride</span>
+                <span>US$100 per person / 4-hour island tour</span>
+              </div>
+            </div>
+            <div className="taxi-info-card">
+              <h3>Island Tour Package</h3>
+              <div>
+                <span>US$100 per person</span>
+                <span>4-hour island tour</span>
+                <span>Comfortable ride</span>
+              </div>
+            </div>
+            <div className="taxi-info-card">
+              <h3>VIP Service</h3>
+              <div>
+                <span>Personalized requests</span>
+                <span>Tailored experience</span>
+                <span>Contact for details</span>
+              </div>
+            </div>
+            <div className="taxi-info-card">
+              <h3>Private Airport Transfer</h3>
+              <div>
+                <span>Transfer to/from airport</span>
+                <span>Additional US$10 regulation fee</span>
+                <span>Reliable taxi service</span>
+              </div>
+            </div>
+          </div>
+          <p style={{ margin: "50px auto 0", fontWeight: "bold" }}>
+            Send us your request details and we will reply within 24 hours
+          </p>
         </div>
+      </section>
 
-        <div className="taxi-grid">
-          {siteData.taxiPackages.map((pkg) => (
-            <article key={pkg.title} className="taxi-card">
-              <h2>{pkg.title}</h2>
-              <ul>
-                {pkg.details.map((detail) => (
-                  <li key={detail}>
-                    <i className="fa-solid fa-circle-check" aria-hidden />
-                    <span>{detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
+      <section id="contact-form-section">
+        <div className="inner">
+          <h2>Reserve Your Taxi</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="left">
+              <div className="mutiple-input-container">
+                <div className="input-container">
+                  <label htmlFor="contact-pick-up">
+                    Pick Up Location<sup>*</sup>
+                  </label>
+                  <input className="form-input" id="contact-pick-up" name="pickUp" type="text" placeholder="Pick up location" required />
+                </div>
+                <div className="input-container">
+                  <label htmlFor="contact-drop-off">
+                    Drop Off Location<sup>*</sup>
+                  </label>
+                  <input className="form-input" id="contact-drop-off" name="dropOff" type="text" placeholder="Drop off location" required />
+                </div>
+              </div>
+              <div className="mutiple-input-container">
+                <div className="input-container">
+                  <label htmlFor="contact-pick-up-time">
+                    Pick Up Time<sup>*</sup>
+                  </label>
+                  <input
+                    ref={pickUpInputRef}
+                    className="form-input"
+                    id="contact-pick-up-time"
+                    name="pickUpTime"
+                    type="text"
+                    placeholder="Pick up time"
+                    required
+                  />
+                </div>
+                <div className="input-container">
+                  <label htmlFor="contact-passengers">
+                    Number of Passengers<sup>*</sup>
+                  </label>
+                  <input className="form-input" id="contact-passengers" name="passengers" type="number" min="1" placeholder="5 People" required />
+                </div>
+              </div>
+              <div className="mutiple-input-container">
+                <div className="input-container">
+                  <label htmlFor="contact-phone">
+                    Phone <sup>*</sup>
+                  </label>
+                  <input className="form-input" id="contact-phone" name="phone" type="tel" placeholder="+1 (234) 565-4321" required />
+                </div>
+                <div className="input-container">
+                  <label htmlFor="contact-email">
+                    Email <sup>*</sup>
+                  </label>
+                  <input className="form-input" id="contact-email" name="email" type="email" placeholder="my_name@email.com" required />
+                </div>
+              </div>
+              <div className="input-container name-container">
+                <label htmlFor="contact-name">
+                  Name <sup>*</sup>
+                </label>
+                <input className="form-input" id="contact-name" name="name" type="text" placeholder="Enter your name" required />
+              </div>
+              <div className="input-container taxi-message" style={{ margin: 0 }}>
+                <label htmlFor="contact-message-mobile">Special Requirements</label>
+                <textarea
+                  id="contact-message-mobile"
+                  name="message"
+                  cols={30}
+                  rows={10}
+                  placeholder="Enter any extra details..."
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                />
+              </div>
+              <input name="h826r2whj4fi_cjz8jxs2zuwahhhk6" type="text" autoComplete="off" tabIndex={-1} className="hp-field" />
+              <button type="submit" disabled={sending}>
+                {sending ? "SUBMITTING..." : "SUBMIT RESERVATION"}
+              </button>
+            </div>
+            <div className="right">
+              <div className="input-container taxi-message" style={{ margin: 0 }}>
+                <label htmlFor="contact-message-desktop">Special Requirements</label>
+                <textarea
+                  id="contact-message-desktop"
+                  name="message"
+                  cols={30}
+                  rows={10}
+                  placeholder="Enter any extra details..."
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                />
+              </div>
+            </div>
+          </form>
         </div>
-
-        <form className="form taxi-form" onSubmit={handleSubmit}>
-          <label>
-            Name
-            <input name="name" type="text" required />
-          </label>
-          <label>
-            Phone
-            <input name="phone" type="tel" required />
-          </label>
-          <label>
-            Email
-            <input name="email" type="email" required />
-          </label>
-          <label>
-            Pick-up Location
-            <input name="pickUp" type="text" required />
-          </label>
-          <label>
-            Drop-off Location
-            <input name="dropOff" type="text" required />
-          </label>
-          <label>
-            Passengers
-            <input name="passengers" type="number" min="1" required />
-          </label>
-          <label>
-            Pick-up Time
-            <input ref={pickUpInputRef} name="pickUpTime" type="text" placeholder="Select date and time" required />
-          </label>
-          <label className="full-width">
-            Special Requirements
-            <textarea name="message" rows={4} />
-          </label>
-
-          <input name="h826r2whj4fi_cjz8jxs2zuwahhhk6" type="text" autoComplete="off" tabIndex={-1} className="hp-field" />
-
-          <button type="submit" className="btn btn-primary" disabled={sending}>
-            {sending ? "Sending..." : "Send Taxi Request"}
-          </button>
-        </form>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

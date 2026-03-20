@@ -1,24 +1,41 @@
+import { useState } from "react";
 import { siteData } from "../data/siteData";
 
 export default function FaqPage() {
-  return (
-    <section className="page section">
-      <div className="container narrow">
-        <div className="page-header">
-          <p className="eyebrow">FAQ</p>
-          <h1>Frequently Asked Questions</h1>
-          <p>Select a question to view details.</p>
-        </div>
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-        <div className="faq-list">
-          {siteData.faqs.map((item) => (
-            <details key={item.question} className="faq-item">
-              <summary>{item.question}</summary>
-              <p>{item.answer}</p>
-            </details>
-          ))}
+  return (
+    <>
+      <section className="general-header">
+        <h1>Frequently Asked Questions</h1>
+      </section>
+
+      <section id="faq-section">
+        <div className="inner">
+          <div id="faq-header">
+            <span>Select a question to see the answer</span>
+            <div />
+          </div>
+
+          <div id="faqs">
+            {siteData.faqs.map((faq, index) => {
+              const open = openIndex === index;
+
+              return (
+                <div key={faq.question} className={`faq ${open ? "open" : ""}`} onClick={() => setOpenIndex(open ? null : index)}>
+                  <div className="faq-top">
+                    <div className="faq-toggle" />
+                    <span className="faq-question">{faq.question}</span>
+                  </div>
+                  <p className="faq-answer" style={{ display: open ? "block" : "none" }}>
+                    {faq.answer}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

@@ -32,51 +32,74 @@ export default function ContactPage() {
   }
 
   return (
-    <section className="page section">
-      <div className="container contact-layout">
-        <div className="contact-card">
-          <p className="eyebrow">Contact</p>
-          <h1>Talk to our team</h1>
-          <p>
-            Need help with a booking or airport transfer? Call or email us and we will respond as quickly as possible.
-          </p>
+    <>
+      <section className="general-header">
+        <h1>Contact Ibes</h1>
+      </section>
 
-          <a href={`tel:${siteData.phone.replace(/[^\d+]/g, "")}`} className="icon-link">
-            <i className="fa-solid fa-phone" aria-hidden />
-            {siteData.phone}
-          </a>
-          <a href={`mailto:${siteData.email}`} className="icon-link">
-            <i className="fa-solid fa-envelope" aria-hidden />
-            {siteData.email}
-          </a>
-          <p className="icon-text">
-            <i className="fa-solid fa-location-dot" aria-hidden />
-            {siteData.location}
-          </p>
-          <p>Service hours: Monday to Sunday, 8:00 am to 8:00 pm</p>
+      <section id="contact-card-section">
+        <div className="inner">
+          <h2>{siteData.companyName}</h2>
+
+          <div className="contact-brief-info">
+            <span>Ibes Car Rental</span>
+            <span>Coolidge</span>
+            <span>St. George, Antigua</span>
+          </div>
+
+          <div>
+            <div className="contact-link">
+              <span>Phone:</span>
+              <a href={`tel:${siteData.phone.replace(/[^\d+]/g, "")}`}>{siteData.phone}</a>
+            </div>
+            <div className="contact-link">
+              <span>Email:</span>
+              <a href={`mailto:${siteData.email}`}>{siteData.email}</a>
+            </div>
+          </div>
+
+          <div className="contact-brief-info">
+            <span>Service Hours</span>
+            <span>Monday to Sunday</span>
+            <span>8:00 am to 8:00 pm</span>
+          </div>
         </div>
+      </section>
 
-        <form className="form" onSubmit={handleSubmit}>
-          <label>
-            Name
-            <input name="name" type="text" required />
-          </label>
-          <label>
-            Email
-            <input name="email" type="email" required />
-          </label>
-          <label>
-            Message
-            <textarea name="message" rows={6} required />
-          </label>
-
-          <input name="h826r2whj4fi_cjz8jxs2zuwahhhk6" type="text" autoComplete="off" tabIndex={-1} className="hp-field" />
-
-          <button type="submit" className="btn btn-primary" disabled={sending}>
-            {sending ? "Sending..." : "Send Message"}
-          </button>
-        </form>
-      </div>
-    </section>
+      <section id="contact-form-section">
+        <div className="inner">
+          <h2>SEND US AN EMAIL</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="left">
+              <div className="input-container">
+                <label htmlFor="contact-message">Your Message</label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  cols={30}
+                  rows={10}
+                  placeholder="Enter your message..."
+                  required
+                />
+              </div>
+            </div>
+            <div className="right">
+              <div className="input-container">
+                <label htmlFor="contact-name">Name *</label>
+                <input id="contact-name" name="name" type="text" placeholder="Enter your name" required />
+              </div>
+              <div className="input-container">
+                <label htmlFor="contact-email">Email *</label>
+                <input id="contact-email" name="email" type="email" placeholder="email@domain.com" required />
+              </div>
+              <input name="h826r2whj4fi_cjz8jxs2zuwahhhk6" type="text" autoComplete="off" tabIndex={-1} className="hp-field" />
+              <button type="submit" disabled={sending}>
+                {sending ? "SENDING..." : "SUBMIT"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </>
   );
 }

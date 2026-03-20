@@ -137,7 +137,7 @@ div.inner {
     text-align    : center;
 }
 
-body>.overlay {
+.overlay {
     width           : 100%;
     height          : 100%;
     position        : fixed;
@@ -275,6 +275,18 @@ label sup {
     fill: var(--black) !important;
 }
 
+.custom-select i {
+    color: var(--black);
+}
+
+.custom-select i:first-child {
+    margin-right: 8px;
+}
+
+.custom-select i:last-child {
+    margin-left: auto;
+}
+
 .custom-select>span {
     margin   : 0 auto 0 8px;
     font-size: 14px;
@@ -359,6 +371,9 @@ header div.inner nav a:hover {
     pointer-events : none;
     height         : fit-content;
     margin         : auto 0 auto auto;
+    background     : transparent;
+    border         : none;
+    padding        : 0;
 }
 
 #hamburger-icon {
@@ -400,6 +415,10 @@ header div.inner nav a:hover {
     fill     : var(--white);
     width    : 32px;
     height   : 32px;
+    border   : none;
+    background: transparent;
+    color     : var(--white);
+    padding   : 0;
 }
 
 #hamburger-nav nav {
@@ -460,8 +479,10 @@ html.viewing-hamburger-menu #hamburger-nav {
     margin-top    : 36px;
 }
 
-#intro-section form svg {
+#intro-section form svg,
+#intro-section form i {
     fill: var(--white);
+    color: var(--white);
 }
 
 #feature-section {
@@ -508,6 +529,15 @@ html.viewing-hamburger-menu #hamburger-nav {
 .feature-icon svg {
     width : 100%;
     height: 100%;
+}
+
+.feature-icon i {
+    width      : 100%;
+    height     : 100%;
+    display    : flex;
+    align-items: center;
+    justify-content: center;
+    font-size  : 28px;
 }
 
 .feature-info {
@@ -688,6 +718,22 @@ html.viewing-hamburger-menu #hamburger-nav {
     height    : 20px;
     fill      : var(--primary);
     transition: fill 0.3s;
+}
+
+.car-container i {
+    width      : 20px;
+    min-width  : 20px;
+    text-align : center;
+    color      : var(--primary);
+    transition : color 0.3s;
+}
+
+.car-container:hover i {
+    color: var(--white);
+}
+
+.hp-field {
+    display: none !important;
 }
 
 .car-container:hover svg {
