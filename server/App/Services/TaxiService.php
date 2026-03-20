@@ -34,10 +34,10 @@ final class TaxiService
         $message = trim((string) ($data['message'] ?? ''));
         $pickUp = trim((string) ($data['pickUp'] ?? ''));
         $dropOff = trim((string) ($data['dropOff'] ?? ''));
-        $passengers = trim((string) ($data['passengers'] ?? ''));
+        $passengers = (int) ($data['passengers'] ?? 0);
 
         $pickUpDate = new DateTime(trim((string) ($data['pickUpTime'] ?? '')));
-        $pickUpDateTime = $pickUpDate->format('Y-m-d H:i:s.u');
+        $pickUpDateTime = $pickUpDate->format('Y-m-d H:i:s');
         $formattedPickUpDateTime = $pickUpDate->format('F j, Y \a\t g:i A');
 
         $this->rentalRepository->insertTaxiRequest(

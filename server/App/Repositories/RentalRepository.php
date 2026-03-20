@@ -12,6 +12,43 @@ final class RentalRepository
     {
     }
 
+    /** @return array<int, array<string, mixed>> */
+    public function findLandingVehicles(): array
+    {
+        $statement = $this->pdo->query(
+            'SELECT
+                v.*,
+                vd.max_days AS discount_days
+            FROM vehicles v
+            LEFT JOIN (
+                SELECT vehicle_id, MAX(`days`) AS max_days
+                FROM vehicle_discounts
+                GROUP BY vehicle_id
+            ) vd ON vd.vehicle_id = v.id
+            WHERE v.showing = 1
+                AND v.landing_order IS NOT NULL
+            ORDER BY v.landing_order ASC'
+        );
+
+        $vehicles = $statement->fetchAll();
+
+        return is_array($vehicles) ? $vehicles : [];
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function findAllVehicles(bool $showingOnly = false): array
+    {
+        if ($showingOnly) {
+            $statement = $this->pdo->query('SELECT * FROM vehicles WHERE showing = 1 ORDER BY COALESCE(landing_order, 999999), id ASC');
+        } else {
+            $statement = $this->pdo->query('SELECT * FROM vehicles ORDER BY COALESCE(landing_order, 999999), id ASC');
+        }
+
+        $vehicles = $statement->fetchAll();
+
+        return is_array($vehicles) ? $vehicles : [];
+    }
+
     /** @return array<string, mixed>|null */
     public function findVehicleById(int $id): ?array
     {
@@ -38,6 +75,37 @@ final class RentalRepository
         return is_array($discount) ? $discount : null;
     }
 
+    /** @return array<int, array<string, mixed>> */
+    public function findVehicleDiscounts(?int $vehicleId = null): array
+    {
+        if ($vehicleId === null) {
+            $statement = $this->pdo->query('SELECT * FROM vehicle_discounts ORDER BY vehicle_id ASC, `days` ASC');
+            $discounts = $statement->fetchAll();
+
+            return is_array($discounts) ? $discounts : [];
+        }
+
+        $statement = $this->pdo->prepare(
+            'SELECT * FROM vehicle_discounts WHERE vehicle_id = :vehicle_id ORDER BY `days` ASC'
+        );
+        $statement->execute([
+            'vehicle_id' => $vehicleId,
+        ]);
+
+        $discounts = $statement->fetchAll();
+
+        return is_array($discounts) ? $discounts : [];
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function findAllAddOns(): array
+    {
+        $statement = $this->pdo->query('SELECT * FROM add_ons ORDER BY id ASC');
+        $addOns = $statement->fetchAll();
+
+        return is_array($addOns) ? $addOns : [];
+    }
+
     /** @return array<string, mixed>|null */
     public function findAddOnById(int $id): ?array
     {
@@ -54,7 +122,7 @@ final class RentalRepository
         string $pickUp,
         string $dropOff,
         string $pickUpDateTime,
-        string $passengers,
+        int $passengers,
         string $message
     ): int {
         $statement = $this->pdo->prepare(
@@ -73,6 +141,16 @@ final class RentalRepository
         ]);
 
         return (int) $this->pdo->lastInsertId();
+    }
+
+    /** @return array<string, mixed>|null */
+    public function findTaxiRequestById(int $requestId): ?array
+    {
+        $statement = $this->pdo->prepare('SELECT * FROM taxi_requests WHERE request_id = :request_id LIMIT 1');
+        $statement->execute(['request_id' => $requestId]);
+        $request = $statement->fetch();
+
+        return is_array($request) ? $request : null;
     }
 
     /** @param array<string, mixed> $contactInfo */
@@ -107,6 +185,16 @@ final class RentalRepository
         return (int) $this->pdo->lastInsertId();
     }
 
+    /** @return array<string, mixed>|null */
+    public function findContactInfoById(int $id): ?array
+    {
+        $statement = $this->pdo->prepare('SELECT * FROM contact_info WHERE id = :id LIMIT 1');
+        $statement->execute(['id' => $id]);
+        $contactInfo = $statement->fetch();
+
+        return is_array($contactInfo) ? $contactInfo : null;
+    }
+
     public function keyExists(string $key): bool
     {
         $statement = $this->pdo->prepare('SELECT 1 FROM order_requests WHERE `key` = :key LIMIT 1');
@@ -122,7 +210,7 @@ final class RentalRepository
         string $pickUpLocation,
         string $dropOffLocation,
         int $contactInfoId,
-        int $subTotal,
+        float $subTotal,
         int $carId,
         int $days
     ): int {
@@ -147,6 +235,26 @@ final class RentalRepository
         return (int) $this->pdo->lastInsertId();
     }
 
+    /** @return array<string, mixed>|null */
+    public function findOrderRequestById(int $id): ?array
+    {
+        $statement = $this->pdo->prepare('SELECT * FROM order_requests WHERE id = :id LIMIT 1');
+        $statement->execute(['id' => $id]);
+        $orderRequest = $statement->fetch();
+
+        return is_array($orderRequest) ? $orderRequest : null;
+    }
+
+    /** @return array<string, mixed>|null */
+    public function findOrderRequestByKey(string $key): ?array
+    {
+        $statement = $this->pdo->prepare('SELECT * FROM order_requests WHERE `key` = :key ORDER BY id DESC LIMIT 1');
+        $statement->execute(['key' => $key]);
+        $orderRequest = $statement->fetch();
+
+        return is_array($orderRequest) ? $orderRequest : null;
+    }
+
     public function insertOrderRequestAddOn(int $orderRequestId, int $addOnId): void
     {
         $statement = $this->pdo->prepare(
@@ -157,6 +265,25 @@ final class RentalRepository
             'order_request_id' => $orderRequestId,
             'add_on_id' => $addOnId,
         ]);
+    }
+
+    /** @return array<int, int> */
+    public function findOrderRequestAddOnIds(int $orderRequestId): array
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT add_on_id FROM order_request_add_ons WHERE order_request_id = :order_request_id ORDER BY add_on_id ASC'
+        );
+        $statement->execute([
+            'order_request_id' => $orderRequestId,
+        ]);
+
+        $rows = $statement->fetchAll(PDO::FETCH_COLUMN);
+
+        if (!is_array($rows)) {
+            return [];
+        }
+
+        return array_map(static fn(mixed $value): int => (int) $value, $rows);
     }
 
     public function incrementVehicleTimesRequested(int $vehicleId): void
