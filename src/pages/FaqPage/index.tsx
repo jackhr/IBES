@@ -1,10 +1,8 @@
-import { useState } from "react";
+import Faqs from "../../components/Faqs";
 import { siteData } from "../../data/siteData";
 import "./FaqPage.scss";
 
 export default function FaqPage() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
   return (
     <>
       <section className="general-header">
@@ -18,23 +16,7 @@ export default function FaqPage() {
             <div />
           </div>
 
-          <div id="faqs">
-            {siteData.faqs.map((faq, index) => {
-              const open = openIndex === index;
-
-              return (
-                <div key={faq.question} className={`faq ${open ? "open" : ""}`} onClick={() => setOpenIndex(open ? null : index)}>
-                  <div className="faq-top">
-                    <div className="faq-toggle" />
-                    <span className="faq-question">{faq.question}</span>
-                  </div>
-                  <p className="faq-answer" style={{ display: open ? "block" : "none" }}>
-                    {faq.answer}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+          <Faqs faqs={siteData.faqs} />
         </div>
       </section>
     </>

@@ -1,0 +1,51 @@
+#testimonials {
+    display: flex;
+    gap    : 24px;
+}
+
+.testimonial {
+    display       : flex;
+    height        : 345px;
+    width         : 100%;
+    background    : var(--primary);
+    color         : var(--white);
+    padding       : 30px;
+    gap           : 12px;
+    font-style    : italic;
+    font-size     : 18px;
+    font-weight   : 600;
+    letter-spacing: -0.75px;
+}
+
+.testimonial>div {
+    display       : flex;
+    flex-direction: column;
+}
+
+.testimonial>div span {
+    font-style : normal;
+    color      : var(--grey-dark);
+    margin-top : 12px;
+    white-space: nowrap;
+}
+
+.testimonial svg {
+    height   : 36px;
+    min-width: 36px;
+    fill     : var(--grey-x-light);
+}
+
+.testimonial i {
+    height   : 36px;
+    min-width: 36px;
+    color    : var(--grey-x-light);
+    font-size: 32px;
+}
+
+.testimonial i:last-child {
+    margin-top: auto;
+}
+
+.testimonial p {
+    margin: 0;
+}

@@ -2,14 +2,11 @@ import flatpickr from "flatpickr";
 import { Instance as FlatpickrInstance } from "flatpickr/dist/types/instance";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Features, { type Feature } from "../../components/Features";
+import Testimonials, { type Testimonial } from "../../components/Testimonials";
+import Vehicles from "../../components/Vehicles";
 import { getLandingVehicles, type Vehicle } from "../../lib/api";
 import "./HomePage.scss";
-
-type Feature = {
-  title: string;
-  copy: string;
-  icon: string;
-};
 
 const FEATURES: Feature[] = [
   {
@@ -44,7 +41,7 @@ const FEATURES: Feature[] = [
   }
 ];
 
-const TESTIMONIALS = [
+const TESTIMONIALS: Testimonial[] = [
   {
     quote:
       "Amazing rentals this is my 3rd time renting. Clean cars and excellent service every time I arrive.",
@@ -61,13 +58,6 @@ const TESTIMONIALS = [
     name: "Barbara Ann"
   }
 ];
-
-function formatVehicleType(type: string): string {
-  return type
-    .replace(/[_-]/g, " ")
-    .trim()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -290,81 +280,14 @@ export default function HomePage() {
       <section id="feature-section">
         <div className="inner">
           <h1>Antigua Car Rental Services</h1>
-          <div id="features">
-            {FEATURES.map((feature) => (
-              <div key={feature.title} className="feature-container">
-                <div className="feature-icon">
-                  <i className={feature.icon} aria-hidden />
-                </div>
-                <div className="feature-info">
-                  <h2>{feature.title}</h2>
-                  <p>{feature.copy}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <Features features={FEATURES} />
         </div>
       </section>
 
       <section id="landing-cars-section">
         <div className="mobile-paralax" />
         <div className="inner">
-          <div id="cars">
-            {vehicles.map((vehicle) => (
-              <Link className="car-container" key={vehicle.id} to="/reservation">
-                <div className="overlay">
-                  <div />
-                </div>
-                <div className="top">
-                  <div className="left">
-                    <h2>{vehicle.name}</h2>
-                    <h3>{`${formatVehicleType(vehicle.type)} - USD$${vehicle.insurance}/day Insurance`}</h3>
-                    <div>
-                      <span>FROM</span>
-                      <span>
-                        USD${vehicle.basePriceUsd}
-                        <span style={{ fontSize: 15 }}>/</span>
-                      </span>
-                      <span>DAY</span>
-                    </div>
-                  </div>
-                  <div className="right">
-                    <div>
-                      <i className="fa-solid fa-user-group" aria-hidden />
-                      <span>{vehicle.people} Seats</span>
-                    </div>
-                    <div>
-                      <i className="fa-solid fa-suitcase-rolling" aria-hidden />
-                      <span>{vehicle.bags ?? 0} Bags</span>
-                    </div>
-                    <div>
-                      <i className="fa-solid fa-door-open" aria-hidden />
-                      <span>{vehicle.doors} Doors</span>
-                    </div>
-                    {vehicle.fourWd ? (
-                      <div>
-                        <i className="fa-solid fa-mountain" aria-hidden />
-                        <span>4WD</span>
-                      </div>
-                    ) : null}
-                    {vehicle.ac ? (
-                      <div>
-                        <i className="fa-solid fa-snowflake" aria-hidden />
-                        <span>A/C</span>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-                <div className="bottom">
-                  <img loading="lazy" src={`/assets/images/vehicles/${vehicle.slug}.avif`} alt={`${vehicle.name} thumbnail`} />
-                </div>
-                {/* {vehicle.discountDays && vehicle.discountDays > 0 ? (
-                  <div className="discount-text">{`${vehicle.discountDays}+ days are discounted`}</div>
-                ) : null} */}
-              </Link>
-            ))}
-            {vehiclesError ? <p>{vehiclesError}</p> : null}
-          </div>
+          <Vehicles vehicles={vehicles} vehiclesError={vehiclesError} />
           <Link to="/reservation">BOOK NOW</Link>
         </div>
       </section>
@@ -372,18 +295,7 @@ export default function HomePage() {
       {showTestimonials ? (
         <section id="testimonial-section">
           <div className="inner">
-            <div id="testimonials">
-              {TESTIMONIALS.map((testimonial) => (
-                <div key={testimonial.name} className="testimonial">
-                  <i className="fa-solid fa-quote-left" aria-hidden />
-                  <div>
-                    <p>{testimonial.quote}</p>
-                    <span>{testimonial.name}</span>
-                  </div>
-                  <i className="fa-solid fa-quote-right" aria-hidden />
-                </div>
-              ))}
-            </div>
+            <Testimonials testimonials={TESTIMONIALS} />
           </div>
         </section>
       ) : null}

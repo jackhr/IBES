@@ -1,9 +1,29 @@
 import flatpickr from "flatpickr";
 import { Instance as FlatpickrInstance } from "flatpickr/dist/types/instance";
 import { FormEvent, useEffect, useRef, useState } from "react";
+import TaxiInfoCard from "../../components/TaxiInfoCard";
 import { showErrorAlert, showSuccessAlert } from "../../lib/alerts";
 import { createTaxiRequest } from "../../lib/api";
 import "./TaxiPage.scss";
+
+const TAXI_INFO_CARDS = [
+  {
+    title: "Cruise Ship Pickup",
+    details: ["Pickup from cruise", "Quick and easy ride", "US$100 per person / 4-hour island tour"]
+  },
+  {
+    title: "Island Tour Package",
+    details: ["US$100 per person", "4-hour island tour", "Comfortable ride"]
+  },
+  {
+    title: "VIP Service",
+    details: ["Personalized requests", "Tailored experience", "Contact for details"]
+  },
+  {
+    title: "Private Airport Transfer",
+    details: ["Transfer to/from airport", "Additional US$10 regulation fee", "Reliable taxi service"]
+  }
+];
 
 export default function TaxiPage() {
   const [sending, setSending] = useState(false);
@@ -72,38 +92,9 @@ export default function TaxiPage() {
         <div className="inner">
           <h2>Transportation Tailored for You</h2>
           <div id="taxi-info-card-container">
-            <div className="taxi-info-card">
-              <h3>Cruise Ship Pickup</h3>
-              <div>
-                <span>Pickup from cruise</span>
-                <span>Quick and easy ride</span>
-                <span>US$100 per person / 4-hour island tour</span>
-              </div>
-            </div>
-            <div className="taxi-info-card">
-              <h3>Island Tour Package</h3>
-              <div>
-                <span>US$100 per person</span>
-                <span>4-hour island tour</span>
-                <span>Comfortable ride</span>
-              </div>
-            </div>
-            <div className="taxi-info-card">
-              <h3>VIP Service</h3>
-              <div>
-                <span>Personalized requests</span>
-                <span>Tailored experience</span>
-                <span>Contact for details</span>
-              </div>
-            </div>
-            <div className="taxi-info-card">
-              <h3>Private Airport Transfer</h3>
-              <div>
-                <span>Transfer to/from airport</span>
-                <span>Additional US$10 regulation fee</span>
-                <span>Reliable taxi service</span>
-              </div>
-            </div>
+            {TAXI_INFO_CARDS.map((card) => (
+              <TaxiInfoCard key={card.title} title={card.title} details={card.details} />
+            ))}
           </div>
           <p style={{ margin: "50px auto 0", fontWeight: "bold" }}>
             Send us your request details and we will reply within 24 hours
