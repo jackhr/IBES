@@ -1,8 +1,10 @@
 import flatpickr from "flatpickr";
 import { Instance as FlatpickrInstance } from "flatpickr/dist/types/instance";
 import { FormEvent, useEffect, useRef, useState } from "react";
+import CaptchaWidget from "../../components/CaptchaWidget";
 import TaxiInfoCard from "../../components/TaxiInfoCard";
 import { showErrorAlert, showSuccessAlert } from "../../lib/alerts";
+import { getCaptchaConfig } from "../../lib/captcha";
 import { createTaxiRequest } from "../../lib/api";
 import "./TaxiPage.scss";
 
@@ -28,8 +30,11 @@ const TAXI_INFO_CARDS = [
 export default function TaxiPage() {
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaResetCounter, setCaptchaResetCounter] = useState(0);
   const pickUpInputRef = useRef<HTMLInputElement | null>(null);
   const pickUpPickerRef = useRef<FlatpickrInstance | null>(null);
+  const captchaConfig = getCaptchaConfig();
 
   useEffect(() => {
     if (!pickUpInputRef.current) {
@@ -55,6 +60,11 @@ export default function TaxiPage() {
     const form = event.currentTarget;
     const formData = new FormData(form);
 
+    if (captchaConfig.enabled && !captchaToken) {
+      await showErrorAlert("Verification Required", "Please complete the captcha check before submitting.");
+      return;
+    }
+
     const payload = {
       name: formData.get("name"),
       phone: formData.get("phone"),
@@ -64,7 +74,8 @@ export default function TaxiPage() {
       passengers: formData.get("passengers"),
       pickUpTime: formData.get("pickUpTime"),
       message: formData.get("message"),
-      h826r2whj4fi_cjz8jxs2zuwahhhk6: formData.get("h826r2whj4fi_cjz8jxs2zuwahhhk6")
+      h826r2whj4fi_cjz8jxs2zuwahhhk6: formData.get("h826r2whj4fi_cjz8jxs2zuwahhhk6"),
+      captchaToken
     };
 
     setSending(true);
@@ -73,6 +84,8 @@ export default function TaxiPage() {
       await createTaxiRequest(payload);
       form.reset();
       setMessage("");
+      setCaptchaToken(null);
+      setCaptchaResetCounter((value) => value + 1);
       pickUpPickerRef.current?.clear();
       await showSuccessAlert("Taxi Request Sent", "Thanks. We will reply with confirmation details shortly.");
     } catch {
@@ -175,8 +188,15 @@ export default function TaxiPage() {
                   onChange={(event) => setMessage(event.target.value)}
                 />
               </div>
+              <CaptchaWidget
+                enabled={captchaConfig.enabled}
+                provider={captchaConfig.provider}
+                siteKey={captchaConfig.siteKey}
+                resetCounter={captchaResetCounter}
+                onTokenChange={setCaptchaToken}
+              />
               <input name="h826r2whj4fi_cjz8jxs2zuwahhhk6" type="text" autoComplete="off" tabIndex={-1} className="hp-field" />
-              <button type="submit" disabled={sending}>
+              <button type="submit" disabled={sending || (captchaConfig.enabled && !captchaToken)}>
                 {sending ? "SUBMITTING..." : "SUBMIT RESERVATION"}
               </button>
             </div>

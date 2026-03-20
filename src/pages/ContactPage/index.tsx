@@ -1,22 +1,33 @@
 import { FormEvent, useState } from "react";
+import CaptchaWidget from "../../components/CaptchaWidget";
 import { siteData } from "../../data/siteData";
+import { getCaptchaConfig } from "../../lib/captcha";
 import { showErrorAlert, showSuccessAlert } from "../../lib/alerts";
 import { postJson } from "../../lib/http";
 import "./ContactPage.scss";
 
 export default function ContactPage() {
   const [sending, setSending] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaResetCounter, setCaptchaResetCounter] = useState(0);
+  const captchaConfig = getCaptchaConfig();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
 
+    if (captchaConfig.enabled && !captchaToken) {
+      await showErrorAlert("Verification Required", "Please complete the captcha check before submitting.");
+      return;
+    }
+
     const payload = {
       name: formData.get("name"),
       email: formData.get("email"),
       message: formData.get("message"),
-      h826r2whj4fi_cjz8jxs2zuwahhhk6: formData.get("h826r2whj4fi_cjz8jxs2zuwahhhk6")
+      h826r2whj4fi_cjz8jxs2zuwahhhk6: formData.get("h826r2whj4fi_cjz8jxs2zuwahhhk6"),
+      captchaToken
     };
 
     setSending(true);
@@ -24,6 +35,8 @@ export default function ContactPage() {
     try {
       await postJson("/api/contact", payload);
       form.reset();
+      setCaptchaToken(null);
+      setCaptchaResetCounter((value) => value + 1);
       await showSuccessAlert("Message Sent", "Thanks for reaching out. Our team will respond shortly.");
     } catch {
       await showErrorAlert("Send Failed", "Unable to send right now. Please try again.");
@@ -93,8 +106,15 @@ export default function ContactPage() {
                 <label htmlFor="contact-email">Email *</label>
                 <input id="contact-email" name="email" type="email" placeholder="email@domain.com" required />
               </div>
+              <CaptchaWidget
+                enabled={captchaConfig.enabled}
+                provider={captchaConfig.provider}
+                siteKey={captchaConfig.siteKey}
+                resetCounter={captchaResetCounter}
+                onTokenChange={setCaptchaToken}
+              />
               <input name="h826r2whj4fi_cjz8jxs2zuwahhhk6" type="text" autoComplete="off" tabIndex={-1} className="hp-field" />
-              <button type="submit" disabled={sending}>
+              <button type="submit" disabled={sending || (captchaConfig.enabled && !captchaToken)}>
                 {sending ? "SENDING..." : "SUBMIT"}
               </button>
             </div>
