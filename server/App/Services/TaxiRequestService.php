@@ -6,8 +6,7 @@ namespace App\Services;
 
 use App\Models\TaxiRequest;
 use App\Repositories\TaxiRequestRepository;
-use DateTime;
-use InvalidArgumentException;
+use App\Support\Validator;
 use RuntimeException;
 
 final class TaxiRequestService
@@ -21,19 +20,14 @@ final class TaxiRequestService
      */
     public function create(array $data): array
     {
-        $name = trim((string) ($data['name'] ?? $data['customerName'] ?? $data['customer_name'] ?? ''));
-        $phone = trim((string) ($data['phone'] ?? $data['customerPhone'] ?? $data['customer_phone'] ?? ''));
-        $pickUp = trim((string) ($data['pickUp'] ?? $data['pickupLocation'] ?? $data['pickup_location'] ?? ''));
-        $dropOff = trim((string) ($data['dropOff'] ?? $data['dropoffLocation'] ?? $data['dropoff_location'] ?? ''));
-        $passengers = (int) ($data['passengers'] ?? $data['numberOfPassengers'] ?? $data['number_of_passengers'] ?? 0);
-        $message = trim((string) ($data['message'] ?? $data['specialRequirements'] ?? $data['special_requirements'] ?? ''));
-        $pickUpTimeRaw = (string) ($data['pickUpTime'] ?? $data['pickupTime'] ?? $data['pickup_time'] ?? '');
+        $name = Validator::requiredString($data, ['name', 'customerName', 'customer_name'], 'Name', 2, 120);
+        $phone = Validator::requiredPhone($data, ['phone', 'customerPhone', 'customer_phone'], 'Phone');
+        $pickUp = Validator::requiredString($data, ['pickUp', 'pickupLocation', 'pickup_location'], 'Pick up location', 2, 200);
+        $dropOff = Validator::requiredString($data, ['dropOff', 'dropoffLocation', 'dropoff_location'], 'Drop off location', 2, 200);
+        $passengers = Validator::requiredInt($data, ['passengers', 'numberOfPassengers', 'number_of_passengers'], 'Passengers', 1, 30);
+        $message = Validator::optionalString($data, ['message', 'specialRequirements', 'special_requirements'], 'Special requirements', 1500);
 
-        if ($name === '' || $phone === '' || $pickUp === '' || $dropOff === '' || $passengers <= 0 || trim($pickUpTimeRaw) === '') {
-            throw new InvalidArgumentException('Missing required taxi request fields.');
-        }
-
-        $pickUpDate = new DateTime($pickUpTimeRaw);
+        $pickUpDate = Validator::requiredDateTime($data, ['pickUpTime', 'pickupTime', 'pickup_time'], 'Pick up time');
         $pickUpDateTime = $pickUpDate->format('Y-m-d H:i:s');
 
         $requestId = $this->taxiRequestRepository->insertTaxiRequest(

@@ -8,6 +8,7 @@ use App\Core\Session;
 use App\Repositories\AddOnRepository;
 use App\Repositories\VehicleRepository;
 use App\Support\ReservationMath;
+use InvalidArgumentException;
 
 final class ReservationService
 {
@@ -21,8 +22,14 @@ final class ReservationService
     public function handle(array $data): array
     {
         if (isset($data['step'])) {
+            $step = trim((string) $data['step']);
+
+            if ($step === '' || mb_strlen($step) > 50) {
+                throw new InvalidArgumentException('Invalid reservation step value.');
+            }
+
             $reservation = Session::getReservation() ?? [];
-            $reservation['step'] = $data['step'];
+            $reservation['step'] = $step;
             Session::setReservation($reservation);
             unset($data['step']);
         }
@@ -36,7 +43,7 @@ final class ReservationService
             'remove_add_on' => $this->removeAddOn($data),
             'get_reservation' => Session::getReservation() ?? [],
             'reset_reservation' => $this->resetReservation(),
-            default => $data,
+            default => throw new InvalidArgumentException('Unsupported reservation action.'),
         };
     }
 
@@ -45,9 +52,30 @@ final class ReservationService
     {
         unset($data['action']);
 
-        $pickUpDate = (string) (($data['pickUpDate']['date'] ?? ''));
-        $returnDate = (string) (($data['returnDate']['date'] ?? ''));
+        $pickUpDate = trim((string) (($data['pickUpDate']['date'] ?? '')));
+        $returnDate = trim((string) (($data['returnDate']['date'] ?? '')));
+        $pickUpTs = (int) (($data['pickUpDate']['ts'] ?? 0));
+        $returnTs = (int) (($data['returnDate']['ts'] ?? 0));
+        $pickUpLocation = trim((string) ($data['pickUpLocation'] ?? ''));
+        $returnLocation = trim((string) ($data['returnLocation'] ?? ''));
+
+        if ($pickUpDate === '' || $returnDate === '' || $pickUpTs <= 0 || $returnTs <= 0) {
+            throw new InvalidArgumentException('Reservation dates are required.');
+        }
+
+        if ($returnTs <= $pickUpTs) {
+            throw new InvalidArgumentException('Return date must be after pick up date.');
+        }
+
+        if ($pickUpLocation === '' || $returnLocation === '') {
+            throw new InvalidArgumentException('Pick up and return locations are required.');
+        }
+
         $days = ReservationMath::getDifferenceInDays($pickUpDate, $returnDate);
+
+        if ($days <= 0 || $days > 365) {
+            throw new InvalidArgumentException('Reservation duration is invalid.');
+        }
 
         $reservation = Session::getReservation() ?? [];
         $reservation['itinerary'] = $data;
@@ -68,10 +96,14 @@ final class ReservationService
     {
         $vehicleId = (int) ($data['id'] ?? 0);
 
+        if ($vehicleId <= 0) {
+            throw new InvalidArgumentException('Vehicle ID is required.');
+        }
+
         $vehicle = $this->vehicleRepository->findVehicleById($vehicleId);
 
         if ($vehicle === null) {
-            return Session::getReservation() ?? [];
+            throw new InvalidArgumentException('Vehicle not found.');
         }
 
         $vehicle['imgSrc'] = '/assets/images/vehicles/' . ($vehicle['slug'] ?? '') . '.avif';
@@ -94,21 +126,28 @@ final class ReservationService
     private function addAddOn(array $data): array
     {
         $addOnId = (int) ($data['id'] ?? 0);
+
+        if ($addOnId <= 0) {
+            throw new InvalidArgumentException('Add-on ID is required.');
+        }
+
         $addOn = $this->addOnRepository->findAddOnById($addOnId);
 
         $reservation = Session::getReservation() ?? [];
 
-        if ($addOn !== null) {
-            if (!isset($reservation['add_ons']) || !is_array($reservation['add_ons'])) {
-                $reservation['add_ons'] = [];
-            }
-
-            $reservation['add_ons'][$addOn['id']] = $addOn;
-
-            uasort($reservation['add_ons'], static fn(array $a, array $b): int => ((int) $a['id']) <=> ((int) $b['id']));
-
-            Session::setReservation($reservation);
+        if ($addOn === null) {
+            throw new InvalidArgumentException('Add-on not found.');
         }
+
+        if (!isset($reservation['add_ons']) || !is_array($reservation['add_ons'])) {
+            $reservation['add_ons'] = [];
+        }
+
+        $reservation['add_ons'][$addOn['id']] = $addOn;
+
+        uasort($reservation['add_ons'], static fn(array $a, array $b): int => ((int) $a['id']) <=> ((int) $b['id']));
+
+        Session::setReservation($reservation);
 
         return $reservation;
     }
@@ -117,6 +156,11 @@ final class ReservationService
     private function removeAddOn(array $data): array
     {
         $addOnId = (int) ($data['id'] ?? 0);
+
+        if ($addOnId <= 0) {
+            throw new InvalidArgumentException('Add-on ID is required.');
+        }
+
         $reservation = Session::getReservation() ?? [];
 
         if (isset($reservation['add_ons'][$addOnId])) {

@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\JsonResponse;
 use App\Core\Request;
 use App\Services\OrderRequestService;
+use App\Support\EndpointGuard;
 use InvalidArgumentException;
 
 final class OrderRequestController
@@ -18,7 +19,17 @@ final class OrderRequestController
     public function store(): void
     {
         try {
-            $orderRequest = $this->orderRequestService->create(Request::json());
+            $payload = Request::json();
+
+            $blocked = EndpointGuard::protect($payload, 'order_requests', true);
+
+            if (is_array($blocked)) {
+                JsonResponse::send($blocked, (int) ($blocked['status'] ?? 400));
+
+                return;
+            }
+
+            $orderRequest = $this->orderRequestService->create($payload);
 
             JsonResponse::send([
                 'success' => true,
@@ -32,9 +43,9 @@ final class OrderRequestController
             JsonResponse::send([
                 'success' => false,
                 'message' => $exception->getMessage(),
-                'status' => 400,
+                'status' => 422,
                 'data' => [],
-            ], 400);
+            ], 422);
         } catch (\Throwable $exception) {
             $this->sendServerError($exception);
         }

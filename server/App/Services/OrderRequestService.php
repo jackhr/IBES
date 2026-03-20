@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\OrderRequest;
 use App\Repositories\BookingRepository;
 use App\Support\ReservationMath;
+use App\Support\Validator;
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -21,28 +22,37 @@ final class OrderRequestService
      */
     public function create(array $data): array
     {
-        $pickUpTimestamp = $this->resolveTimestamp($data['pickUpTimestamp'] ?? $data['pick_up_timestamp'] ?? null);
-        $dropOffTimestamp = $this->resolveTimestamp($data['dropOffTimestamp'] ?? $data['drop_off_timestamp'] ?? null);
+        $pickUpTimestamp = Validator::requiredTimestamp($data, ['pickUpTimestamp', 'pick_up_timestamp'], 'Pick up timestamp');
+        $dropOffTimestamp = Validator::requiredTimestamp($data, ['dropOffTimestamp', 'drop_off_timestamp'], 'Drop off timestamp');
 
-        $pickUpLocation = trim((string) ($data['pickUpLocation'] ?? $data['pick_up_location'] ?? ''));
-        $dropOffLocation = trim((string) ($data['dropOffLocation'] ?? $data['drop_off_location'] ?? ''));
-        $contactInfoId = (int) ($data['contactInfoId'] ?? $data['contact_info_id'] ?? 0);
-        $subTotal = (float) ($data['subTotal'] ?? $data['sub_total'] ?? 0);
-        $carId = (int) ($data['carId'] ?? $data['car_id'] ?? 0);
-        $days = (int) ($data['days'] ?? 0);
-
-        if ($pickUpTimestamp <= 0 || $dropOffTimestamp <= 0) {
-            throw new InvalidArgumentException('Valid pick up and drop off timestamps are required.');
+        if ($dropOffTimestamp <= $pickUpTimestamp) {
+            throw new InvalidArgumentException('Drop off timestamp must be after pick up timestamp.');
         }
 
-        if ($pickUpLocation === '' || $dropOffLocation === '' || $contactInfoId <= 0 || $carId <= 0 || $days <= 0) {
-            throw new InvalidArgumentException('Missing required order request fields.');
+        $pickUpLocation = Validator::requiredString($data, ['pickUpLocation', 'pick_up_location'], 'Pick up location', 2, 200);
+        $dropOffLocation = Validator::requiredString($data, ['dropOffLocation', 'drop_off_location'], 'Drop off location', 2, 200);
+        $contactInfoId = Validator::requiredInt($data, ['contactInfoId', 'contact_info_id'], 'Contact info ID', 1, PHP_INT_MAX);
+        $carId = Validator::requiredInt($data, ['carId', 'car_id'], 'Vehicle ID', 1, PHP_INT_MAX);
+        $days = Validator::requiredInt($data, ['days'], 'Days', 1, 365);
+
+        $subTotalRaw = $data['subTotal'] ?? $data['sub_total'] ?? null;
+
+        if ($subTotalRaw === null || $subTotalRaw === '' || !is_numeric($subTotalRaw)) {
+            throw new InvalidArgumentException('Subtotal is required.');
+        }
+
+        $subTotal = (float) $subTotalRaw;
+
+        if ($subTotal < 0 || $subTotal > 1000000) {
+            throw new InvalidArgumentException('Subtotal is out of range.');
         }
 
         $key = trim((string) ($data['key'] ?? ''));
 
         if ($key === '') {
             $key = $this->generateUniqueOrderKey();
+        } elseif (!preg_match('/^[A-Za-z0-9_-]{6,64}$/', $key)) {
+            throw new InvalidArgumentException('Order key format is invalid.');
         }
 
         $orderRequestId = $this->bookingRepository->insertOrderRequest(
@@ -97,25 +107,6 @@ final class OrderRequestService
         } while ($this->bookingRepository->keyExists($key));
 
         return $key;
-    }
-
-    private function resolveTimestamp(mixed $value): int
-    {
-        if (is_int($value)) {
-            return $value;
-        }
-
-        if (is_numeric($value)) {
-            return (int) $value;
-        }
-
-        if (!is_string($value) || trim($value) === '') {
-            return 0;
-        }
-
-        $timestamp = strtotime($value);
-
-        return $timestamp === false ? 0 : $timestamp;
     }
 
     /** @return array<int, int> */

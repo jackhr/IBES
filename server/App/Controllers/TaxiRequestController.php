@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\JsonResponse;
 use App\Core\Request;
 use App\Services\TaxiRequestService;
+use App\Support\EndpointGuard;
 use InvalidArgumentException;
 
 final class TaxiRequestController
@@ -18,7 +19,17 @@ final class TaxiRequestController
     public function store(): void
     {
         try {
-            $taxiRequest = $this->taxiRequestService->create(Request::json());
+            $payload = Request::json();
+
+            $blocked = EndpointGuard::protect($payload, 'taxi_requests', true);
+
+            if (is_array($blocked)) {
+                JsonResponse::send($blocked, (int) ($blocked['status'] ?? 400));
+
+                return;
+            }
+
+            $taxiRequest = $this->taxiRequestService->create($payload);
 
             JsonResponse::send([
                 'success' => true,
@@ -32,9 +43,9 @@ final class TaxiRequestController
             JsonResponse::send([
                 'success' => false,
                 'message' => $exception->getMessage(),
-                'status' => 400,
+                'status' => 422,
                 'data' => [],
-            ], 400);
+            ], 422);
         } catch (\Throwable $exception) {
             $this->sendServerError($exception);
         }

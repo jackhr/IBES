@@ -11,6 +11,7 @@ use App\Support\EmailSender;
 use App\Support\ReservationEmailBuilder;
 use App\Support\ReservationMath;
 use App\Support\Settings;
+use App\Support\Validator;
 use RuntimeException;
 
 final class VehicleRequestService
@@ -24,15 +25,6 @@ final class VehicleRequestService
     /** @param array<string, mixed> $data */
     public function submit(array $data): array
     {
-        if (($data['h826r2whj4fi_cjz8jxs2zuwahhhk6'] ?? '') !== '') {
-            return [
-                'success' => false,
-                'message' => 'error',
-                'status' => 400,
-                'data' => [],
-            ];
-        }
-
         $reservation = Session::getReservation() ?? [];
         $itinerary = $reservation['itinerary'] ?? null;
         $vehicle = $reservation['vehicle'] ?? null;
@@ -43,20 +35,52 @@ final class VehicleRequestService
             throw new RuntimeException('Reservation session is incomplete.');
         }
 
-        $firstNameTrimmed = trim((string) ($data['first-name'] ?? ''));
-        $lastNameTrimmed = trim((string) ($data['last-name'] ?? ''));
-        $driverLicenseTrimmed = trim((string) ($data['driver-license'] ?? ''));
-        $countryRegionTrimmed = trim((string) ($data['country-region'] ?? ''));
-        $streetTrimmed = trim((string) ($data['street'] ?? ''));
-        $townCityTrimmed = trim((string) ($data['town-city'] ?? ''));
-        $stateCountyTrimmed = trim((string) ($data['state-county'] ?? ''));
-        $phoneTrimmed = trim((string) ($data['phone'] ?? ''));
-        $emailTrimmed = trim((string) ($data['email'] ?? ''));
+        $firstNameTrimmed = Validator::requiredString($data, ['first-name', 'first_name'], 'First name', 1, 100);
+        $lastNameTrimmed = Validator::requiredString($data, ['last-name', 'last_name'], 'Last name', 1, 100);
+        $driverLicenseTrimmed = Validator::optionalString($data, ['driver-license', 'driver_license'], 'Driver license', 100);
+        $countryRegionTrimmed = Validator::requiredString($data, ['country-region', 'country_region'], 'Country or region', 2, 120);
+        $streetTrimmed = Validator::requiredString($data, ['street'], 'Street', 2, 180);
+        $townCityTrimmed = Validator::requiredString($data, ['town-city', 'town_city'], 'Town or city', 2, 120);
+        $stateCountyTrimmed = Validator::requiredString($data, ['state-county', 'state_county'], 'State or county', 2, 120);
+        $phoneTrimmed = Validator::requiredPhone($data, ['phone'], 'Phone');
+        $emailTrimmed = Validator::requiredEmail($data, ['email'], 'Email');
 
-        $hotel = trim((string) ($data['hotel'] ?? ''));
+        $hotel = Validator::optionalString($data, ['hotel'], 'Hotel', 180);
         $hotelForStorage = $hotel !== '' ? $hotel : null;
 
         $days = (int) ($itinerary['days'] ?? 0);
+
+        if ($days <= 0 || $days > 365) {
+            throw new RuntimeException('Reservation duration is invalid.');
+        }
+
+        $pickUpLocation = trim((string) ($itinerary['pickUpLocation'] ?? ''));
+        $dropOffLocation = trim((string) ($itinerary['returnLocation'] ?? ''));
+
+        if ($pickUpLocation === '' || $dropOffLocation === '') {
+            throw new RuntimeException('Reservation locations are incomplete.');
+        }
+
+        $pickUpTsMs = (int) ($itinerary['pickUpDate']['ts'] ?? 0);
+        $dropOffTsMs = (int) ($itinerary['returnDate']['ts'] ?? 0);
+
+        if ($pickUpTsMs <= 0 || $dropOffTsMs <= 0) {
+            throw new RuntimeException('Reservation dates are incomplete.');
+        }
+
+        $pickUpTs = (int) ($pickUpTsMs / 1000);
+        $dropOffTs = (int) ($dropOffTsMs / 1000);
+
+        if ($dropOffTs <= $pickUpTs) {
+            throw new RuntimeException('Drop off date must be after pick up date.');
+        }
+
+        $vehicleId = (int) ($vehicle['id'] ?? 0);
+
+        if ($vehicleId <= 0) {
+            throw new RuntimeException('Reservation vehicle is invalid.');
+        }
+
         $pricePerDay = (int) ($vehicle['base_price_USD'] ?? 0);
 
         if (is_array($discount) && isset($discount['price_USD'])) {
@@ -67,11 +91,6 @@ final class VehicleRequestService
         $subtotal = $vehicleSubtotal + ReservationMath::getAddOnsSubTotal($addOns, $days, $vehicle);
 
         $timestamp = time();
-        $pickUpTs = (int) (((int) ($itinerary['pickUpDate']['ts'] ?? 0)) / 1000);
-        $dropOffTs = (int) (((int) ($itinerary['returnDate']['ts'] ?? 0)) / 1000);
-
-        $pickUpLocation = (string) ($itinerary['pickUpLocation'] ?? '');
-        $dropOffLocation = (string) ($itinerary['returnLocation'] ?? '');
 
         $contactInfoId = $this->bookingRepository->insertContactInfo([
             'first_name' => $firstNameTrimmed,
@@ -96,7 +115,7 @@ final class VehicleRequestService
             $dropOffLocation,
             $contactInfoId,
             $subtotal,
-            (int) ($vehicle['id'] ?? 0),
+            $vehicleId,
             $days
         );
 
@@ -104,7 +123,7 @@ final class VehicleRequestService
             $this->bookingRepository->insertOrderRequestAddOn($orderRequestId, (int) $addOnId);
         }
 
-        $this->vehicleRepository->incrementVehicleTimesRequested((int) ($vehicle['id'] ?? 0));
+        $this->vehicleRepository->incrementVehicleTimesRequested($vehicleId);
 
         $clientEmailBody = ReservationEmailBuilder::build(
             $hotelForStorage,

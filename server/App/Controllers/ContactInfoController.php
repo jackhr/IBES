@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\JsonResponse;
 use App\Core\Request;
 use App\Services\ContactInfoService;
+use App\Support\EndpointGuard;
 use InvalidArgumentException;
 
 final class ContactInfoController
@@ -18,7 +19,17 @@ final class ContactInfoController
     public function store(): void
     {
         try {
-            $contactInfo = $this->contactInfoService->create(Request::json());
+            $payload = Request::json();
+
+            $blocked = EndpointGuard::protect($payload, 'contact_info', false);
+
+            if (is_array($blocked)) {
+                JsonResponse::send($blocked, (int) ($blocked['status'] ?? 400));
+
+                return;
+            }
+
+            $contactInfo = $this->contactInfoService->create($payload);
 
             JsonResponse::send([
                 'success' => true,
@@ -32,9 +43,9 @@ final class ContactInfoController
             JsonResponse::send([
                 'success' => false,
                 'message' => $exception->getMessage(),
-                'status' => 400,
+                'status' => 422,
                 'data' => [],
-            ], 400);
+            ], 422);
         } catch (\Throwable $exception) {
             $this->sendServerError($exception);
         }

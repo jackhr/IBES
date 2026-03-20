@@ -6,24 +6,16 @@ namespace App\Services;
 
 use App\Support\EmailSender;
 use App\Support\Settings;
+use App\Support\Validator;
 
 final class ContactService
 {
     /** @param array<string, mixed> $data */
     public function send(array $data): array
     {
-        if (($data['h826r2whj4fi_cjz8jxs2zuwahhhk6'] ?? '') !== '') {
-            return [
-                'success' => false,
-                'message' => 'error',
-                'status' => 400,
-                'data' => [],
-            ];
-        }
-
-        $name = trim((string) ($data['name'] ?? ''));
-        $email = trim((string) ($data['email'] ?? ''));
-        $message = trim((string) ($data['message'] ?? ''));
+        $name = Validator::requiredString($data, ['name'], 'Name', 2, 120);
+        $email = Validator::requiredEmail($data, ['email'], 'Email');
+        $message = Validator::requiredString($data, ['message'], 'Message', 10, 4000);
 
         $companyName = Settings::companyName();
         $domain = Settings::domain();

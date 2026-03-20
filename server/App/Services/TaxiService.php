@@ -8,7 +8,7 @@ use App\Core\Session;
 use App\Repositories\TaxiRequestRepository;
 use App\Support\EmailSender;
 use App\Support\Settings;
-use DateTime;
+use App\Support\Validator;
 
 final class TaxiService
 {
@@ -19,24 +19,15 @@ final class TaxiService
     /** @param array<string, mixed> $data */
     public function submit(array $data): array
     {
-        if (($data['h826r2whj4fi_cjz8jxs2zuwahhhk6'] ?? '') !== '') {
-            return [
-                'success' => false,
-                'message' => 'error',
-                'status' => 400,
-                'data' => [],
-            ];
-        }
+        $name = Validator::requiredString($data, ['name'], 'Name', 2, 120);
+        $phone = Validator::requiredPhone($data, ['phone'], 'Phone');
+        $email = Validator::requiredEmail($data, ['email'], 'Email');
+        $message = Validator::optionalString($data, ['message'], 'Special requirements', 1500);
+        $pickUp = Validator::requiredString($data, ['pickUp'], 'Pick up location', 2, 200);
+        $dropOff = Validator::requiredString($data, ['dropOff'], 'Drop off location', 2, 200);
+        $passengers = Validator::requiredInt($data, ['passengers'], 'Passengers', 1, 30);
 
-        $name = trim((string) ($data['name'] ?? ''));
-        $phone = trim((string) ($data['phone'] ?? ''));
-        $email = trim((string) ($data['email'] ?? ''));
-        $message = trim((string) ($data['message'] ?? ''));
-        $pickUp = trim((string) ($data['pickUp'] ?? ''));
-        $dropOff = trim((string) ($data['dropOff'] ?? ''));
-        $passengers = (int) ($data['passengers'] ?? 0);
-
-        $pickUpDate = new DateTime(trim((string) ($data['pickUpTime'] ?? '')));
+        $pickUpDate = Validator::requiredDateTime($data, ['pickUpTime'], 'Pick up time');
         $pickUpDateTime = $pickUpDate->format('Y-m-d H:i:s');
         $formattedPickUpDateTime = $pickUpDate->format('F j, Y \a\t g:i A');
 
