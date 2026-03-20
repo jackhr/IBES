@@ -42,6 +42,6 @@ final class Settings
 
     public static function destroySessionAfterOrdering(): bool
     {
-        return \Config::bool('DESTORY_SESSION_AFTER_ORDERING', true);
+        return \Config::bool('DESTROY_SESSION_AFTER_ORDERING', true);
     }
 }
