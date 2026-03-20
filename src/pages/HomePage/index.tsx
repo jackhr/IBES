@@ -148,7 +148,7 @@ export default function HomePage() {
                 setActiveSelect((current) => (current === "pickup" ? null : "pickup"));
               }}
             >
-              <FontAwesomeIcon icon="location-dot" aria-hidden />
+              <FontAwesomeIcon icon="location-pin" aria-hidden />
               <span>{pickUpLocation}</span>
               <FontAwesomeIcon icon="chevron-down" aria-hidden />
               <div className="custom-select-options">
@@ -199,7 +199,7 @@ export default function HomePage() {
                 setActiveSelect((current) => (current === "return" ? null : "return"));
               }}
             >
-              <FontAwesomeIcon icon="location-dot" aria-hidden />
+              <FontAwesomeIcon icon="location-pin" aria-hidden />
               <span>{returnLocation}</span>
               <FontAwesomeIcon icon="chevron-down" aria-hidden />
               <div className="custom-select-options">
