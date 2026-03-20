@@ -2,7 +2,7 @@ import flatpickr from "flatpickr";
 import { Instance as FlatpickrInstance } from "flatpickr/dist/types/instance";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { showErrorAlert, showSuccessAlert } from "../../lib/alerts";
-import { postJson } from "../../lib/http";
+import { createTaxiRequest } from "../../lib/api";
 import "./TaxiPage.scss";
 
 export default function TaxiPage() {
@@ -50,7 +50,7 @@ export default function TaxiPage() {
     setSending(true);
 
     try {
-      await postJson("/api/taxi-request", payload);
+      await createTaxiRequest(payload);
       form.reset();
       setMessage("");
       pickUpPickerRef.current?.clear();

@@ -2,26 +2,13 @@ import flatpickr from "flatpickr";
 import { Instance as FlatpickrInstance } from "flatpickr/dist/types/instance";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getLandingVehicles, type Vehicle } from "../../lib/api";
 import "./HomePage.scss";
 
 type Feature = {
   title: string;
   copy: string;
   icon: string;
-};
-
-type Vehicle = {
-  name: string;
-  type: string;
-  insurance: number;
-  dayRate: number;
-  seats: number;
-  bags: number;
-  doors: number;
-  fourWd?: boolean;
-  ac?: boolean;
-  slug: string;
-  discountLabel?: string;
 };
 
 const FEATURES: Feature[] = [
@@ -57,78 +44,6 @@ const FEATURES: Feature[] = [
   }
 ];
 
-const VEHICLES: Vehicle[] = [
-  {
-    name: "Toyota Raize",
-    type: "Compact SUV",
-    insurance: 15,
-    dayRate: 55,
-    seats: 5,
-    bags: 2,
-    doors: 5,
-    ac: true,
-    slug: "toyota_raize"
-  },
-  {
-    name: "Honda CR-V",
-    type: "SUV",
-    insurance: 20,
-    dayRate: 75,
-    seats: 5,
-    bags: 3,
-    doors: 5,
-    fourWd: true,
-    ac: true,
-    slug: "honda_cr-v",
-    discountLabel: "3+ days are discounted"
-  },
-  {
-    name: "Toyota Noah",
-    type: "Minivan",
-    insurance: 20,
-    dayRate: 75,
-    seats: 8,
-    bags: 4,
-    doors: 5,
-    ac: true,
-    slug: "toyota_noah"
-  },
-  {
-    name: "Mazda CX-5",
-    type: "SUV",
-    insurance: 18,
-    dayRate: 70,
-    seats: 5,
-    bags: 3,
-    doors: 5,
-    ac: true,
-    slug: "mazda_cx_5"
-  },
-  {
-    name: "Toyota Estima",
-    type: "Van",
-    insurance: 22,
-    dayRate: 85,
-    seats: 8,
-    bags: 4,
-    doors: 5,
-    ac: true,
-    slug: "toyota_estima"
-  },
-  {
-    name: "Jeep Wrangler",
-    type: "4x4",
-    insurance: 25,
-    dayRate: 95,
-    seats: 5,
-    bags: 2,
-    doors: 4,
-    fourWd: true,
-    ac: true,
-    slug: "jeep_wrangler"
-  }
-];
-
 const TESTIMONIALS = [
   {
     quote:
@@ -147,8 +62,17 @@ const TESTIMONIALS = [
   }
 ];
 
+function formatVehicleType(type: string): string {
+  return type
+    .replace(/[_-]/g, " ")
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 export default function HomePage() {
   const navigate = useNavigate();
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [vehiclesError, setVehiclesError] = useState<string | null>(null);
   const [activeSelect, setActiveSelect] = useState<"pickup" | "return" | null>(null);
   const [returnToSameLocation, setReturnToSameLocation] = useState(true);
   const [pickUpLocation, setPickUpLocation] = useState("Choose Location");
@@ -159,6 +83,36 @@ export default function HomePage() {
   const returnPickerRef = useRef<FlatpickrInstance | null>(null);
 
   const locationOptions = useMemo(() => ["Airport", "Your Hotel"], []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadVehicles() {
+      try {
+        const landingVehicles = await getLandingVehicles();
+
+        if (cancelled) {
+          return;
+        }
+
+        setVehicles(landingVehicles);
+        setVehiclesError(null);
+      } catch {
+        if (cancelled) {
+          return;
+        }
+
+        setVehicles([]);
+        setVehiclesError("Unable to load vehicles right now. Please check back shortly.");
+      }
+    }
+
+    void loadVehicles();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("viewing-custom-select-options", activeSelect !== null);
@@ -355,19 +309,19 @@ export default function HomePage() {
         <div className="mobile-paralax" />
         <div className="inner">
           <div id="cars">
-            {VEHICLES.map((vehicle) => (
-              <Link className="car-container" key={vehicle.name} to="/reservation">
+            {vehicles.map((vehicle) => (
+              <Link className="car-container" key={vehicle.id} to="/reservation">
                 <div className="overlay">
                   <div />
                 </div>
                 <div className="top">
                   <div className="left">
                     <h2>{vehicle.name}</h2>
-                    <h3>{`${vehicle.type} - USD$${vehicle.insurance}/day Insurance`}</h3>
+                    <h3>{`${formatVehicleType(vehicle.type)} - USD$${vehicle.insurance}/day Insurance`}</h3>
                     <div>
                       <span>FROM</span>
                       <span>
-                        USD${vehicle.dayRate}
+                        USD${vehicle.basePriceUsd}
                         <span style={{ fontSize: 15 }}>/</span>
                       </span>
                       <span>DAY</span>
@@ -376,11 +330,11 @@ export default function HomePage() {
                   <div className="right">
                     <div>
                       <i className="fa-solid fa-user-group" aria-hidden />
-                      <span>{vehicle.seats} Seats</span>
+                      <span>{vehicle.people} Seats</span>
                     </div>
                     <div>
                       <i className="fa-solid fa-suitcase-rolling" aria-hidden />
-                      <span>{vehicle.bags} Bags</span>
+                      <span>{vehicle.bags ?? 0} Bags</span>
                     </div>
                     <div>
                       <i className="fa-solid fa-door-open" aria-hidden />
@@ -403,9 +357,12 @@ export default function HomePage() {
                 <div className="bottom">
                   <img loading="lazy" src={`/assets/images/vehicles/${vehicle.slug}.avif`} alt={`${vehicle.name} thumbnail`} />
                 </div>
-                {vehicle.discountLabel ? <div className="discount-text">{vehicle.discountLabel}</div> : null}
+                {vehicle.discountDays && vehicle.discountDays > 0 ? (
+                  <div className="discount-text">{`${vehicle.discountDays}+ days are discounted`}</div>
+                ) : null}
               </Link>
             ))}
+            {vehiclesError ? <p>{vehiclesError}</p> : null}
           </div>
           <Link to="/reservation">BOOK NOW</Link>
         </div>
