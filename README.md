@@ -72,6 +72,14 @@ npm run build
 
 This generates `dist/index.html` and `dist/assets/*`, which are served by `.htaccess` SPA fallback rules.
 
+## cPanel deployment note
+
+If legacy folders like `about/`, `faq/`, `contact/`, `reservation/`, `taxi/`, or `confirmation/` still exist on the server, direct URL visits can bypass the React SPA.
+
+- Upload the latest root `.htaccess`.
+- Remove any leftover legacy page directories/files from prior PHP versions.
+- Ensure `dist/index.html` and `dist/assets/*` are both uploaded together from the same build.
+
 ## Production hardening
 
 Public POST endpoints now include:

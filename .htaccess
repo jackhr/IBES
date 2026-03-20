@@ -12,6 +12,10 @@ RewriteCond %{HTTPS} off [OR]
 RewriteCond %{HTTP_HOST} !^www\.
 RewriteRule ^(.*)$ https://www.ibescarrental.com/$1 [R=301,L]
 
+# Force known SPA routes to React entrypoint.
+# This prevents stale legacy directories (e.g. /about/) from bypassing the SPA.
+RewriteRule ^(about|faq|contact|reservation|taxi|confirmation)/?$ dist/index.html [L]
+
 # Serve real files directly (PHP APIs, images, JS, CSS, etc.)
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
