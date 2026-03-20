@@ -512,13 +512,43 @@
     flex-direction: column;
 }
 
+#taxi-page #contact-form-section form {
+    display  : flex;
+    flex-wrap: wrap;
+    gap      : 30px;
+}
+
+#taxi-page #contact-form-section form>div.left,
+#taxi-page #contact-form-section form>div.right {
+    width     : calc(50% - 15px);
+    text-align: left;
+}
+
 #taxi-page #contact-form-section form>div.left .input-container.taxi-message {
     display: none;
 }
 
-#taxi-page #contact-form-section form>div.left button {
-    max-width : 100%;
-    margin-top: auto;
+.taxi-form-actions {
+    width         : 100%;
+    display       : flex;
+    flex-direction: column;
+    align-items   : flex-start;
+    gap           : 18px;
+}
+
+.taxi-form-actions .taxi-captcha {
+    width          : 100%;
+    display        : flex;
+    justify-content: flex-start;
+}
+
+.taxi-form-actions .captcha-widget {
+    margin: 0;
+}
+
+#taxi-page #contact-form-section .taxi-form-actions button {
+    max-width: 100%;
+    margin   : 0;
 }
 
 #taxi-page #contact-form-section {
@@ -682,12 +712,29 @@
         gap: 12px
     }
 
+    #taxi-page #contact-form-section form {
+        flex-direction: column;
+        gap           : 15px;
+        max-width     : 500px;
+        margin        : auto;
+        width         : 100%;
+    }
+
+    #taxi-page #contact-form-section form>div.left,
+    #taxi-page #contact-form-section form>div.right {
+        width: 100%;
+    }
+
     #taxi-page #contact-form-section form>div.left .input-container.taxi-message {
         display: flex;
     }
 
-    #taxi-page #contact-form-section form>div.left button {
-        margin-top: 32px;
+    #taxi-page #contact-form-section .taxi-form-actions {
+        gap: 14px;
+    }
+
+    #taxi-page #contact-form-section .taxi-form-actions .taxi-captcha {
+        justify-content: center;
     }
 
     #contact-form-section form>div.right {

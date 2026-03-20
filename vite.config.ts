@@ -24,7 +24,12 @@ export default defineConfig(({ command, mode }) => {
           entryFileNames: "assets/js/[name]-[hash].js",
           chunkFileNames: "assets/js/[name]-[hash].js",
           assetFileNames: (assetInfo) => {
-            if ((assetInfo.name ?? "").toLowerCase().endsWith(".css")) {
+            const names = Array.isArray(assetInfo.names) ? assetInfo.names : [];
+            const originalFileNames = Array.isArray(assetInfo.originalFileNames) ? assetInfo.originalFileNames : [];
+            const fileNames = [...names, ...originalFileNames];
+            const isCssAsset = fileNames.some((name) => name.toLowerCase().endsWith(".css"));
+
+            if (isCssAsset) {
               return "assets/css/[name]-[hash][extname]";
             }
 

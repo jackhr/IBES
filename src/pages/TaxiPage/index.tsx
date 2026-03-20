@@ -188,17 +188,6 @@ export default function TaxiPage() {
                   onChange={(event) => setMessage(event.target.value)}
                 />
               </div>
-              <CaptchaWidget
-                enabled={captchaConfig.enabled}
-                provider={captchaConfig.provider}
-                siteKey={captchaConfig.siteKey}
-                resetCounter={captchaResetCounter}
-                onTokenChange={setCaptchaToken}
-              />
-              <input name="h826r2whj4fi_cjz8jxs2zuwahhhk6" type="text" autoComplete="off" tabIndex={-1} className="hp-field" />
-              <button type="submit" disabled={sending || (captchaConfig.enabled && !captchaToken)}>
-                {sending ? "SUBMITTING..." : "SUBMIT RESERVATION"}
-              </button>
             </div>
             <div className="right">
               <div className="input-container taxi-message" style={{ margin: 0 }}>
@@ -213,6 +202,21 @@ export default function TaxiPage() {
                   onChange={(event) => setMessage(event.target.value)}
                 />
               </div>
+            </div>
+            <div className="taxi-form-actions">
+              <div className="taxi-captcha">
+                <CaptchaWidget
+                  enabled={captchaConfig.enabled}
+                  provider={captchaConfig.provider}
+                  siteKey={captchaConfig.siteKey}
+                  resetCounter={captchaResetCounter}
+                  onTokenChange={setCaptchaToken}
+                />
+              </div>
+              <input name="h826r2whj4fi_cjz8jxs2zuwahhhk6" type="text" autoComplete="off" tabIndex={-1} className="hp-field" />
+              <button type="submit" disabled={sending || (captchaConfig.enabled && !captchaToken)}>
+                {sending ? "SUBMITTING..." : "SUBMIT RESERVATION"}
+              </button>
             </div>
           </form>
         </div>

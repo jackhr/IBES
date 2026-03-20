@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import HCaptcha, { HCaptcha as HCaptchaInstance } from "@hcaptcha/react-hcaptcha";
+import { useEffect, useRef } from "react";
 import { CaptchaProvider } from "../../lib/captcha";
 import "./CaptchaWidget.scss";
 
@@ -14,9 +15,6 @@ declare global {
   interface Window {
     __ibesCaptchaSolved?: (token: string) => void;
     __ibesCaptchaExpired?: () => void;
-    hcaptcha?: {
-      reset: () => void;
-    };
     grecaptcha?: {
       reset: () => void;
     };
@@ -24,7 +22,6 @@ declare global {
 }
 
 const SCRIPT_IDS = {
-  hcaptcha: "ibes-hcaptcha-script",
   recaptcha: "ibes-recaptcha-script"
 } as const;
 
@@ -38,8 +35,10 @@ export default function CaptchaWidget({
   resetCounter,
   onTokenChange
 }: CaptchaWidgetProps) {
+  const hcaptchaRef = useRef<HCaptchaInstance | null>(null);
+
   useEffect(() => {
-    if (!enabled || provider === "none") {
+    if (!enabled || provider !== "recaptcha") {
       return;
     }
 
@@ -58,7 +57,7 @@ export default function CaptchaWidget({
   }, [enabled, provider, onTokenChange]);
 
   useEffect(() => {
-    if (!enabled || provider === "none") {
+    if (!enabled || provider !== "recaptcha") {
       return;
     }
 
@@ -72,10 +71,7 @@ export default function CaptchaWidget({
     script.id = scriptId;
     script.async = true;
     script.defer = true;
-    script.src =
-      provider === "hcaptcha"
-        ? "https://js.hcaptcha.com/1/api.js"
-        : "https://www.google.com/recaptcha/api.js";
+    script.src = "https://www.google.com/recaptcha/api.js";
 
     document.body.appendChild(script);
   }, [enabled, provider]);
@@ -87,8 +83,8 @@ export default function CaptchaWidget({
 
     onTokenChange(null);
 
-    if (provider === "hcaptcha" && window.hcaptcha) {
-      window.hcaptcha.reset();
+    if (provider === "hcaptcha" && hcaptchaRef.current) {
+      hcaptchaRef.current.resetCaptcha();
       return;
     }
 
@@ -103,12 +99,16 @@ export default function CaptchaWidget({
 
   if (provider === "hcaptcha") {
     return (
-      <div
-        className="captcha-widget h-captcha"
-        data-sitekey={siteKey}
-        data-callback={CALLBACK_NAME}
-        data-expired-callback={EXPIRED_CALLBACK_NAME}
-      />
+      <div className="captcha-widget captcha-widget--hcaptcha">
+        <HCaptcha
+          ref={hcaptchaRef}
+          sitekey={siteKey}
+          onVerify={(token: string) => onTokenChange(token || null)}
+          onExpire={() => onTokenChange(null)}
+          onError={() => onTokenChange(null)}
+          reCaptchaCompat={false}
+        />
+      </div>
     );
   }
 

@@ -101,7 +101,7 @@ final class CaptchaVerifier
     private static function verifyEndpoint(string $provider): string
     {
         return match ($provider) {
-            'hcaptcha' => (string) \Config::get('HCAPTCHA_VERIFY_URL', 'https://hcaptcha.com/siteverify'),
+            'hcaptcha' => (string) \Config::get('HCAPTCHA_VERIFY_URL', 'https://api.hcaptcha.com/siteverify'),
             'recaptcha' => (string) \Config::get('RECAPTCHA_VERIFY_URL', 'https://www.google.com/recaptcha/api/siteverify'),
             default => '',
         };
