@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\Models\TaxiRequest;
 use App\Repositories\TaxiRequestRepository;
+use App\Support\EmailSender;
+use App\Support\Settings;
 use App\Support\Validator;
 use RuntimeException;
 
@@ -22,6 +24,7 @@ final class TaxiRequestService
     {
         $name = Validator::requiredString($data, ['name', 'customerName', 'customer_name'], 'Name', 2, 120);
         $phone = Validator::requiredPhone($data, ['phone', 'customerPhone', 'customer_phone'], 'Phone');
+        $email = Validator::requiredEmail($data, ['email', 'customerEmail', 'customer_email'], 'Email');
         $pickUp = Validator::requiredString($data, ['pickUp', 'pickupLocation', 'pickup_location'], 'Pick up location', 2, 200);
         $dropOff = Validator::requiredString($data, ['dropOff', 'dropoffLocation', 'dropoff_location'], 'Drop off location', 2, 200);
         $passengers = Validator::requiredInt($data, ['passengers', 'numberOfPassengers', 'number_of_passengers'], 'Passengers', 1, 30);
@@ -29,6 +32,7 @@ final class TaxiRequestService
 
         $pickUpDate = Validator::requiredDateTime($data, ['pickUpTime', 'pickupTime', 'pickup_time'], 'Pick up time');
         $pickUpDateTime = $pickUpDate->format('Y-m-d H:i:s');
+        $formattedPickUpDateTime = $pickUpDate->format('F j, Y \a\t g:i A');
 
         $requestId = $this->taxiRequestRepository->insertTaxiRequest(
             $name,
@@ -45,6 +49,16 @@ final class TaxiRequestService
         if (!is_array($row)) {
             throw new RuntimeException('Unable to load newly created taxi request.');
         }
+
+        $companyName = Settings::companyName();
+        $domain = Settings::domain();
+        $to = Settings::contactEmailString();
+        $specialRequirements = $message === '' ? 'None' : $message;
+
+        $subject = "$companyName Website Taxi Reservation";
+        $body = "Someone has requested a taxi from $companyName website.\n\nName: $name\n\nEmail: $email\n\nPhone: $phone\n\nPick Up Location: $pickUp\n\nDrop Off Location: $dropOff\n\nNumber of Passengers: $passengers\n\nTime of Pick Up: $formattedPickUpDateTime\n\nSpecial Requirements: $specialRequirements";
+
+        EmailSender::sendPlainText($to, $subject, $body, "no-reply@$domain", $email);
 
         return TaxiRequest::fromArray($row)->toArray();
     }
