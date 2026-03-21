@@ -67,7 +67,11 @@ export default function App() {
   };
 
   if (checking) {
-    return <div className="auth-shell">Checking session...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted/35 px-6 text-sm font-medium text-muted-foreground">
+        Checking session...
+      </div>
+    );
   }
 
   return (
