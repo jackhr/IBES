@@ -1,17 +1,13 @@
 import axios from "axios";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
-  type LucideIcon,
   CarFront,
   CarTaxiFront,
-  CircleDollarSign,
   ClipboardList,
   LayoutGrid,
   LogOut,
-  Plus,
   RefreshCw,
   Tags,
-  Pencil,
   BadgePercent
 } from "lucide-react";
 import {
@@ -35,7 +31,6 @@ import {
 } from "../lib/api";
 import type { AddOn, AdminUser, DashboardSummary, OrderRequest, TaxiRequest, Vehicle, VehicleDiscount } from "../types";
 import DashboardTabs, { type DashboardTabItem } from "../components/dashboard/DashboardTabs";
-import DataTable from "../components/dashboard/DataTable";
 import FormModal from "../components/dashboard/FormModal";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
@@ -51,16 +46,14 @@ import {
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Select } from "../components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "../components/ui/table";
 import { Tabs, TabsContent } from "../components/ui/tabs";
 import { Textarea } from "../components/ui/textarea";
+import OverviewPage from "./OverviewPage";
+import VehiclesPage from "./VehiclesPage";
+import AddOnsPage from "./AddOnsPage";
+import DiscountsPage from "./DiscountsPage";
+import OrderRequestsPage from "./OrderRequestsPage";
+import TaxiRequestsPage from "./TaxiRequestsPage";
 
 type DashboardPageProps = {
   user: AdminUser;
@@ -74,13 +67,6 @@ type ConfirmDialogState = {
   title: string;
   description: string;
   action: (() => Promise<void>) | null;
-};
-
-type OverviewMetric = {
-  title: string;
-  value: string;
-  note: string;
-  icon: LucideIcon;
 };
 
 type PaginationMeta = {
@@ -140,8 +126,6 @@ const initialConfirmState: ConfirmDialogState = {
   description: "",
   action: null
 };
-
-const MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH = 90;
 const ORDER_REQUESTS_PER_PAGE = 20;
 const TAXI_REQUESTS_PER_PAGE = 20;
 
@@ -201,36 +185,6 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
           (b.landing_order ?? Number.MAX_SAFE_INTEGER)
       ),
     [vehicles]
-  );
-
-  const overviewMetrics = useMemo<OverviewMetric[]>(
-    () => [
-      {
-        title: "Total Vehicles",
-        value: summary ? String(summary.vehicles_total) : "-",
-        note: summary ? `${summary.vehicles_showing} visible on the website.` : "",
-        icon: CarFront
-      },
-      {
-        title: "Add-Ons & Discounts",
-        value: summary ? String(summary.add_ons_total) : "-",
-        note: summary ? `${summary.vehicle_discounts_total} discount rows configured.` : "",
-        icon: Tags
-      },
-      {
-        title: "Order Requests",
-        value: summary ? String(summary.order_requests_total) : "-",
-        note: summary ? `${summary.order_requests_pending} pending confirmations.` : "",
-        icon: ClipboardList
-      },
-      {
-        title: "Revenue (USD)",
-        value: summary ? `$${summary.order_requests_revenue.toFixed(2)}` : "-",
-        note: "Order subtotal aggregate.",
-        icon: CircleDollarSign
-      }
-    ],
-    [summary]
   );
 
   useEffect(() => {
@@ -523,20 +477,6 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
     setTaxiDetailOpen(true);
   };
 
-  const getTaxiSpecialRequirementsPreview = (value: string | null) => {
-    const content = value?.trim();
-
-    if (!content) {
-      return "-";
-    }
-
-    if (content.length <= MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH) {
-      return content;
-    }
-
-    return `${content.slice(0, MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH - 1)}…`;
-  };
-
   const formatPaginationRange = (meta: PaginationMeta) => {
     if (meta.total === 0) {
       return "0 of 0";
@@ -636,387 +576,68 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
 
           <div className="space-y-6">
             <TabsContent value="overview" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {overviewMetrics.map((metric) => (
-                  <Card key={metric.title} className="border-border/70 shadow-sm">
-                    <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-                      <CardDescription>{metric.title}</CardDescription>
-                      <metric.icon className="text-muted-foreground h-4 w-4" />
-                    </CardHeader>
-                    <CardContent className="space-y-1">
-                      <CardTitle className="text-2xl">{metric.value}</CardTitle>
-                      <p className="text-muted-foreground text-sm">{metric.note}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              <Card className="border-border/70 shadow-sm">
-                <CardHeader>
-                  <CardTitle className="text-base">Operations Overview</CardTitle>
-                  <CardDescription>Quick-glance service health for today.</CardDescription>
-                </CardHeader>
-                <CardContent className="grid gap-3 text-sm md:grid-cols-3">
-                  <div className="rounded-lg border bg-background px-3 py-2">
-                    <p className="text-muted-foreground">Pending Orders</p>
-                    <p className="mt-1 text-lg font-semibold">{summary.order_requests_pending}</p>
-                  </div>
-                  <div className="rounded-lg border bg-background px-3 py-2">
-                    <p className="text-muted-foreground">Confirmed Orders</p>
-                    <p className="mt-1 text-lg font-semibold">
-                      {Math.max(0, summary.order_requests_total - summary.order_requests_pending)}
-                    </p>
-                  </div>
-                  <div className="rounded-lg border bg-background px-3 py-2">
-                    <p className="text-muted-foreground">Taxi Queue</p>
-                    <p className="mt-1 text-lg font-semibold">{summary.taxi_requests_total}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <OverviewPage summary={summary} />
             </TabsContent>
 
             <TabsContent value="vehicles" className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Vehicles</CardTitle>
-                    <CardDescription>Manage your rentable fleet and landing order.</CardDescription>
-                  </div>
-                  <Button onClick={openVehicleCreateModal}>
-                    <Plus className="h-4 w-4" />
-                    New Vehicle
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <DataTable>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>ID</TableHead>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Type</TableHead>
-                          <TableHead>USD</TableHead>
-                          <TableHead>Showing</TableHead>
-                          <TableHead>Requests</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {sortedVehicles.map((vehicle) => (
-                          <TableRow key={vehicle.id}>
-                            <TableCell>{vehicle.id}</TableCell>
-                            <TableCell>{vehicle.name}</TableCell>
-                            <TableCell>{vehicle.type}</TableCell>
-                            <TableCell>${vehicle.base_price_USD}</TableCell>
-                            <TableCell>{vehicle.showing ? "Yes" : "No"}</TableCell>
-                            <TableCell>{vehicle.times_requested}</TableCell>
-                            <TableCell>
-                              <div className="flex justify-end">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => openVehicleEditModal(vehicle)}
-                                  disabled={busy}
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                  Edit
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </DataTable>
-                </CardContent>
-              </Card>
+              <VehiclesPage
+                vehicles={sortedVehicles}
+                busy={busy}
+                onCreate={openVehicleCreateModal}
+                onEdit={openVehicleEditModal}
+              />
             </TabsContent>
 
             <TabsContent value="addons" className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Add-Ons</CardTitle>
-                    <CardDescription>Configure optional rental items and extras.</CardDescription>
-                  </div>
-                  <Button onClick={openAddOnCreateModal}>
-                    <Plus className="h-4 w-4" />
-                    New Add-On
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <DataTable>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>ID</TableHead>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Abbr</TableHead>
-                          <TableHead>Cost</TableHead>
-                          <TableHead>Fixed</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {addOns.map((addOn) => (
-                          <TableRow key={addOn.id}>
-                            <TableCell>{addOn.id}</TableCell>
-                            <TableCell>{addOn.name}</TableCell>
-                            <TableCell>{addOn.abbr}</TableCell>
-                            <TableCell>{addOn.cost ?? "-"}</TableCell>
-                            <TableCell>{addOn.fixed_price ? "Yes" : "No"}</TableCell>
-                            <TableCell>
-                              <div className="flex justify-end">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => openAddOnEditModal(addOn)}
-                                  disabled={busy}
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                  Edit
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </DataTable>
-                </CardContent>
-              </Card>
+              <AddOnsPage
+                addOns={addOns}
+                busy={busy}
+                onCreate={openAddOnCreateModal}
+                onEdit={openAddOnEditModal}
+              />
             </TabsContent>
 
             <TabsContent value="discounts" className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Vehicle Discounts</CardTitle>
-                    <CardDescription>Define discounted rates by vehicle and minimum days.</CardDescription>
-                  </div>
-                  <Button onClick={openDiscountCreateModal}>
-                    <Plus className="h-4 w-4" />
-                    New Discount
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <DataTable>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>ID</TableHead>
-                          <TableHead>Vehicle</TableHead>
-                          <TableHead>Days</TableHead>
-                          <TableHead>USD</TableHead>
-                          <TableHead>XCD</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {discounts.map((discount) => (
-                          <TableRow key={discount.id}>
-                            <TableCell>{discount.id}</TableCell>
-                            <TableCell>{discount.vehicle?.name ?? `#${discount.vehicle_id}`}</TableCell>
-                            <TableCell>{discount.days}</TableCell>
-                            <TableCell>${discount.price_USD}</TableCell>
-                            <TableCell>${discount.price_XCD}</TableCell>
-                            <TableCell>
-                              <div className="flex justify-end">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => openDiscountEditModal(discount)}
-                                  disabled={busy}
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                  Edit
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </DataTable>
-                </CardContent>
-              </Card>
+              <DiscountsPage
+                discounts={discounts}
+                busy={busy}
+                onCreate={openDiscountCreateModal}
+                onEdit={openDiscountEditModal}
+              />
             </TabsContent>
 
             <TabsContent value="orders" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Order Requests</CardTitle>
-                  <CardDescription>Paginated car rental requests with quick status toggles.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <DataTable>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>ID</TableHead>
-                          <TableHead>Customer</TableHead>
-                          <TableHead>Vehicle</TableHead>
-                          <TableHead>Days</TableHead>
-                          <TableHead>Subtotal</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {orders.map((order) => (
-                          <TableRow key={order.id}>
-                            <TableCell>{order.id}</TableCell>
-                            <TableCell>
-                              {order.contact_info
-                                ? `${order.contact_info.first_name} ${order.contact_info.last_name}`
-                                : "-"}
-                            </TableCell>
-                            <TableCell>{order.vehicle?.name ?? "-"}</TableCell>
-                            <TableCell>{order.days}</TableCell>
-                            <TableCell>${order.sub_total.toFixed(2)}</TableCell>
-                            <TableCell>{order.confirmed ? "Confirmed" : "Pending"}</TableCell>
-                            <TableCell>
-                              <div className="flex justify-end">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => void toggleOrderStatusHandler(order)}
-                                  disabled={busy}
-                                >
-                                  Mark {order.confirmed ? "Pending" : "Confirmed"}
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </DataTable>
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
-                    <p className="text-muted-foreground">Showing {formatPaginationRange(orderRequestsMeta)}</p>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={busy || orderRequestsMeta.current_page <= 1}
-                        onClick={() => setOrderRequestsPage((prev) => Math.max(1, prev - 1))}
-                      >
-                        Previous
-                      </Button>
-                      <span className="text-muted-foreground">
-                        Page {orderRequestsMeta.current_page} of {Math.max(1, orderRequestsMeta.last_page)}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={busy || orderRequestsMeta.current_page >= orderRequestsMeta.last_page}
-                        onClick={() =>
-                          setOrderRequestsPage((prev) =>
-                            Math.min(Math.max(1, orderRequestsMeta.last_page), prev + 1)
-                          )
-                        }
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <OrderRequestsPage
+                orders={orders}
+                busy={busy}
+                onToggleStatus={(order) => void toggleOrderStatusHandler(order)}
+                paginationLabel={formatPaginationRange(orderRequestsMeta)}
+                currentPage={orderRequestsMeta.current_page}
+                lastPage={orderRequestsMeta.last_page}
+                canGoPrevious={orderRequestsMeta.current_page > 1}
+                canGoNext={orderRequestsMeta.current_page < orderRequestsMeta.last_page}
+                onPreviousPage={() => setOrderRequestsPage((prev) => Math.max(1, prev - 1))}
+                onNextPage={() =>
+                  setOrderRequestsPage((prev) => Math.min(Math.max(1, orderRequestsMeta.last_page), prev + 1))
+                }
+              />
             </TabsContent>
 
             <TabsContent value="taxi" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Taxi Requests</CardTitle>
-                  <CardDescription>Paginated transfer requests from the public taxi form.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <DataTable>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>ID</TableHead>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Phone</TableHead>
-                          <TableHead>Pickup</TableHead>
-                          <TableHead>Dropoff</TableHead>
-                          <TableHead>Time</TableHead>
-                          <TableHead>Pax</TableHead>
-                          <TableHead>Special Requirements</TableHead>
-                          <TableHead>Created</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {taxiRequests.map((request) => (
-                          <TableRow
-                            key={request.request_id}
-                            role="button"
-                            tabIndex={0}
-                            className="cursor-pointer"
-                            onClick={() => openTaxiRequestDetail(request)}
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter" || event.key === " ") {
-                                event.preventDefault();
-                                openTaxiRequestDetail(request);
-                              }
-                            }}
-                          >
-                            <TableCell>{request.request_id}</TableCell>
-                            <TableCell>{request.customer_name}</TableCell>
-                            <TableCell>{request.customer_phone}</TableCell>
-                            <TableCell>{request.pickup_location}</TableCell>
-                            <TableCell>{request.dropoff_location}</TableCell>
-                            <TableCell>{request.pickup_time}</TableCell>
-                            <TableCell>{request.number_of_passengers}</TableCell>
-                            <TableCell>
-                              <span className="block max-w-[280px] truncate" title={request.special_requirements ?? "-"}>
-                                {getTaxiSpecialRequirementsPreview(request.special_requirements)}
-                              </span>
-                            </TableCell>
-                            <TableCell>{request.created_at}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </DataTable>
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
-                    <p className="text-muted-foreground">Showing {formatPaginationRange(taxiRequestsMeta)}</p>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={busy || taxiRequestsMeta.current_page <= 1}
-                        onClick={() => setTaxiRequestsPage((prev) => Math.max(1, prev - 1))}
-                      >
-                        Previous
-                      </Button>
-                      <span className="text-muted-foreground">
-                        Page {taxiRequestsMeta.current_page} of {Math.max(1, taxiRequestsMeta.last_page)}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={busy || taxiRequestsMeta.current_page >= taxiRequestsMeta.last_page}
-                        onClick={() =>
-                          setTaxiRequestsPage((prev) =>
-                            Math.min(Math.max(1, taxiRequestsMeta.last_page), prev + 1)
-                          )
-                        }
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <TaxiRequestsPage
+                taxiRequests={taxiRequests}
+                busy={busy}
+                onOpenDetail={openTaxiRequestDetail}
+                paginationLabel={formatPaginationRange(taxiRequestsMeta)}
+                currentPage={taxiRequestsMeta.current_page}
+                lastPage={taxiRequestsMeta.last_page}
+                canGoPrevious={taxiRequestsMeta.current_page > 1}
+                canGoNext={taxiRequestsMeta.current_page < taxiRequestsMeta.last_page}
+                onPreviousPage={() => setTaxiRequestsPage((prev) => Math.max(1, prev - 1))}
+                onNextPage={() =>
+                  setTaxiRequestsPage((prev) => Math.min(Math.max(1, taxiRequestsMeta.last_page), prev + 1))
+                }
+              />
             </TabsContent>
           </div>
         </Tabs>
