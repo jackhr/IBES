@@ -83,6 +83,13 @@ type OverviewMetric = {
   icon: LucideIcon;
 };
 
+type PaginationMeta = {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
+
 const sectionTabs: DashboardTabItem<Section>[] = [
   { value: "overview", label: "Overview", icon: LayoutGrid },
   { value: "vehicles", label: "Vehicles", icon: CarFront },
@@ -135,6 +142,15 @@ const initialConfirmState: ConfirmDialogState = {
 };
 
 const MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH = 90;
+const ORDER_REQUESTS_PER_PAGE = 20;
+const TAXI_REQUESTS_PER_PAGE = 20;
+
+const initialPaginationMeta = (perPage: number): PaginationMeta => ({
+  current_page: 1,
+  last_page: 1,
+  per_page: perPage,
+  total: 0
+});
 
 export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
   const [section, setSection] = useState<Section>("overview");
@@ -148,6 +164,14 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
   const [discounts, setDiscounts] = useState<VehicleDiscount[]>([]);
   const [orders, setOrders] = useState<OrderRequest[]>([]);
   const [taxiRequests, setTaxiRequests] = useState<TaxiRequest[]>([]);
+  const [orderRequestsMeta, setOrderRequestsMeta] = useState<PaginationMeta>(
+    initialPaginationMeta(ORDER_REQUESTS_PER_PAGE)
+  );
+  const [taxiRequestsMeta, setTaxiRequestsMeta] = useState<PaginationMeta>(
+    initialPaginationMeta(TAXI_REQUESTS_PER_PAGE)
+  );
+  const [orderRequestsPage, setOrderRequestsPage] = useState(1);
+  const [taxiRequestsPage, setTaxiRequestsPage] = useState(1);
   const [taxiDetailOpen, setTaxiDetailOpen] = useState(false);
   const [selectedTaxiRequest, setSelectedTaxiRequest] = useState<TaxiRequest | null>(null);
 
@@ -211,8 +235,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
 
   useEffect(() => {
     void loadAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [orderRequestsPage, taxiRequestsPage]);
 
   const loadAll = async () => {
     setBusy(true);
@@ -224,8 +247,8 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
         getVehicles(),
         getAddOns(),
         getVehicleDiscounts(),
-        getOrderRequests({ per_page: 50, status: "all" }),
-        getTaxiRequests({ per_page: 50 })
+        getOrderRequests({ per_page: ORDER_REQUESTS_PER_PAGE, page: orderRequestsPage, status: "all" }),
+        getTaxiRequests({ per_page: TAXI_REQUESTS_PER_PAGE, page: taxiRequestsPage })
       ]);
 
       setSummary(summaryRes);
@@ -234,6 +257,8 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
       setDiscounts(discountsRes);
       setOrders(ordersRes.items);
       setTaxiRequests(taxiRes.items);
+      setOrderRequestsMeta(ordersRes.meta);
+      setTaxiRequestsMeta(taxiRes.meta);
     } catch (loadError) {
       if (axios.isAxiosError(loadError) && loadError.response?.status === 401) {
         setError("Your admin session expired. Please sign in again.");
@@ -510,6 +535,16 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
     }
 
     return `${content.slice(0, MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH - 1)}…`;
+  };
+
+  const formatPaginationRange = (meta: PaginationMeta) => {
+    if (meta.total === 0) {
+      return "0 of 0";
+    }
+
+    const start = (meta.current_page - 1) * meta.per_page + 1;
+    const end = Math.min(meta.total, meta.current_page * meta.per_page);
+    return `${start}-${end} of ${meta.total}`;
   };
 
   if (!summary) {
@@ -814,7 +849,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
               <Card>
                 <CardHeader>
                   <CardTitle>Order Requests</CardTitle>
-                  <CardDescription>Latest 50 car rental requests with quick status toggles.</CardDescription>
+                  <CardDescription>Paginated car rental requests with quick status toggles.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <DataTable>
@@ -861,6 +896,36 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                       </TableBody>
                     </Table>
                   </DataTable>
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+                    <p className="text-muted-foreground">Showing {formatPaginationRange(orderRequestsMeta)}</p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={busy || orderRequestsMeta.current_page <= 1}
+                        onClick={() => setOrderRequestsPage((prev) => Math.max(1, prev - 1))}
+                      >
+                        Previous
+                      </Button>
+                      <span className="text-muted-foreground">
+                        Page {orderRequestsMeta.current_page} of {Math.max(1, orderRequestsMeta.last_page)}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={busy || orderRequestsMeta.current_page >= orderRequestsMeta.last_page}
+                        onClick={() =>
+                          setOrderRequestsPage((prev) =>
+                            Math.min(Math.max(1, orderRequestsMeta.last_page), prev + 1)
+                          )
+                        }
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -869,7 +934,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
               <Card>
                 <CardHeader>
                   <CardTitle>Taxi Requests</CardTitle>
-                  <CardDescription>Latest 50 transfer requests from the public taxi form.</CardDescription>
+                  <CardDescription>Paginated transfer requests from the public taxi form.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <DataTable>
@@ -920,6 +985,36 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                       </TableBody>
                     </Table>
                   </DataTable>
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+                    <p className="text-muted-foreground">Showing {formatPaginationRange(taxiRequestsMeta)}</p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={busy || taxiRequestsMeta.current_page <= 1}
+                        onClick={() => setTaxiRequestsPage((prev) => Math.max(1, prev - 1))}
+                      >
+                        Previous
+                      </Button>
+                      <span className="text-muted-foreground">
+                        Page {taxiRequestsMeta.current_page} of {Math.max(1, taxiRequestsMeta.last_page)}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={busy || taxiRequestsMeta.current_page >= taxiRequestsMeta.last_page}
+                        onClick={() =>
+                          setTaxiRequestsPage((prev) =>
+                            Math.min(Math.max(1, taxiRequestsMeta.last_page), prev + 1)
+                          )
+                        }
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

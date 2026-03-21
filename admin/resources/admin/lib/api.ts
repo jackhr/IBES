@@ -143,6 +143,7 @@ export async function deleteVehicleDiscount(id: number): Promise<void> {
 
 export async function getOrderRequests(params?: {
   per_page?: number;
+  page?: number;
   status?: "all" | "pending" | "confirmed";
   search?: string;
 }): Promise<Paginated<OrderRequest>> {
@@ -163,6 +164,7 @@ export async function updateOrderStatus(id: number, confirmed: boolean): Promise
 
 export async function getTaxiRequests(params?: {
   per_page?: number;
+  page?: number;
   search?: string;
 }): Promise<Paginated<TaxiRequest>> {
   const response = await api.get<ApiEnvelope<Paginated<TaxiRequest>>>("/taxi-requests", {
