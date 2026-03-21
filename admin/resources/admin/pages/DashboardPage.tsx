@@ -11,7 +11,6 @@ import {
   Plus,
   RefreshCw,
   Tags,
-  Trash2,
   Pencil,
   BadgePercent
 } from "lucide-react";
@@ -135,6 +134,8 @@ const initialConfirmState: ConfirmDialogState = {
   action: null
 };
 
+const MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH = 90;
+
 export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
   const [section, setSection] = useState<Section>("overview");
   const [busy, setBusy] = useState(false);
@@ -147,6 +148,8 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
   const [discounts, setDiscounts] = useState<VehicleDiscount[]>([]);
   const [orders, setOrders] = useState<OrderRequest[]>([]);
   const [taxiRequests, setTaxiRequests] = useState<TaxiRequest[]>([]);
+  const [taxiDetailOpen, setTaxiDetailOpen] = useState(false);
+  const [selectedTaxiRequest, setSelectedTaxiRequest] = useState<TaxiRequest | null>(null);
 
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
   const [vehicleModalMode, setVehicleModalMode] = useState<"create" | "edit">("create");
@@ -332,6 +335,22 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
     );
   };
 
+  const requestVehicleDeleteFromModal = () => {
+    if (vehicleModalMode !== "edit" || vehicleEditingId === null) {
+      return;
+    }
+
+    const vehicle = vehicles.find((item) => item.id === vehicleEditingId);
+
+    if (!vehicle) {
+      setError("Vehicle no longer exists.");
+      return;
+    }
+
+    setVehicleModalOpen(false);
+    requestVehicleDelete(vehicle);
+  };
+
   const openAddOnCreateModal = () => {
     setAddOnModalMode("create");
     setAddOnEditingId(null);
@@ -379,6 +398,22 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
         }, "Add-on deleted.");
       }
     );
+  };
+
+  const requestAddOnDeleteFromModal = () => {
+    if (addOnModalMode !== "edit" || addOnEditingId === null) {
+      return;
+    }
+
+    const addOn = addOns.find((item) => item.id === addOnEditingId);
+
+    if (!addOn) {
+      setError("Add-on no longer exists.");
+      return;
+    }
+
+    setAddOnModalOpen(false);
+    requestAddOnDelete(addOn);
   };
 
   const openDiscountCreateModal = () => {
@@ -435,11 +470,46 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
     );
   };
 
+  const requestDiscountDeleteFromModal = () => {
+    if (discountModalMode !== "edit" || discountEditingId === null) {
+      return;
+    }
+
+    const discount = discounts.find((item) => item.id === discountEditingId);
+
+    if (!discount) {
+      setError("Discount no longer exists.");
+      return;
+    }
+
+    setDiscountModalOpen(false);
+    requestDiscountDelete(discount);
+  };
+
   const toggleOrderStatusHandler = async (order: OrderRequest) => {
     await withFeedback(async () => {
       await updateOrderStatus(order.id, !order.confirmed);
       await loadAll();
     }, `Order #${order.id} updated.`);
+  };
+
+  const openTaxiRequestDetail = (request: TaxiRequest) => {
+    setSelectedTaxiRequest(request);
+    setTaxiDetailOpen(true);
+  };
+
+  const getTaxiSpecialRequirementsPreview = (value: string | null) => {
+    const content = value?.trim();
+
+    if (!content) {
+      return "-";
+    }
+
+    if (content.length <= MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH) {
+      return content;
+    }
+
+    return `${content.slice(0, MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH - 1)}…`;
   };
 
   if (!summary) {
@@ -606,7 +676,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                             <TableCell>{vehicle.showing ? "Yes" : "No"}</TableCell>
                             <TableCell>{vehicle.times_requested}</TableCell>
                             <TableCell>
-                              <div className="flex justify-end gap-2">
+                              <div className="flex justify-end">
                                 <Button
                                   type="button"
                                   variant="outline"
@@ -616,16 +686,6 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
                                   Edit
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => requestVehicleDelete(vehicle)}
-                                  disabled={busy}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                  Delete
                                 </Button>
                               </div>
                             </TableCell>
@@ -672,7 +732,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                             <TableCell>{addOn.cost ?? "-"}</TableCell>
                             <TableCell>{addOn.fixed_price ? "Yes" : "No"}</TableCell>
                             <TableCell>
-                              <div className="flex justify-end gap-2">
+                              <div className="flex justify-end">
                                 <Button
                                   type="button"
                                   variant="outline"
@@ -682,16 +742,6 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
                                   Edit
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => requestAddOnDelete(addOn)}
-                                  disabled={busy}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                  Delete
                                 </Button>
                               </div>
                             </TableCell>
@@ -738,7 +788,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                             <TableCell>${discount.price_USD}</TableCell>
                             <TableCell>${discount.price_XCD}</TableCell>
                             <TableCell>
-                              <div className="flex justify-end gap-2">
+                              <div className="flex justify-end">
                                 <Button
                                   type="button"
                                   variant="outline"
@@ -748,16 +798,6 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
                                   Edit
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => requestDiscountDelete(discount)}
-                                  disabled={busy}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                  Delete
                                 </Button>
                               </div>
                             </TableCell>
@@ -849,7 +889,19 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                       </TableHeader>
                       <TableBody>
                         {taxiRequests.map((request) => (
-                          <TableRow key={request.request_id}>
+                          <TableRow
+                            key={request.request_id}
+                            role="button"
+                            tabIndex={0}
+                            className="cursor-pointer"
+                            onClick={() => openTaxiRequestDetail(request)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                openTaxiRequestDetail(request);
+                              }
+                            }}
+                          >
                             <TableCell>{request.request_id}</TableCell>
                             <TableCell>{request.customer_name}</TableCell>
                             <TableCell>{request.customer_phone}</TableCell>
@@ -857,7 +909,11 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                             <TableCell>{request.dropoff_location}</TableCell>
                             <TableCell>{request.pickup_time}</TableCell>
                             <TableCell>{request.number_of_passengers}</TableCell>
-                            <TableCell className="max-w-[300px] whitespace-normal">{request.special_requirements || "-"}</TableCell>
+                            <TableCell>
+                              <span className="block max-w-[280px] truncate" title={request.special_requirements ?? "-"}>
+                                {getTaxiSpecialRequirementsPreview(request.special_requirements)}
+                              </span>
+                            </TableCell>
                             <TableCell>{request.created_at}</TableCell>
                           </TableRow>
                         ))}
@@ -878,6 +934,8 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
           onSubmit={(event) => void submitVehicleModal(event)}
           submitLabel={vehicleModalMode === "create" ? "Create Vehicle" : "Save Changes"}
           loading={busy}
+          dangerActionLabel={vehicleModalMode === "edit" ? "Delete Vehicle" : undefined}
+          onDangerAction={vehicleModalMode === "edit" ? requestVehicleDeleteFromModal : undefined}
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
@@ -1057,6 +1115,8 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
           onSubmit={(event) => void submitAddOnModal(event)}
           submitLabel={addOnModalMode === "create" ? "Create Add-On" : "Save Changes"}
           loading={busy}
+          dangerActionLabel={addOnModalMode === "edit" ? "Delete Add-On" : undefined}
+          onDangerAction={addOnModalMode === "edit" ? requestAddOnDeleteFromModal : undefined}
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
@@ -1118,6 +1178,8 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
           onSubmit={(event) => void submitDiscountModal(event)}
           submitLabel={discountModalMode === "create" ? "Create Discount" : "Save Changes"}
           loading={busy}
+          dangerActionLabel={discountModalMode === "edit" ? "Delete Discount" : undefined}
+          onDangerAction={discountModalMode === "edit" ? requestDiscountDeleteFromModal : undefined}
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
@@ -1188,6 +1250,67 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
             </div>
           </div>
         </FormModal>
+
+        <Modal
+          open={taxiDetailOpen}
+          onOpenChange={(open) => {
+            setTaxiDetailOpen(open);
+
+            if (!open) {
+              setSelectedTaxiRequest(null);
+            }
+          }}
+        >
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>Taxi Request #{selectedTaxiRequest?.request_id ?? "-"}</ModalTitle>
+              <ModalDescription>Full details from the public taxi request form.</ModalDescription>
+            </ModalHeader>
+
+            {selectedTaxiRequest ? (
+              <div className="grid gap-3 text-sm md:grid-cols-2">
+                <div>
+                  <p className="text-muted-foreground text-xs font-semibold uppercase">Name</p>
+                  <p>{selectedTaxiRequest.customer_name}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs font-semibold uppercase">Phone</p>
+                  <p>{selectedTaxiRequest.customer_phone}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs font-semibold uppercase">Pickup</p>
+                  <p>{selectedTaxiRequest.pickup_location}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs font-semibold uppercase">Dropoff</p>
+                  <p>{selectedTaxiRequest.dropoff_location}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs font-semibold uppercase">Pickup Time</p>
+                  <p>{selectedTaxiRequest.pickup_time}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs font-semibold uppercase">Passengers</p>
+                  <p>{selectedTaxiRequest.number_of_passengers}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-muted-foreground text-xs font-semibold uppercase">Special Requirements</p>
+                  <p className="whitespace-pre-wrap">{selectedTaxiRequest.special_requirements || "-"}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-muted-foreground text-xs font-semibold uppercase">Created</p>
+                  <p>{selectedTaxiRequest.created_at}</p>
+                </div>
+              </div>
+            ) : null}
+
+            <ModalFooter>
+              <Button type="button" variant="outline" onClick={() => setTaxiDetailOpen(false)}>
+                Close
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
 
         <Modal
           open={confirmDialog.open}
