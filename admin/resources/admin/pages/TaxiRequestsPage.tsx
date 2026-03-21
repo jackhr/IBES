@@ -4,8 +4,6 @@ import DataTable from "../components/dashboard/DataTable";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import type { TaxiRequest } from "../types";
 
-const MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH = 90;
-
 type TaxiRequestsPageProps = {
   taxiRequests: TaxiRequest[];
   busy: boolean;
@@ -18,20 +16,6 @@ type TaxiRequestsPageProps = {
   onPreviousPage: () => void;
   onNextPage: () => void;
 };
-
-function getTaxiSpecialRequirementsPreview(value: string | null) {
-  const content = value?.trim();
-
-  if (!content) {
-    return "-";
-  }
-
-  if (content.length <= MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH) {
-    return content;
-  }
-
-  return `${content.slice(0, MAX_SPECIAL_REQUIREMENTS_PREVIEW_LENGTH - 1)}…`;
-}
 
 export default function TaxiRequestsPage({
   taxiRequests,
@@ -56,15 +40,11 @@ export default function TaxiRequestsPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Pickup</TableHead>
                 <TableHead>Dropoff</TableHead>
                 <TableHead>Time</TableHead>
-                <TableHead>Pax</TableHead>
-                <TableHead>Special Requirements</TableHead>
-                <TableHead>Created</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -82,19 +62,11 @@ export default function TaxiRequestsPage({
                     }
                   }}
                 >
-                  <TableCell>{request.request_id}</TableCell>
                   <TableCell>{request.customer_name}</TableCell>
                   <TableCell>{request.customer_phone}</TableCell>
                   <TableCell>{request.pickup_location}</TableCell>
                   <TableCell>{request.dropoff_location}</TableCell>
                   <TableCell>{request.pickup_time}</TableCell>
-                  <TableCell>{request.number_of_passengers}</TableCell>
-                  <TableCell>
-                    <span className="block max-w-[280px] truncate" title={request.special_requirements ?? "-"}>
-                      {getTaxiSpecialRequirementsPreview(request.special_requirements)}
-                    </span>
-                  </TableCell>
-                  <TableCell>{request.created_at}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

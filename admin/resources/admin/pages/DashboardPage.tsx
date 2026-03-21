@@ -574,7 +574,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
             </Card>
           </aside>
 
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             <TabsContent value="overview" className="space-y-4">
               <OverviewPage summary={summary} />
             </TabsContent>
@@ -985,6 +985,10 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
 
             {selectedTaxiRequest ? (
               <div className="grid gap-3 text-sm md:grid-cols-2">
+                <div>
+                  <p className="text-muted-foreground text-xs font-semibold uppercase">Request ID</p>
+                  <p>{selectedTaxiRequest.request_id}</p>
+                </div>
                 <div>
                   <p className="text-muted-foreground text-xs font-semibold uppercase">Name</p>
                   <p>{selectedTaxiRequest.customer_name}</p>
