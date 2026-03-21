@@ -14,12 +14,12 @@ type DashboardTabsProps<T extends string> = {
 
 export default function DashboardTabs<T extends string>({ tabs }: DashboardTabsProps<T>) {
   return (
-    <TabsList className="h-auto w-full grid-cols-1 gap-1 bg-transparent p-0">
+    <TabsList className="flex h-auto w-full flex-col items-stretch gap-1 bg-transparent p-0">
       {tabs.map((tab) => (
         <TabsTrigger
           key={tab.value}
           value={tab.value}
-          className="justify-start rounded-lg px-3 py-2 text-sm font-medium data-[state=active]:bg-accent"
+          className="w-full justify-start rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap data-[state=active]:bg-accent"
         >
           <tab.icon className="h-4 w-4" />
           {tab.label}
