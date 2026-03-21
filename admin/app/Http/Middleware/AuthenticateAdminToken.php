@@ -22,11 +22,15 @@ class AuthenticateAdminToken
 
         $token = AdminApiToken::query()
             ->where('token_hash', hash('sha256', $plainToken))
-            ->where('expires_at', '>', now())
             ->with('adminUser')
             ->first();
 
-        if ($token === null || $token->adminUser === null || ! $token->adminUser->active) {
+        if (
+            $token === null
+            || $token->adminUser === null
+            || ! $token->adminUser->active
+            || $this->isExpired($token)
+        ) {
             return response()->json([
                 'success' => false,
                 'message' => 'Authentication failed.',
@@ -52,5 +56,17 @@ class AuthenticateAdminToken
         }
 
         return trim((string) $request->header('X-Admin-Token', ''));
+    }
+
+    private function isExpired(AdminApiToken $token): bool
+    {
+        $ttlHours = max(1, (int) config('admin.token_ttl_hours', 12));
+        $issuedAt = $token->created_at;
+
+        if ($issuedAt === null) {
+            return true;
+        }
+
+        return $issuedAt->copy()->addHours($ttlHours)->lte(now());
     }
 }

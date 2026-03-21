@@ -1,3 +1,4 @@
+import axios from "axios";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   createAddOn,
@@ -109,6 +110,12 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
       setOrders(ordersRes.items);
       setTaxiRequests(taxiRes.items);
     } catch (loadError) {
+      if (axios.isAxiosError(loadError) && loadError.response?.status === 401) {
+        setError("Your admin session expired. Please sign in again.");
+        void onLogout();
+        return;
+      }
+
       setError(getApiErrorMessage(loadError));
     } finally {
       setBusy(false);

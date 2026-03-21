@@ -36,8 +36,14 @@ class AuthController extends Controller
         $token = AdminApiToken::query()->create([
             'admin_user_id' => $admin->id,
             'token_hash' => hash('sha256', $plainToken),
-            'expires_at' => now()->addHours($ttlHours),
+            'expires_at' => now(),
         ]);
+
+        $expiresAt = ($token->created_at ?? now())->copy()->addHours($ttlHours);
+
+        $token->forceFill([
+            'expires_at' => $expiresAt,
+        ])->save();
 
         $admin->forceFill([
             'last_login_at' => now(),
@@ -48,7 +54,7 @@ class AuthController extends Controller
             'message' => 'Logged in successfully.',
             'data' => [
                 'token' => $plainToken,
-                'expires_at' => $token->expires_at,
+                'expires_at' => $expiresAt,
                 'user' => $this->adminPayload($admin),
             ],
         ]);
