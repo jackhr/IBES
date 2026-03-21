@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        if (Schema::hasTable('admin_api_tokens')) {
+            return;
+        }
+
+        Schema::create('admin_api_tokens', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('admin_user_id')->constrained('admin_users')->cascadeOnDelete();
+            $table->string('token_hash', 64)->unique();
+            $table->timestamp('expires_at');
+            $table->timestamp('last_used_at')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('admin_api_tokens');
+    }
+};
