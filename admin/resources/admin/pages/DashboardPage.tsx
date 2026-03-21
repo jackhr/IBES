@@ -15,6 +15,7 @@ import {
   getVehicleDiscounts,
   getVehicles,
   updateAddOn,
+  updateVehicleDiscount,
   updateOrderStatus,
   updateVehicle
 } from "../lib/api";
@@ -242,6 +243,62 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
       setDiscountDraft(discountTemplate);
       await loadAll();
     }, "Discount created.");
+  };
+
+  const editDiscountHandler = async (discount: VehicleDiscount) => {
+    const vehicleIdInput = window.prompt("Vehicle ID", String(discount.vehicle_id));
+
+    if (vehicleIdInput === null) {
+      return;
+    }
+
+    const daysInput = window.prompt("Days", String(discount.days));
+
+    if (daysInput === null) {
+      return;
+    }
+
+    const usdInput = window.prompt("USD price", String(discount.price_USD));
+
+    if (usdInput === null) {
+      return;
+    }
+
+    const xcdInput = window.prompt("XCD price", String(discount.price_XCD));
+
+    if (xcdInput === null) {
+      return;
+    }
+
+    const vehicleId = Number(vehicleIdInput);
+    const days = Number(daysInput);
+    const priceUsd = Number(usdInput);
+    const priceXcd = Number(xcdInput);
+
+    if (!Number.isInteger(vehicleId) || vehicleId <= 0) {
+      setError("Vehicle ID must be a positive integer.");
+      return;
+    }
+
+    if (!Number.isInteger(days) || days <= 0) {
+      setError("Days must be a positive integer.");
+      return;
+    }
+
+    if (!Number.isFinite(priceUsd) || priceUsd < 0 || !Number.isFinite(priceXcd) || priceXcd < 0) {
+      setError("USD and XCD prices must be valid zero-or-positive numbers.");
+      return;
+    }
+
+    await withFeedback(async () => {
+      await updateVehicleDiscount(discount.id, {
+        vehicle_id: vehicleId,
+        days,
+        price_USD: priceUsd,
+        price_XCD: priceXcd
+      });
+      await loadAll();
+    }, "Discount updated.");
   };
 
   const deleteDiscountHandler = async (discount: VehicleDiscount) => {
@@ -554,6 +611,9 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                     <td>${discount.price_USD}</td>
                     <td>${discount.price_XCD}</td>
                     <td className="actions">
+                      <button type="button" onClick={() => void editDiscountHandler(discount)} disabled={busy}>
+                        Edit
+                      </button>
                       <button type="button" className="danger" onClick={() => void deleteDiscountHandler(discount)} disabled={busy}>
                         Delete
                       </button>

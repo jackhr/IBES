@@ -132,6 +132,11 @@ export async function createVehicleDiscount(payload: Partial<VehicleDiscount>): 
   return response.data.data;
 }
 
+export async function updateVehicleDiscount(id: number, payload: Partial<VehicleDiscount>): Promise<VehicleDiscount> {
+  const response = await api.put<ApiEnvelope<VehicleDiscount>>(`/vehicle-discounts/${id}`, payload);
+  return response.data.data;
+}
+
 export async function deleteVehicleDiscount(id: number): Promise<void> {
   await api.delete(`/vehicle-discounts/${id}`);
 }
