@@ -16,8 +16,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('admin_user_id');
             $table->string('token_hash', 64);
-            $table->timestamp('expires_at');
-            $table->timestamp('last_used_at')->nullable();
+            $table->dateTime('expires_at');
+            $table->dateTime('last_used_at')->nullable();
             $table->timestamps();
         });
     }
