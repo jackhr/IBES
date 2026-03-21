@@ -14,7 +14,7 @@ return new class extends Migration
 
         Schema::create('admin_users', function (Blueprint $table): void {
             $table->id();
-            $table->string('username', 120)->unique();
+            $table->string('username', 120);
             $table->string('password_hash');
             $table->string('role', 50)->default('admin');
             $table->boolean('active')->default(true);
