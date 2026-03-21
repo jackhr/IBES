@@ -32,18 +32,13 @@ class AuthController extends Controller
 
         $plainToken = bin2hex(random_bytes(24));
         $ttlHours = max(1, (int) config('admin.token_ttl_hours', 12));
+        $expiresAt = now('UTC')->addHours($ttlHours);
 
-        $token = AdminApiToken::query()->create([
+        AdminApiToken::query()->create([
             'admin_user_id' => $admin->id,
             'token_hash' => hash('sha256', $plainToken),
-            'expires_at' => now(),
-        ]);
-
-        $expiresAt = ($token->created_at ?? now())->copy()->addHours($ttlHours);
-
-        $token->forceFill([
             'expires_at' => $expiresAt,
-        ])->save();
+        ]);
 
         $admin->forceFill([
             'last_login_at' => now(),
