@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import RouteMeta from "./components/RouteMeta";
+import { trackVisitorPageView } from "./lib/visitorTracking";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -21,6 +22,14 @@ export default function App() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (underConstructionEnabled) {
+      return;
+    }
+
+    trackVisitorPageView(location.pathname, location.search);
+  }, [location.pathname, location.search, underConstructionEnabled]);
 
   useEffect(() => {
     if (underConstructionEnabled) {

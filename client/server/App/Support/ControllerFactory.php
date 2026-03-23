@@ -11,12 +11,14 @@ use App\Controllers\OrderRequestController;
 use App\Controllers\ReservationController;
 use App\Controllers\TaxiController;
 use App\Controllers\TaxiRequestController;
+use App\Controllers\VisitorAnalyticsController;
 use App\Controllers\VehicleController;
 use App\Controllers\VehicleDiscountController;
 use App\Controllers\VehicleRequestController;
 use App\Repositories\AddOnRepository;
 use App\Repositories\BookingRepository;
 use App\Repositories\TaxiRequestRepository;
+use App\Repositories\VisitorAnalyticsRepository;
 use App\Repositories\VehicleRepository;
 use App\Services\AddOnService;
 use App\Services\ContactService;
@@ -25,6 +27,7 @@ use App\Services\OrderRequestService;
 use App\Services\ReservationService;
 use App\Services\TaxiService;
 use App\Services\TaxiRequestService;
+use App\Services\VisitorAnalyticsService;
 use App\Services\VehicleDiscountService;
 use App\Services\VehicleService;
 use App\Services\VehicleRequestService;
@@ -36,6 +39,7 @@ final class ControllerFactory
     private static ?AddOnRepository $addOnRepository = null;
     private static ?BookingRepository $bookingRepository = null;
     private static ?TaxiRequestRepository $taxiRequestRepository = null;
+    private static ?VisitorAnalyticsRepository $visitorAnalyticsRepository = null;
     private static ?VehicleRepository $vehicleRepository = null;
 
     public static function contactController(): ContactController
@@ -66,6 +70,11 @@ final class ControllerFactory
     public static function taxiRequestController(): TaxiRequestController
     {
         return new TaxiRequestController(new TaxiRequestService(self::taxiRequestRepository()));
+    }
+
+    public static function visitorAnalyticsController(): VisitorAnalyticsController
+    {
+        return new VisitorAnalyticsController(new VisitorAnalyticsService(self::visitorAnalyticsRepository()));
     }
 
     public static function reservationController(): ReservationController
@@ -151,5 +160,16 @@ final class ControllerFactory
         self::$vehicleRepository = new VehicleRepository(self::pdo());
 
         return self::$vehicleRepository;
+    }
+
+    private static function visitorAnalyticsRepository(): VisitorAnalyticsRepository
+    {
+        if (self::$visitorAnalyticsRepository instanceof VisitorAnalyticsRepository) {
+            return self::$visitorAnalyticsRepository;
+        }
+
+        self::$visitorAnalyticsRepository = new VisitorAnalyticsRepository(self::pdo());
+
+        return self::$visitorAnalyticsRepository;
     }
 }

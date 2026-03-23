@@ -17,6 +17,7 @@ import {
   deleteAddOn,
   deleteVehicle,
   deleteVehicleDiscount,
+  getDashboardAnalytics,
   getAddOns,
   getApiErrorMessage,
   getDashboardSummary,
@@ -29,7 +30,17 @@ import {
   updateVehicle,
   updateVehicleDiscount
 } from "../lib/api";
-import type { AddOn, AdminUser, DashboardSummary, OrderRequest, TaxiRequest, Vehicle, VehicleDiscount } from "../types";
+import type {
+  AddOn,
+  AdminUser,
+  DashboardAnalytics,
+  DashboardAnalyticsRange,
+  DashboardSummary,
+  OrderRequest,
+  TaxiRequest,
+  Vehicle,
+  VehicleDiscount
+} from "../types";
 import DashboardTabs, { type DashboardTabItem } from "../components/dashboard/DashboardTabs";
 import FormModal from "../components/dashboard/FormModal";
 import { Button } from "../components/ui/button";
@@ -143,6 +154,8 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
   const [error, setError] = useState<string | null>(null);
 
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [analytics, setAnalytics] = useState<DashboardAnalytics | null>(null);
+  const [analyticsRange, setAnalyticsRange] = useState<DashboardAnalyticsRange>("90d");
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [addOns, setAddOns] = useState<AddOn[]>([]);
   const [discounts, setDiscounts] = useState<VehicleDiscount[]>([]);
@@ -189,15 +202,16 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
 
   useEffect(() => {
     void loadAll();
-  }, [orderRequestsPage, taxiRequestsPage]);
+  }, [orderRequestsPage, taxiRequestsPage, analyticsRange]);
 
   const loadAll = async () => {
     setBusy(true);
     setError(null);
 
     try {
-      const [summaryRes, vehiclesRes, addOnsRes, discountsRes, ordersRes, taxiRes] = await Promise.all([
+      const [summaryRes, analyticsRes, vehiclesRes, addOnsRes, discountsRes, ordersRes, taxiRes] = await Promise.all([
         getDashboardSummary(),
+        getDashboardAnalytics(analyticsRange),
         getVehicles(),
         getAddOns(),
         getVehicleDiscounts(),
@@ -206,6 +220,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
       ]);
 
       setSummary(summaryRes);
+      setAnalytics(analyticsRes);
       setVehicles(vehiclesRes);
       setAddOns(addOnsRes);
       setDiscounts(discountsRes);
@@ -576,7 +591,13 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
 
           <div className="min-w-0 space-y-6">
             <TabsContent value="overview" className="space-y-4">
-              <OverviewPage summary={summary} />
+              <OverviewPage
+                summary={summary}
+                analytics={analytics}
+                analyticsRange={analyticsRange}
+                busy={busy}
+                onAnalyticsRangeChange={setAnalyticsRange}
+              />
             </TabsContent>
 
             <TabsContent value="vehicles" className="space-y-4">

@@ -17,6 +17,7 @@ Route::prefix('admin')->group(function (): void {
         Route::get('/me', [AuthController::class, 'me']);
 
         Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
+        Route::get('/dashboard/analytics', [DashboardController::class, 'analytics']);
 
         Route::get('/vehicles', [VehicleController::class, 'index']);
         Route::post('/vehicles', [VehicleController::class, 'store']);

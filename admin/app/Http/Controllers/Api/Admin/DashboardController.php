@@ -8,10 +8,14 @@ use App\Models\OrderRequest;
 use App\Models\TaxiRequest;
 use App\Models\Vehicle;
 use App\Models\VehicleDiscount;
+use App\Services\AdminAnalyticsService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    public function __construct(private AdminAnalyticsService $analyticsService) {}
+
     public function summary(): JsonResponse
     {
         return response()->json([
@@ -26,6 +30,20 @@ class DashboardController extends Controller
                 'order_requests_revenue' => (float) (OrderRequest::query()->sum('sub_total') ?? 0),
                 'taxi_requests_total' => TaxiRequest::query()->count(),
             ],
+        ]);
+    }
+
+    public function analytics(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'range' => ['nullable', 'in:7d,30d,90d'],
+        ]);
+
+        $range = (string) ($validated['range'] ?? '90d');
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->analyticsService->build($range),
         ]);
     }
 }

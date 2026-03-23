@@ -17,6 +17,42 @@ export type DashboardSummary = {
   taxi_requests_total: number;
 };
 
+export type DashboardAnalyticsRange = "7d" | "30d" | "90d";
+
+export type DashboardMetricCard = {
+  value: number;
+  change_pct: number;
+};
+
+export type DashboardAnalyticsPoint = {
+  date: string;
+  label: string;
+  revenue_usd: number;
+  order_requests: number;
+  new_customers: number;
+  active_vehicles: number;
+  unique_visitors: number;
+  mobile_visitors: number;
+  desktop_visitors: number;
+  page_views: number;
+  growth_rate_pct: number;
+};
+
+export type DashboardAnalytics = {
+  range: DashboardAnalyticsRange;
+  start_date: string;
+  end_date: string;
+  generated_at: string;
+  cards: {
+    total_revenue: DashboardMetricCard;
+    new_customers: DashboardMetricCard;
+    current_vehicles: DashboardMetricCard;
+    growth_rate: DashboardMetricCard;
+  };
+  chart: DashboardAnalyticsPoint[];
+  table: DashboardAnalyticsPoint[];
+};
+
 export type Vehicle = {
   id: number;
   name: string;

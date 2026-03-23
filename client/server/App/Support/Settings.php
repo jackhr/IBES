@@ -44,4 +44,9 @@ final class Settings
     {
         return \Config::bool('DESTROY_SESSION_AFTER_ORDERING', true);
     }
+
+    public static function visitorTrackingEnabled(): bool
+    {
+        return \Config::bool('VISITOR_TRACKING_ENABLED', true);
+    }
 }

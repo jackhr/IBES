@@ -130,6 +130,13 @@ final class ApiKernel
                 },
             ],
             [
+                'method' => 'POST',
+                'path' => '/visitor-events',
+                'handler' => static function (array $_params): void {
+                    ControllerFactory::visitorAnalyticsController()->store();
+                },
+            ],
+            [
                 'method' => 'GET',
                 'path' => '/taxi-requests/{id}',
                 'handler' => static function (array $params): void {

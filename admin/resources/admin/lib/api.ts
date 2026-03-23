@@ -1,6 +1,8 @@
 import axios, { AxiosError } from "axios";
 import type {
   AddOn,
+  DashboardAnalytics,
+  DashboardAnalyticsRange,
   AdminUser,
   DashboardSummary,
   OrderRequest,
@@ -81,6 +83,16 @@ export async function adminLogout(): Promise<void> {
 
 export async function getDashboardSummary(): Promise<DashboardSummary> {
   const response = await api.get<ApiEnvelope<DashboardSummary>>("/dashboard/summary");
+  return response.data.data;
+}
+
+export async function getDashboardAnalytics(range: DashboardAnalyticsRange = "90d"): Promise<DashboardAnalytics> {
+  const response = await api.get<ApiEnvelope<DashboardAnalytics>>("/dashboard/analytics", {
+    params: {
+      range
+    }
+  });
+
   return response.data.data;
 }
 
