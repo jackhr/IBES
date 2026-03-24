@@ -32,7 +32,7 @@ export default function LoginPage({ onSubmit, loading }: LoginPageProps) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-muted/40 p-6">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-background to-muted/40 p-6">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">

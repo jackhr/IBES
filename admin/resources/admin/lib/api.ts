@@ -17,7 +17,7 @@ type ApiEnvelope<T> = {
   data: T;
 };
 
-type Paginated<T> = {
+export type Paginated<T> = {
   items: T[];
   meta: {
     current_page: number;

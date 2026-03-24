@@ -200,10 +200,6 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
     [vehicles]
   );
 
-  useEffect(() => {
-    void loadAll();
-  }, [orderRequestsPage, taxiRequestsPage, analyticsRange]);
-
   const loadAll = async () => {
     setBusy(true);
     setError(null);
@@ -228,6 +224,29 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
       setTaxiRequests(taxiRes.items);
       setOrderRequestsMeta(ordersRes.meta);
       setTaxiRequestsMeta(taxiRes.meta);
+    } catch (loadError) {
+      if (axios.isAxiosError(loadError) && loadError.response?.status === 401) {
+        setError("Your admin session expired. Please sign in again.");
+        void onLogout();
+        return;
+      }
+
+      setError(getApiErrorMessage(loadError));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const loadResource = async <TResource,>(
+    apiGetter: () => Promise<TResource>,
+    onSuccess: (data: TResource) => void
+  ) => {
+    setBusy(true);
+    setError(null);
+
+    try {
+      const data = await apiGetter();
+      onSuccess(data);
     } catch (loadError) {
       if (axios.isAxiosError(loadError) && loadError.response?.status === 401) {
         setError("Your admin session expired. Please sign in again.");
@@ -502,6 +521,55 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
     return `${start}-${end} of ${meta.total}`;
   };
 
+  useEffect(() => {
+    // need to fetch the latest data of a section when it's visited,
+    // in case the user made changes in another section that would affect it
+    // (e.g. creating a discount would affect the overview analytics)
+    switch (section) {
+      case "overview":
+        void loadResource(getDashboardSummary, (data) => {
+          setSummary(data);
+        });
+        void loadResource(() => getDashboardAnalytics(analyticsRange), (data) => {
+          setAnalytics(data);
+        });
+        break;
+      case "vehicles":
+        void loadResource(getVehicles, (data) => {
+          setVehicles(data);
+        });
+        break;
+      case "addons":
+        void loadResource(getAddOns, (data) => {
+          setAddOns(data);
+        });
+        break;
+      case "discounts":
+        void loadResource(getVehicleDiscounts, (data) => {
+          setDiscounts(data);
+        });
+        break;
+      case "orders":
+        void loadResource(
+          () => getOrderRequests({ per_page: ORDER_REQUESTS_PER_PAGE, page: orderRequestsPage, status: "all" }),
+          (data) => {
+            setOrders(data.items);
+            setOrderRequestsMeta(data.meta);
+          }
+        );
+        break;
+      case "taxi":
+        void loadResource(
+          () => getTaxiRequests({ per_page: TAXI_REQUESTS_PER_PAGE, page: taxiRequestsPage }),
+          (data) => {
+            setTaxiRequests(data.items);
+            setTaxiRequestsMeta(data.meta);
+          }
+        );
+        break;
+    }
+  }, [analyticsRange, onLogout, orderRequestsPage, section, taxiRequestsPage]);
+
   if (!summary) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-muted/40 p-6">
@@ -528,7 +596,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
 
   return (
     <div className="min-h-screen bg-muted/35 p-4 md:p-6">
-      <div className="mx-auto max-w-[1400px] space-y-6">
+      <div className="mx-auto max-w-350 space-y-6">
         <Card className="border-border/70 shadow-sm">
           <CardHeader className="flex flex-col gap-4 pb-5 md:flex-row md:items-center md:justify-between">
             <div>
