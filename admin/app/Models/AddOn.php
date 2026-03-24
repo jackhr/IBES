@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AddOn extends Model
 {
+    use HasFactory;
+
     protected $table = 'add_ons';
 
     public $timestamps = false;

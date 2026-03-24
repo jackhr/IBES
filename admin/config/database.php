@@ -3,6 +3,15 @@
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
+$adminLocalDevelopment = filter_var(
+    (string) env(
+        'ADMIN_LOCAL_DEVELOPMENT',
+        env('APP_ENV', 'production') === 'local' ? 'true' : 'false'
+    ),
+    FILTER_VALIDATE_BOOL,
+    FILTER_NULL_ON_FAILURE
+) ?? false;
+
 return [
 
     /*
@@ -17,7 +26,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => $adminLocalDevelopment ? 'sqlite' : env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -35,7 +44,7 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'database' => env('DB_SQLITE_PATH', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,

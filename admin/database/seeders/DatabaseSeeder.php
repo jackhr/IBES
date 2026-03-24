@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -10,16 +9,27 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (! (bool) config('admin.use_mock_data', false)) {
+            $this->command?->warn('Skipping mock seeders because ADMIN_USE_MOCK_DATA is disabled.');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            return;
+        }
+
+        $this->call([
+            AdminUserSeeder::class,
+            AdminApiTokenSeeder::class,
+            AddOnSeeder::class,
+            VehicleSeeder::class,
+            ContactInfoSeeder::class,
+            OrderRequestSeeder::class,
+            OrderRequestAddOnSeeder::class,
+            VehicleDiscountSeeder::class,
+            TaxiRequestSeeder::class,
+            VisitorSessionSeeder::class,
+            VisitorPageViewSeeder::class,
+            AnalyticsDailyMetricSeeder::class,
         ]);
     }
 }
