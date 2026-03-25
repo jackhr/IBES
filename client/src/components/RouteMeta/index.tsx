@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { DEFAULT_OG_IMAGE, normalizePath, resolveRouteSeo } from "../../data/routeSeo";
+import { siteData } from "../../data/siteData";
 
 type RouteMetaProps = {
   pathname: string;
@@ -29,6 +30,19 @@ function upsertCanonical(url: string): void {
 
   if (!existing) {
     document.head.appendChild(canonical);
+  }
+}
+
+function upsertJsonLd(id: string, payload: Record<string, unknown>): void {
+  const existing = document.head.querySelector<HTMLScriptElement>(`script[type='application/ld+json']#${id}`);
+  const script = existing ?? document.createElement("script");
+
+  script.setAttribute("type", "application/ld+json");
+  script.setAttribute("id", id);
+  script.textContent = JSON.stringify(payload);
+
+  if (!existing) {
+    document.head.appendChild(script);
   }
 }
 
@@ -69,6 +83,11 @@ export default function RouteMeta({ pathname, underConstructionEnabled }: RouteM
       content: meta.ogType ?? "website"
     });
 
+    upsertMeta("meta[property='og:site_name']", {
+      property: "og:site_name",
+      content: siteData.companyName
+    });
+
     upsertMeta("meta[property='og:url']", {
       property: "og:url",
       content: canonicalUrl
@@ -99,7 +118,44 @@ export default function RouteMeta({ pathname, underConstructionEnabled }: RouteM
       content: ogImage
     });
 
+    upsertMeta("meta[name='twitter:url']", {
+      name: "twitter:url",
+      content: canonicalUrl
+    });
+
     upsertCanonical(canonicalUrl);
+
+    const schemaGraph: Array<Record<string, unknown>> = [
+      {
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        url: canonicalUrl,
+        name: meta.title,
+        description: meta.description,
+        isPartOf: { "@id": `${baseUrl}/#website` }
+      }
+    ];
+
+    if (normalizedPath === "/faq") {
+      schemaGraph.push({
+        "@type": "FAQPage",
+        "@id": `${canonicalUrl}#faq`,
+        url: canonicalUrl,
+        mainEntity: siteData.faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer
+          }
+        }))
+      });
+    }
+
+    upsertJsonLd("route-structured-data", {
+      "@context": "https://schema.org",
+      "@graph": schemaGraph
+    });
   }, [pathname, underConstructionEnabled]);
 
   return null;
