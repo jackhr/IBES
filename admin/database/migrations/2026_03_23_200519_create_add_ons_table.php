@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('add_ons')) {
+            return;
+        }
+        
         Schema::create('add_ons', function (Blueprint $table): void {
             $table->increments('id');
             $table->string('name', 100);

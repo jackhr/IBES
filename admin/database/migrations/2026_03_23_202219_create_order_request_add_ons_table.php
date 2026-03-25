@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('order_request_add_ons')) {
+            return;
+        }
+        
         Schema::create('order_request_add_ons', function (Blueprint $table): void {
             $table->increments('id');
             $table->unsignedInteger('order_request_id');
