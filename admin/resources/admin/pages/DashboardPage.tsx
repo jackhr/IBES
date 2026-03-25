@@ -81,7 +81,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
 
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [analytics, setAnalytics] = useState<DashboardAnalytics | null>(null);
-  const [analyticsRange, setAnalyticsRange] = useState<DashboardAnalyticsRange>("90d");
+  const [analyticsRange, setAnalyticsRange] = useState<DashboardAnalyticsRange>("7d");
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [addOns, setAddOns] = useState<AddOn[]>([]);
   const [discounts, setDiscounts] = useState<VehicleDiscount[]>([]);
