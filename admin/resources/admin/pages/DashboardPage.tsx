@@ -64,7 +64,12 @@ import {
   TAXI_REQUESTS_PER_PAGE,
   vehicleTemplate
 } from "../consts";
-import { initialPaginationMeta, readCachedResource, writeCachedResource } from "../lib/utils";
+import {
+  formatDateTimeDisplay,
+  initialPaginationMeta,
+  readCachedResource,
+  writeCachedResource
+} from "../lib/utils";
 
 const OverviewPage = lazy(() => import("./OverviewPage"));
 const VehiclesPage = lazy(() => import("./VehiclesPage"));
@@ -1078,11 +1083,11 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs font-semibold uppercase">Pick Up</p>
-                    <p>{selectedOrderRequest.pick_up}</p>
+                    <p>{formatDateTimeDisplay(selectedOrderRequest.pick_up)}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs font-semibold uppercase">Drop Off</p>
-                    <p>{selectedOrderRequest.drop_off}</p>
+                    <p>{formatDateTimeDisplay(selectedOrderRequest.drop_off)}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs font-semibold uppercase">Pick Up Location</p>
@@ -1102,11 +1107,11 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs font-semibold uppercase">Created</p>
-                    <p>{selectedOrderRequest.created_at ?? "-"}</p>
+                    <p>{formatDateTimeDisplay(selectedOrderRequest.created_at)}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs font-semibold uppercase">Updated</p>
-                    <p>{selectedOrderRequest.updated_at ?? "-"}</p>
+                    <p>{formatDateTimeDisplay(selectedOrderRequest.updated_at)}</p>
                   </div>
                 </div>
 
@@ -1190,7 +1195,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs font-semibold uppercase">Pickup Time</p>
-                  <p>{selectedTaxiRequest.pickup_time}</p>
+                  <p>{formatDateTimeDisplay(selectedTaxiRequest.pickup_time)}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs font-semibold uppercase">Passengers</p>
@@ -1202,7 +1207,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                 </div>
                 <div className="md:col-span-2">
                   <p className="text-muted-foreground text-xs font-semibold uppercase">Created</p>
-                  <p>{selectedTaxiRequest.created_at}</p>
+                  <p>{formatDateTimeDisplay(selectedTaxiRequest.created_at)}</p>
                 </div>
               </div>
             ) : null}

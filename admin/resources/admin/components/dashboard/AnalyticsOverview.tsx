@@ -23,6 +23,7 @@ import {
   getDashboardAnalyticsSessions,
   getApiErrorMessage
 } from "../../lib/api";
+import { formatDateTimeDisplay } from "../../lib/utils";
 import type {
   DashboardAnalytics,
   DashboardAnalyticsBotMode,
@@ -92,26 +93,6 @@ function formatCurrency(amount: number): string {
 function formatPercent(value: number): string {
   const absValue = Math.abs(value);
   return `${absValue.toFixed(1)}%`;
-}
-
-function formatDateTime(value: string | null): string {
-  if (!value) {
-    return "-";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return date.toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
 }
 
 function formatDuration(seconds: number): string {
@@ -849,15 +830,15 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
                         </TableCell>
                         <TableCell
                           className="max-w-55 truncate"
-                          title={formatDateTime(session.first_seen_at)}
+                          title={formatDateTimeDisplay(session.first_seen_at)}
                         >
-                          {formatDateTime(session.first_seen_at)}
+                          {formatDateTimeDisplay(session.first_seen_at)}
                         </TableCell>
                         <TableCell
                           className="max-w-55 truncate"
-                          title={formatDateTime(session.last_seen_at)}
+                          title={formatDateTimeDisplay(session.last_seen_at)}
                         >
-                          {formatDateTime(session.last_seen_at)}
+                          {formatDateTimeDisplay(session.last_seen_at)}
                         </TableCell>
                         <TableCell>{formatDuration(session.session_duration_seconds)}</TableCell>
                         <TableCell>{session.page_views}</TableCell>
@@ -975,8 +956,11 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
                     ) : (
                       sessionPageViewsData?.page_views.items.map((pageView) => (
                         <TableRow key={pageView.id}>
-                          <TableCell title={formatDateTime(pageView.visited_at)} className="max-w-55 truncate">
-                            {formatDateTime(pageView.visited_at)}
+                          <TableCell
+                            title={formatDateTimeDisplay(pageView.visited_at)}
+                            className="max-w-55 truncate"
+                          >
+                            {formatDateTimeDisplay(pageView.visited_at)}
                           </TableCell>
                           <TableCell className="max-w-52 truncate">{pageView.route_path ?? "-"}</TableCell>
                           <TableCell>{pageView.event_type ?? "-"}</TableCell>

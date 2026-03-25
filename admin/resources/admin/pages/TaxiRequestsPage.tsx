@@ -2,6 +2,7 @@ import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import DataTable from "../components/dashboard/DataTable";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { formatDateTimeDisplay } from "../lib/utils";
 import type { TaxiRequest } from "../types";
 
 type TaxiRequestsPageProps = {
@@ -66,7 +67,7 @@ export default function TaxiRequestsPage({
                   <TableCell>{request.customer_phone}</TableCell>
                   <TableCell>{request.pickup_location}</TableCell>
                   <TableCell>{request.dropoff_location}</TableCell>
-                  <TableCell>{request.pickup_time}</TableCell>
+                  <TableCell>{formatDateTimeDisplay(request.pickup_time)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

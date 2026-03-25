@@ -7,6 +7,28 @@ export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
+export function formatDateTimeDisplay(value: string | null | undefined): string {
+  if (!value) {
+    return "-";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  const hours24 = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const meridiem = hours24 >= 12 ? "pm" : "am";
+  const hours12 = ((hours24 + 11) % 12) + 1;
+
+  return `${hours12}:${minutes}${meridiem}, ${day}-${month}-${year}`;
+}
+
 export const initialPaginationMeta = (perPage: number): PaginationMeta => ({
   current_page: 1,
   last_page: 1,
