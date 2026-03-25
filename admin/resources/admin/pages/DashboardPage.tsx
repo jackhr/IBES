@@ -1,5 +1,5 @@
 import axios from "axios";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { LogOut, RefreshCw } from "lucide-react";
 import {
   createAddOn,
@@ -54,12 +54,6 @@ import { Label } from "../components/ui/label";
 import { Select } from "../components/ui/select";
 import { Tabs, TabsContent } from "../components/ui/tabs";
 import { Textarea } from "../components/ui/textarea";
-import OverviewPage from "./OverviewPage";
-import VehiclesPage from "./VehiclesPage";
-import AddOnsPage from "./AddOnsPage";
-import DiscountsPage from "./DiscountsPage";
-import OrderRequestsPage from "./OrderRequestsPage";
-import TaxiRequestsPage from "./TaxiRequestsPage";
 import {
   addOnTemplate,
   discountTemplate,
@@ -71,6 +65,13 @@ import {
   vehicleTemplate
 } from "../consts";
 import { initialPaginationMeta, readCachedResource, writeCachedResource } from "../lib/utils";
+
+const OverviewPage = lazy(() => import("./OverviewPage"));
+const VehiclesPage = lazy(() => import("./VehiclesPage"));
+const AddOnsPage = lazy(() => import("./AddOnsPage"));
+const DiscountsPage = lazy(() => import("./DiscountsPage"));
+const OrderRequestsPage = lazy(() => import("./OrderRequestsPage"));
+const TaxiRequestsPage = lazy(() => import("./TaxiRequestsPage"));
 
 export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
   const [section, setSection] = useState<Section>("overview");
@@ -614,76 +615,84 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
           </aside>
 
           <div className="min-w-0 space-y-6">
-            <TabsContent value="overview" className="space-y-4">
-              <OverviewPage
-                summary={summary}
-                analytics={analytics}
-                analyticsRange={analyticsRange}
-                busy={busy}
-                onAnalyticsRangeChange={setAnalyticsRange}
-              />
-            </TabsContent>
+            <Suspense
+              fallback={
+                <Card className="border-border/70 shadow-sm">
+                  <CardContent className="py-8 text-sm text-muted-foreground">Loading section...</CardContent>
+                </Card>
+              }
+            >
+              <TabsContent value="overview" className="space-y-4">
+                <OverviewPage
+                  summary={summary}
+                  analytics={analytics}
+                  analyticsRange={analyticsRange}
+                  busy={busy}
+                  onAnalyticsRangeChange={setAnalyticsRange}
+                />
+              </TabsContent>
 
-            <TabsContent value="vehicles" className="space-y-4">
-              <VehiclesPage
-                vehicles={sortedVehicles}
-                busy={busy}
-                onCreate={openVehicleCreateModal}
-                onEdit={openVehicleEditModal}
-              />
-            </TabsContent>
+              <TabsContent value="vehicles" className="space-y-4">
+                <VehiclesPage
+                  vehicles={sortedVehicles}
+                  busy={busy}
+                  onCreate={openVehicleCreateModal}
+                  onEdit={openVehicleEditModal}
+                />
+              </TabsContent>
 
-            <TabsContent value="addons" className="space-y-4">
-              <AddOnsPage
-                addOns={addOns}
-                busy={busy}
-                onCreate={openAddOnCreateModal}
-                onEdit={openAddOnEditModal}
-              />
-            </TabsContent>
+              <TabsContent value="addons" className="space-y-4">
+                <AddOnsPage
+                  addOns={addOns}
+                  busy={busy}
+                  onCreate={openAddOnCreateModal}
+                  onEdit={openAddOnEditModal}
+                />
+              </TabsContent>
 
-            <TabsContent value="discounts" className="space-y-4">
-              <DiscountsPage
-                discounts={discounts}
-                busy={busy}
-                onCreate={openDiscountCreateModal}
-                onEdit={openDiscountEditModal}
-              />
-            </TabsContent>
+              <TabsContent value="discounts" className="space-y-4">
+                <DiscountsPage
+                  discounts={discounts}
+                  busy={busy}
+                  onCreate={openDiscountCreateModal}
+                  onEdit={openDiscountEditModal}
+                />
+              </TabsContent>
 
-            <TabsContent value="orders" className="space-y-4">
-              <OrderRequestsPage
-                orders={orders}
-                busy={busy}
-                onToggleStatus={(order) => void toggleOrderStatusHandler(order)}
-                paginationLabel={formatPaginationRange(orderRequestsMeta)}
-                currentPage={orderRequestsMeta.current_page}
-                lastPage={orderRequestsMeta.last_page}
-                canGoPrevious={orderRequestsMeta.current_page > 1}
-                canGoNext={orderRequestsMeta.current_page < orderRequestsMeta.last_page}
-                onPreviousPage={() => setOrderRequestsPage((prev) => Math.max(1, prev - 1))}
-                onNextPage={() =>
-                  setOrderRequestsPage((prev) => Math.min(Math.max(1, orderRequestsMeta.last_page), prev + 1))
-                }
-              />
-            </TabsContent>
+              <TabsContent value="orders" className="space-y-4">
+                <OrderRequestsPage
+                  orders={orders}
+                  busy={busy}
+                  onToggleStatus={(order) => void toggleOrderStatusHandler(order)}
+                  paginationLabel={formatPaginationRange(orderRequestsMeta)}
+                  currentPage={orderRequestsMeta.current_page}
+                  lastPage={orderRequestsMeta.last_page}
+                  canGoPrevious={orderRequestsMeta.current_page > 1}
+                  canGoNext={orderRequestsMeta.current_page < orderRequestsMeta.last_page}
+                  onPreviousPage={() => setOrderRequestsPage((prev) => Math.max(1, prev - 1))}
+                  onNextPage={() =>
+                    setOrderRequestsPage((prev) => Math.min(Math.max(1, orderRequestsMeta.last_page), prev + 1))
+                  }
+                />
+              </TabsContent>
 
-            <TabsContent value="taxi" className="space-y-4">
-              <TaxiRequestsPage
-                taxiRequests={taxiRequests}
-                busy={busy}
-                onOpenDetail={openTaxiRequestDetail}
-                paginationLabel={formatPaginationRange(taxiRequestsMeta)}
-                currentPage={taxiRequestsMeta.current_page}
-                lastPage={taxiRequestsMeta.last_page}
-                canGoPrevious={taxiRequestsMeta.current_page > 1}
-                canGoNext={taxiRequestsMeta.current_page < taxiRequestsMeta.last_page}
-                onPreviousPage={() => setTaxiRequestsPage((prev) => Math.max(1, prev - 1))}
-                onNextPage={() =>
-                  setTaxiRequestsPage((prev) => Math.min(Math.max(1, taxiRequestsMeta.last_page), prev + 1))
-                }
-              />
-            </TabsContent>
+              <TabsContent value="taxi" className="space-y-4">
+                <TaxiRequestsPage
+                  taxiRequests={taxiRequests}
+                  busy={busy}
+                  onOpenDetail={openTaxiRequestDetail}
+                  paginationLabel={formatPaginationRange(taxiRequestsMeta)}
+                  currentPage={taxiRequestsMeta.current_page}
+                  lastPage={taxiRequestsMeta.last_page}
+                  canGoPrevious={taxiRequestsMeta.current_page > 1}
+                  canGoNext={taxiRequestsMeta.current_page < taxiRequestsMeta.last_page}
+                  onPreviousPage={() => setTaxiRequestsPage((prev) => Math.max(1, prev - 1))}
+                  onNextPage={() =>
+                    setTaxiRequestsPage((prev) => Math.min(Math.max(1, taxiRequestsMeta.last_page), prev + 1))
+                  }
+                />
+              </TabsContent>
+            </Suspense>
           </div>
         </Tabs>
 
