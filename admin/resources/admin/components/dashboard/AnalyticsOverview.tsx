@@ -800,18 +800,18 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
             ) : null}
 
             <DataTable>
-              <Table className="min-w-[1320px]">
+              <Table className="min-w-330">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[240px]">Session</TableHead>
-                    <TableHead className="w-[240px]">Visitor</TableHead>
-                    <TableHead className="w-[220px]">First Seen</TableHead>
-                    <TableHead className="w-[220px]">Last Seen</TableHead>
-                    <TableHead className="w-[130px]">Duration</TableHead>
-                    <TableHead className="w-[110px]">Page Views</TableHead>
-                    <TableHead className="w-[120px]">Device</TableHead>
-                    <TableHead className="w-[90px]">Bot</TableHead>
-                    <TableHead className="w-[120px]">Entry Path</TableHead>
+                    <TableHead className="w-60">Session</TableHead>
+                    <TableHead className="w-60">Visitor</TableHead>
+                    <TableHead className="w-55">First Seen</TableHead>
+                    <TableHead className="w-55">Last Seen</TableHead>
+                    <TableHead className="w-32.5">Duration</TableHead>
+                    <TableHead className="w-27.5">Page Views</TableHead>
+                    <TableHead className="w-30">Device</TableHead>
+                    <TableHead className="w-22.5">Bot</TableHead>
+                    <TableHead className="w-30">Entry Path</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -841,20 +841,20 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
                           }
                         }}
                       >
-                        <TableCell className="max-w-[240px] truncate font-medium" title={session.session_id}>
+                        <TableCell className="max-w-60 truncate font-medium" title={session.session_id}>
                           {session.session_id}
                         </TableCell>
-                        <TableCell className="max-w-[240px] truncate" title={session.visitor_id}>
+                        <TableCell className="max-w-60 truncate" title={session.visitor_id}>
                           {session.visitor_id}
                         </TableCell>
                         <TableCell
-                          className="max-w-[220px] truncate"
+                          className="max-w-55 truncate"
                           title={formatDateTime(session.first_seen_at)}
                         >
                           {formatDateTime(session.first_seen_at)}
                         </TableCell>
                         <TableCell
-                          className="max-w-[220px] truncate"
+                          className="max-w-55 truncate"
                           title={formatDateTime(session.last_seen_at)}
                         >
                           {formatDateTime(session.last_seen_at)}
@@ -947,16 +947,16 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
               ) : null}
 
               <DataTable>
-                <Table className="min-w-[1120px]">
+                <Table className="min-w-280">
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[220px]">Visited At</TableHead>
-                      <TableHead className="w-[180px]">Route</TableHead>
-                      <TableHead className="w-[120px]">Event</TableHead>
-                      <TableHead className="w-[260px]">Referrer</TableHead>
-                      <TableHead className="w-[120px]">Browser</TableHead>
-                      <TableHead className="w-[120px]">OS</TableHead>
-                      <TableHead className="w-[120px]">IP</TableHead>
+                      <TableHead className="w-55">Visited At</TableHead>
+                      <TableHead className="w-45">Route</TableHead>
+                      <TableHead className="w-30">Event</TableHead>
+                      <TableHead className="w-65">Referrer</TableHead>
+                      <TableHead className="w-30">Browser</TableHead>
+                      <TableHead className="w-30">OS</TableHead>
+                      <TableHead className="w-30">IP</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -975,7 +975,7 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
                     ) : (
                       sessionPageViewsData?.page_views.items.map((pageView) => (
                         <TableRow key={pageView.id}>
-                          <TableCell title={formatDateTime(pageView.visited_at)} className="max-w-[220px] truncate">
+                          <TableCell title={formatDateTime(pageView.visited_at)} className="max-w-55 truncate">
                             {formatDateTime(pageView.visited_at)}
                           </TableCell>
                           <TableCell className="max-w-52 truncate">{pageView.route_path ?? "-"}</TableCell>
