@@ -5,8 +5,8 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
-PHP_BIN="${PHP_BIN:-/Users/jack/.config/herd-lite/bin/php}"
-COMPOSER_BIN="${COMPOSER_BIN:-/Users/jack/.config/herd-lite/bin/composer}"
+PHP_BIN="${PHP_BIN:-/opt/cpanel/ea-php83/root/usr/bin/php}"
+COMPOSER_BIN="${COMPOSER_BIN:-/opt/cpanel/composer/bin/composer}"
 MIGRATIONS_MODE="${MIGRATIONS_MODE:-auto}" # auto|always|never
 
 usage() {
@@ -14,8 +14,8 @@ usage() {
 Usage: ./deploy-production.sh [options]
 
 Options:
-  --php-bin <path>        PHP binary path (default: /Users/jack/.config/herd-lite/bin/php)
-  --composer-bin <path>   Composer binary path (default: /Users/jack/.config/herd-lite/bin/composer)
+  --php-bin <path>        PHP binary path (default: /opt/cpanel/ea-php83/root/usr/bin/php)
+  --composer-bin <path>   Composer binary path (default: /opt/cpanel/composer/bin/composer)
   --migrations <mode>     Migration mode: auto | always | never (default: auto)
   -h, --help              Show this help
 

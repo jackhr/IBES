@@ -20,7 +20,8 @@ return new class extends Migration
                 ->nullOnDelete();
             $table->string('visitor_id', 36);
             $table->dateTime('visited_at');
-            $table->string('route_path', 255);
+            // Keep indexed path under legacy InnoDB key-size limits on shared hosts.
+            $table->string('route_path', 191);
             $table->text('full_url')->nullable();
             $table->text('query_string')->nullable();
             $table->text('referrer')->nullable();
