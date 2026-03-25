@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AnalyticsDailyMetric;
 use App\Models\OrderRequest;
 use App\Models\VisitorPageView;
+use App\Models\VisitorSession;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 
@@ -268,6 +269,254 @@ class AdminAnalyticsService
         }
 
         return (($current - $baseline) / $baseline) * 100;
+    }
+
+    /** @param array<string, mixed> $filters */
+    public function buildDailySessions(string $date, array $filters): array
+    {
+        $targetDate = $this->parseDateString($date);
+        $start = $targetDate->startOfDay();
+        $end = $targetDate->endOfDay();
+
+        $perPage = max(1, min(500, (int) ($filters['per_page'] ?? 50)));
+        $requestedPage = max(1, (int) ($filters['page'] ?? 1));
+        $deviceType = isset($filters['device_type']) ? trim((string) $filters['device_type']) : '';
+        $botMode = (string) ($filters['bot_mode'] ?? 'exclude');
+        $referrerContains = isset($filters['referrer_contains']) ? trim((string) $filters['referrer_contains']) : '';
+        $minPageViews = max(0, (int) ($filters['min_page_views'] ?? 0));
+        $minDurationSeconds = max(0, (int) ($filters['min_duration_seconds'] ?? 0));
+
+        $query = VisitorSession::query()
+            ->where('first_seen_at', '<=', $end)
+            ->where('last_seen_at', '>=', $start)
+            ->withCount(['pageViews as page_views_count' => function ($pageViews) use ($start, $end): void {
+                $pageViews->whereBetween('visited_at', [$start, $end]);
+            }])
+            ->orderByDesc('last_seen_at');
+
+        if ($deviceType !== '' && $deviceType !== 'bot') {
+            $query->where('device_type', $deviceType);
+        }
+
+        if ($deviceType === 'bot') {
+            $query->where('is_bot', true);
+        } elseif ($botMode === 'only') {
+            $query->where('is_bot', true);
+        } elseif ($botMode === 'exclude') {
+            $query->where('is_bot', false);
+        }
+
+        if ($referrerContains !== '') {
+            $safeLike = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $referrerContains).'%';
+
+            $query->where(function ($nested) use ($safeLike, $start, $end): void {
+                $nested
+                    ->where('entry_referrer', 'like', $safeLike)
+                    ->orWhereHas('pageViews', function ($pageViews) use ($safeLike, $start, $end): void {
+                        $pageViews
+                            ->whereBetween('visited_at', [$start, $end])
+                            ->where(function ($pageViewsNested) use ($safeLike): void {
+                                $pageViewsNested
+                                    ->where('referrer', 'like', $safeLike)
+                                    ->orWhere('full_url', 'like', $safeLike)
+                                    ->orWhere('query_string', 'like', $safeLike)
+                                    ->orWhere('route_path', 'like', $safeLike);
+                            });
+                    });
+            });
+        }
+
+        try {
+            $sessionRows = $query->get()
+                ->map(static function (VisitorSession $session): array {
+                    $startedAt = $session->first_seen_at;
+                    $endedAt = $session->last_seen_at;
+                    $durationSeconds = 0;
+
+                    if ($startedAt !== null && $endedAt !== null) {
+                        $durationSeconds = max(0, $startedAt->diffInSeconds($endedAt));
+                    }
+
+                    return [
+                        'id' => (int) $session->id,
+                        'session_id' => (string) $session->session_id,
+                        'visitor_id' => (string) $session->visitor_id,
+                        'first_seen_at' => $startedAt?->toIso8601String(),
+                        'last_seen_at' => $endedAt?->toIso8601String(),
+                        'session_duration_seconds' => $durationSeconds,
+                        'page_views' => max(0, (int) ($session->page_views_count ?? 0)),
+                        'entry_path' => $session->entry_path,
+                        'entry_referrer' => $session->entry_referrer,
+                        'device_type' => $session->device_type ?? 'other',
+                        'is_bot' => (bool) $session->is_bot,
+                        'os_name' => $session->os_name,
+                        'browser_name' => $session->browser_name,
+                        'language' => $session->language,
+                        'timezone' => $session->timezone,
+                        'ip_address' => $session->ip_address,
+                    ];
+                })
+                ->values();
+        } catch (QueryException) {
+            $sessionRows = collect();
+        }
+
+        if ($minPageViews > 0) {
+            $sessionRows = $sessionRows
+                ->filter(static fn (array $row): bool => (int) $row['page_views'] >= $minPageViews)
+                ->values();
+        }
+
+        if ($minDurationSeconds > 0) {
+            $sessionRows = $sessionRows
+                ->filter(static fn (array $row): bool => (int) $row['session_duration_seconds'] >= $minDurationSeconds)
+                ->values();
+        }
+
+        $totalSessions = $sessionRows->count();
+        $lastPage = max(1, (int) ceil($totalSessions / $perPage));
+        $currentPage = min($requestedPage, $lastPage);
+        $paginatedRows = $sessionRows->forPage($currentPage, $perPage)->values()->all();
+
+        $botSessions = $sessionRows->filter(static fn (array $row): bool => (bool) $row['is_bot'])->count();
+        $avgDurationSeconds = $totalSessions > 0
+            ? round((float) ($sessionRows->avg('session_duration_seconds') ?? 0), 2)
+            : 0.0;
+        $avgPagesPerSession = $totalSessions > 0
+            ? round((float) ($sessionRows->avg('page_views') ?? 0), 2)
+            : 0.0;
+
+        return [
+            'date' => $targetDate->toDateString(),
+            'filters' => [
+                'device_type' => $deviceType === '' ? null : $deviceType,
+                'bot_mode' => $botMode,
+                'referrer_contains' => $referrerContains,
+                'min_page_views' => $minPageViews,
+                'min_duration_seconds' => $minDurationSeconds,
+            ],
+            'summary' => [
+                'unique_visitors' => $sessionRows
+                    ->pluck('visitor_id')
+                    ->filter(static fn ($visitorId): bool => is_string($visitorId) && $visitorId !== '')
+                    ->unique()
+                    ->count(),
+                'total_sessions' => $totalSessions,
+                'avg_session_duration_seconds' => $avgDurationSeconds,
+                'avg_pages_per_session' => $avgPagesPerSession,
+                'bot_session_pct' => $totalSessions > 0
+                    ? round(($botSessions / $totalSessions) * 100, 2)
+                    : 0.0,
+            ],
+            'sessions' => [
+                'items' => $paginatedRows,
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $lastPage,
+                    'per_page' => $perPage,
+                    'total' => $totalSessions,
+                ],
+            ],
+        ];
+    }
+
+    /** @param array<string, mixed> $filters */
+    public function buildSessionPageViews(VisitorSession $session, array $filters): array
+    {
+        $perPage = max(1, min(500, (int) ($filters['per_page'] ?? 200)));
+        $requestedPage = max(1, (int) ($filters['page'] ?? 1));
+        $date = isset($filters['date']) ? (string) $filters['date'] : null;
+        $windowStart = $date !== null ? $this->parseDateString($date)->startOfDay() : null;
+        $windowEnd = $windowStart?->endOfDay();
+
+        $query = VisitorPageView::query()
+            ->where('visitor_session_id', $session->id)
+            ->orderByDesc('visited_at');
+
+        if ($windowStart !== null && $windowEnd !== null) {
+            $query->whereBetween('visited_at', [$windowStart, $windowEnd]);
+        }
+
+        try {
+            $total = (clone $query)->count();
+        } catch (QueryException) {
+            $total = 0;
+        }
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $currentPage = min($requestedPage, $lastPage);
+
+        try {
+            $items = $query
+                ->forPage($currentPage, $perPage)
+                ->get()
+                ->map(static function (VisitorPageView $view): array {
+                    return [
+                        'id' => (int) $view->id,
+                        'visited_at' => $view->visited_at?->toIso8601String(),
+                        'route_path' => $view->route_path,
+                        'full_url' => $view->full_url,
+                        'query_string' => $view->query_string,
+                        'referrer' => $view->referrer,
+                        'event_type' => $view->event_type,
+                        'device_type' => $view->device_type,
+                        'is_bot' => (bool) $view->is_bot,
+                        'os_name' => $view->os_name,
+                        'browser_name' => $view->browser_name,
+                        'language' => $view->language,
+                        'timezone' => $view->timezone,
+                        'ip_address' => $view->ip_address,
+                        'viewport_width' => $view->viewport_width,
+                        'viewport_height' => $view->viewport_height,
+                        'screen_width' => $view->screen_width,
+                        'screen_height' => $view->screen_height,
+                        'metadata' => $view->metadata,
+                    ];
+                })
+                ->values()
+                ->all();
+        } catch (QueryException) {
+            $items = [];
+        }
+
+        return [
+            'session' => [
+                'id' => (int) $session->id,
+                'session_id' => (string) $session->session_id,
+                'visitor_id' => (string) $session->visitor_id,
+                'first_seen_at' => $session->first_seen_at?->toIso8601String(),
+                'last_seen_at' => $session->last_seen_at?->toIso8601String(),
+                'entry_path' => $session->entry_path,
+                'entry_referrer' => $session->entry_referrer,
+                'device_type' => $session->device_type ?? 'other',
+                'is_bot' => (bool) $session->is_bot,
+                'os_name' => $session->os_name,
+                'browser_name' => $session->browser_name,
+                'language' => $session->language,
+                'timezone' => $session->timezone,
+                'ip_address' => $session->ip_address,
+            ],
+            'date' => $date,
+            'page_views' => [
+                'items' => $items,
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $lastPage,
+                    'per_page' => $perPage,
+                    'total' => $total,
+                ],
+            ],
+        ];
+    }
+
+    private function parseDateString(string $date): CarbonImmutable
+    {
+        $parsed = CarbonImmutable::createFromFormat('Y-m-d', $date, 'UTC');
+
+        if (! $parsed instanceof CarbonImmutable || $parsed->format('Y-m-d') !== $date) {
+            throw new \InvalidArgumentException("Invalid date format: {$date}");
+        }
+
+        return $parsed;
     }
 
     /** @param array<int, array<string, int|float|string>> $dailyRows */

@@ -53,6 +53,84 @@ export type DashboardAnalytics = {
   table: DashboardAnalyticsPoint[];
 };
 
+export type DashboardAnalyticsBotMode = "exclude" | "include" | "only";
+
+export type DashboardAnalyticsSessionsFilters = {
+  device_type: "desktop" | "mobile" | "tablet" | "bot" | "other" | null;
+  bot_mode: DashboardAnalyticsBotMode;
+  referrer_contains: string;
+  min_page_views: number;
+  min_duration_seconds: number;
+};
+
+export type DashboardAnalyticsSessionSummary = {
+  unique_visitors: number;
+  total_sessions: number;
+  avg_session_duration_seconds: number;
+  avg_pages_per_session: number;
+  bot_session_pct: number;
+};
+
+export type DashboardAnalyticsSession = {
+  id: number;
+  session_id: string;
+  visitor_id: string;
+  first_seen_at: string | null;
+  last_seen_at: string | null;
+  session_duration_seconds: number;
+  page_views: number;
+  entry_path: string | null;
+  entry_referrer: string | null;
+  device_type: string;
+  is_bot: boolean;
+  os_name: string | null;
+  browser_name: string | null;
+  language: string | null;
+  timezone: string | null;
+  ip_address: string | null;
+};
+
+export type DashboardAnalyticsSessionsResponse = {
+  date: string;
+  filters: DashboardAnalyticsSessionsFilters;
+  summary: DashboardAnalyticsSessionSummary;
+  sessions: {
+    items: DashboardAnalyticsSession[];
+    meta: PaginationMeta;
+  };
+};
+
+export type DashboardSessionPageView = {
+  id: number;
+  visited_at: string | null;
+  route_path: string | null;
+  full_url: string | null;
+  query_string: string | null;
+  referrer: string | null;
+  event_type: string | null;
+  device_type: string | null;
+  is_bot: boolean;
+  os_name: string | null;
+  browser_name: string | null;
+  language: string | null;
+  timezone: string | null;
+  ip_address: string | null;
+  viewport_width: number | null;
+  viewport_height: number | null;
+  screen_width: number | null;
+  screen_height: number | null;
+  metadata: Record<string, unknown> | null;
+};
+
+export type DashboardAnalyticsSessionPageViewsResponse = {
+  session: Omit<DashboardAnalyticsSession, "session_duration_seconds" | "page_views">;
+  date: string | null;
+  page_views: {
+    items: DashboardSessionPageView[];
+    meta: PaginationMeta;
+  };
+};
+
 export type Vehicle = {
   id: number;
   name: string;

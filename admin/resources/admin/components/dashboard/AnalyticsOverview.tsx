@@ -4,9 +4,10 @@ import {
   BadgeDollarSign,
   CarFront,
   ChartLine,
+  Download,
   UserRoundPlus
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Area,
   AreaChart,
@@ -17,16 +18,37 @@ import {
   YAxis
 } from "recharts";
 
+import {
+  getDashboardAnalyticsSessionPageViews,
+  getDashboardAnalyticsSessions,
+  getApiErrorMessage
+} from "../../lib/api";
 import type {
   DashboardAnalytics,
+  DashboardAnalyticsBotMode,
   DashboardAnalyticsPoint,
   DashboardAnalyticsRange,
+  DashboardAnalyticsSession,
+  DashboardAnalyticsSessionPageViewsResponse,
+  DashboardAnalyticsSessionsFilters,
+  DashboardAnalyticsSessionsResponse,
   DashboardMetricCard
 } from "../../types";
+import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import DataTable from "./DataTable";
+import { Input } from "../ui/input";
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle
+} from "../ui/modal";
+import { Select } from "../ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import DataTable from "./DataTable";
 
 type AnalyticsOverviewProps = {
   analytics: DashboardAnalytics | null;
@@ -41,6 +63,23 @@ const RANGE_OPTIONS: { label: string; value: DashboardAnalyticsRange }[] = [
   { label: "Last 7 days", value: "7d" }
 ];
 
+const BOT_MODE_OPTIONS: { label: string; value: DashboardAnalyticsBotMode }[] = [
+  { label: "Exclude bots", value: "exclude" },
+  { label: "Include bots", value: "include" },
+  { label: "Only bots", value: "only" }
+];
+
+const DEFAULT_SESSION_FILTERS: DashboardAnalyticsSessionsFilters = {
+  device_type: null,
+  bot_mode: "exclude",
+  referrer_contains: "",
+  min_page_views: 0,
+  min_duration_seconds: 0
+};
+
+const SESSIONS_PER_PAGE = 15;
+const SESSION_PAGE_VIEWS_PER_PAGE = 20;
+
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -53,6 +92,75 @@ function formatCurrency(amount: number): string {
 function formatPercent(value: number): string {
   const absValue = Math.abs(value);
   return `${absValue.toFixed(1)}%`;
+}
+
+function formatDateTime(value: string | null): string {
+  if (!value) {
+    return "-";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function formatDuration(seconds: number): string {
+  const safeSeconds = Math.max(0, Math.round(seconds));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const remainingSeconds = safeSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${remainingSeconds}s`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes}m ${remainingSeconds}s`;
+  }
+
+  return `${remainingSeconds}s`;
+}
+
+function normalizeNumberInput(rawValue: string): number {
+  if (rawValue.trim() === "") {
+    return 0;
+  }
+
+  const parsed = Number(rawValue);
+
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return 0;
+  }
+
+  return Math.round(parsed);
+}
+
+function csvEscape(value: unknown): string {
+  const serialized = value === null || value === undefined ? "" : String(value);
+  return `"${serialized.replace(/"/g, '""')}"`;
+}
+
+function downloadCsv(filename: string, csvContent: string): void {
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 function ChangeBadge({ value }: { value: number }) {
@@ -95,7 +203,11 @@ function MetricCard({
       </CardHeader>
       <CardContent className="space-y-2">
         <CardTitle className="text-4xl font-semibold tracking-tight">
-          {currency ? formatCurrency(value.value) : label === "Growth Rate" ? `${value.value.toFixed(2)}%` : Math.round(value.value).toLocaleString()}
+          {currency
+            ? formatCurrency(value.value)
+            : label === "Growth Rate"
+              ? `${value.value.toFixed(2)}%`
+              : Math.round(value.value).toLocaleString()}
         </CardTitle>
         <div className="text-muted-foreground flex items-center gap-2 text-sm">
           {icon}
@@ -135,9 +247,277 @@ function ChartTooltip({
   );
 }
 
+function SessionSummaryCards({ data }: { data: DashboardAnalyticsSessionsResponse | null }) {
+  const summary = data?.summary ?? {
+    unique_visitors: 0,
+    total_sessions: 0,
+    avg_session_duration_seconds: 0,
+    avg_pages_per_session: 0,
+    bot_session_pct: 0
+  };
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="rounded-md border bg-muted/20 p-3">
+        <p className="text-muted-foreground text-xs uppercase tracking-wide">Unique Visitors</p>
+        <p className="mt-1 text-lg font-semibold">{summary.unique_visitors}</p>
+      </div>
+      <div className="rounded-md border bg-muted/20 p-3">
+        <p className="text-muted-foreground text-xs uppercase tracking-wide">Total Sessions</p>
+        <p className="mt-1 text-lg font-semibold">{summary.total_sessions}</p>
+      </div>
+      <div className="rounded-md border bg-muted/20 p-3">
+        <p className="text-muted-foreground text-xs uppercase tracking-wide">Avg Session Duration</p>
+        <p className="mt-1 text-lg font-semibold">{formatDuration(summary.avg_session_duration_seconds)}</p>
+      </div>
+      <div className="rounded-md border bg-muted/20 p-3">
+        <p className="text-muted-foreground text-xs uppercase tracking-wide">Avg Pages / Session</p>
+        <p className="mt-1 text-lg font-semibold">{summary.avg_pages_per_session.toFixed(2)}</p>
+      </div>
+      <div className="rounded-md border bg-muted/20 p-3">
+        <p className="text-muted-foreground text-xs uppercase tracking-wide">Bot Sessions</p>
+        <p className="mt-1 text-lg font-semibold">{summary.bot_session_pct.toFixed(2)}%</p>
+      </div>
+    </div>
+  );
+}
+
 export default function AnalyticsOverview({ analytics, range, busy, onRangeChange }: AnalyticsOverviewProps) {
   const rows = analytics?.table ?? [];
   const chartRows = analytics?.chart ?? [];
+
+  const [sessionsModalOpen, setSessionsModalOpen] = useState(false);
+  const [selectedAnalyticsDate, setSelectedAnalyticsDate] = useState<string | null>(null);
+  const [sessionFilters, setSessionFilters] = useState<DashboardAnalyticsSessionsFilters>(DEFAULT_SESSION_FILTERS);
+  const [sessionFilterDraft, setSessionFilterDraft] = useState<DashboardAnalyticsSessionsFilters>(DEFAULT_SESSION_FILTERS);
+  const [sessionsPage, setSessionsPage] = useState(1);
+  const [sessionsData, setSessionsData] = useState<DashboardAnalyticsSessionsResponse | null>(null);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionsError, setSessionsError] = useState<string | null>(null);
+  const [sessionsCsvBusy, setSessionsCsvBusy] = useState(false);
+
+  const [sessionDetailOpen, setSessionDetailOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<DashboardAnalyticsSession | null>(null);
+  const [sessionPageViewsPage, setSessionPageViewsPage] = useState(1);
+  const [sessionPageViewsData, setSessionPageViewsData] =
+    useState<DashboardAnalyticsSessionPageViewsResponse | null>(null);
+  const [sessionPageViewsLoading, setSessionPageViewsLoading] = useState(false);
+  const [sessionPageViewsError, setSessionPageViewsError] = useState<string | null>(null);
+
+  const sessionsPagination = sessionsData?.sessions.meta;
+  const pageViewsPagination = sessionPageViewsData?.page_views.meta;
+
+  const appliedFilterLabel = useMemo(() => {
+    const labels: string[] = [];
+
+    if (sessionFilters.device_type) {
+      labels.push(`Device: ${sessionFilters.device_type}`);
+    }
+    labels.push(
+      `Bots: ${
+        sessionFilters.bot_mode === "exclude"
+          ? "excluded"
+          : sessionFilters.bot_mode === "only"
+            ? "only bots"
+            : "included"
+      }`
+    );
+    if (sessionFilters.referrer_contains.trim() !== "") {
+      labels.push(`Referrer contains "${sessionFilters.referrer_contains.trim()}"`);
+    }
+    if (sessionFilters.min_page_views > 0) {
+      labels.push(`Min page views: ${sessionFilters.min_page_views}`);
+    }
+    if (sessionFilters.min_duration_seconds > 0) {
+      labels.push(`Min duration: ${sessionFilters.min_duration_seconds}s`);
+    }
+
+    return labels.join(" | ");
+  }, [sessionFilters]);
+
+  const loadDailySessions = async (
+    date: string,
+    page: number,
+    filters: DashboardAnalyticsSessionsFilters
+  ): Promise<void> => {
+    setSessionsLoading(true);
+    setSessionsError(null);
+
+    try {
+      const data = await getDashboardAnalyticsSessions(date, {
+        ...filters,
+        device_type: filters.device_type ?? undefined,
+        referrer_contains: filters.referrer_contains.trim() || undefined,
+        page,
+        per_page: SESSIONS_PER_PAGE
+      });
+      setSessionsData(data);
+    } catch (error) {
+      setSessionsError(getApiErrorMessage(error));
+    } finally {
+      setSessionsLoading(false);
+    }
+  };
+
+  const loadSessionPageViews = async (session: DashboardAnalyticsSession, page: number): Promise<void> => {
+    if (!selectedAnalyticsDate) {
+      return;
+    }
+
+    setSessionPageViewsLoading(true);
+    setSessionPageViewsError(null);
+
+    try {
+      const data = await getDashboardAnalyticsSessionPageViews(session.id, {
+        date: selectedAnalyticsDate,
+        page,
+        per_page: SESSION_PAGE_VIEWS_PER_PAGE
+      });
+      setSessionPageViewsData(data);
+    } catch (error) {
+      setSessionPageViewsError(getApiErrorMessage(error));
+    } finally {
+      setSessionPageViewsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!sessionsModalOpen || !selectedAnalyticsDate) {
+      return;
+    }
+
+    void loadDailySessions(selectedAnalyticsDate, sessionsPage, sessionFilters);
+  }, [selectedAnalyticsDate, sessionFilters, sessionsModalOpen, sessionsPage]);
+
+  useEffect(() => {
+    if (!sessionDetailOpen || !selectedSession) {
+      return;
+    }
+
+    void loadSessionPageViews(selectedSession, sessionPageViewsPage);
+  }, [selectedSession, sessionDetailOpen, sessionPageViewsPage, selectedAnalyticsDate]);
+
+  const openSessionsModalForDate = (date: string) => {
+    setSelectedAnalyticsDate(date);
+    setSessionFilters(DEFAULT_SESSION_FILTERS);
+    setSessionFilterDraft(DEFAULT_SESSION_FILTERS);
+    setSessionsPage(1);
+    setSessionsData(null);
+    setSessionsError(null);
+    setSessionDetailOpen(false);
+    setSelectedSession(null);
+    setSessionPageViewsData(null);
+    setSessionPageViewsError(null);
+    setSessionsModalOpen(true);
+  };
+
+  const applySessionFilters = () => {
+    setSessionsPage(1);
+    setSessionFilters({
+      ...sessionFilterDraft,
+      referrer_contains: sessionFilterDraft.referrer_contains.trim(),
+      min_page_views: Math.max(0, sessionFilterDraft.min_page_views),
+      min_duration_seconds: Math.max(0, sessionFilterDraft.min_duration_seconds)
+    });
+  };
+
+  const clearSessionFilters = () => {
+    setSessionsPage(1);
+    setSessionFilters(DEFAULT_SESSION_FILTERS);
+    setSessionFilterDraft(DEFAULT_SESSION_FILTERS);
+  };
+
+  const openSessionDetail = (session: DashboardAnalyticsSession) => {
+    setSelectedSession(session);
+    setSessionPageViewsPage(1);
+    setSessionPageViewsData(null);
+    setSessionPageViewsError(null);
+    setSessionDetailOpen(true);
+  };
+
+  const exportSessionsCsv = async () => {
+    if (!selectedAnalyticsDate) {
+      return;
+    }
+
+    setSessionsCsvBusy(true);
+    setSessionsError(null);
+
+    try {
+      const baseParams = {
+        ...sessionFilters,
+        device_type: sessionFilters.device_type ?? undefined,
+        referrer_contains: sessionFilters.referrer_contains.trim() || undefined,
+        per_page: 500
+      };
+      const firstPage = await getDashboardAnalyticsSessions(selectedAnalyticsDate, {
+        ...baseParams,
+        page: 1
+      });
+
+      const collected = [...firstPage.sessions.items];
+      const lastPage = firstPage.sessions.meta.last_page;
+
+      for (let page = 2; page <= lastPage; page += 1) {
+        const response = await getDashboardAnalyticsSessions(selectedAnalyticsDate, {
+          ...baseParams,
+          page
+        });
+        collected.push(...response.sessions.items);
+      }
+
+      const headers = [
+        "id",
+        "session_id",
+        "visitor_id",
+        "first_seen_at",
+        "last_seen_at",
+        "session_duration_seconds",
+        "page_views",
+        "device_type",
+        "is_bot",
+        "entry_path",
+        "entry_referrer",
+        "browser_name",
+        "os_name",
+        "language",
+        "timezone",
+        "ip_address"
+      ];
+
+      const csvRows = [
+        headers.map(csvEscape).join(","),
+        ...collected.map((row) =>
+          [
+            row.id,
+            row.session_id,
+            row.visitor_id,
+            row.first_seen_at,
+            row.last_seen_at,
+            row.session_duration_seconds,
+            row.page_views,
+            row.device_type,
+            row.is_bot ? 1 : 0,
+            row.entry_path,
+            row.entry_referrer,
+            row.browser_name,
+            row.os_name,
+            row.language,
+            row.timezone,
+            row.ip_address
+          ]
+            .map(csvEscape)
+            .join(",")
+        )
+      ].join("\n");
+
+      downloadCsv(`analytics-sessions-${selectedAnalyticsDate}.csv`, csvRows);
+    } catch (error) {
+      setSessionsError(getApiErrorMessage(error));
+    } finally {
+      setSessionsCsvBusy(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -252,7 +632,18 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
               </TableHeader>
               <TableBody>
                 {rows.map((row: DashboardAnalyticsPoint) => (
-                  <TableRow key={row.date}>
+                  <TableRow
+                    key={row.date}
+                    className="cursor-pointer"
+                    tabIndex={0}
+                    onClick={() => openSessionsModalForDate(row.date)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        openSessionsModalForDate(row.date);
+                      }
+                    }}
+                  >
                     <TableCell>{row.date}</TableCell>
                     <TableCell>{row.unique_visitors}</TableCell>
                     <TableCell>{row.mobile_visitors}</TableCell>
@@ -274,6 +665,381 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
           </DataTable>
         </CardContent>
       </Card>
+
+      <Modal
+        open={sessionsModalOpen}
+        onOpenChange={(open) => {
+          setSessionsModalOpen(open);
+          if (!open) {
+            setSessionDetailOpen(false);
+          }
+        }}
+      >
+        <ModalContent className="w-[min(96vw,1120px)] max-w-none max-h-[90vh] overflow-y-auto overflow-x-hidden">
+          <ModalHeader>
+            <ModalTitle>Visitor Sessions for {selectedAnalyticsDate ?? "-"}</ModalTitle>
+            <ModalDescription>Filter and inspect sessions captured for this day.</ModalDescription>
+          </ModalHeader>
+
+          <div className="space-y-4">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              <div className="space-y-1">
+                <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Device</label>
+                <Select
+                  value={sessionFilterDraft.device_type ?? ""}
+                  onChange={(event) =>
+                    setSessionFilterDraft((prev) => ({
+                      ...prev,
+                      device_type: event.target.value === "" ? null : (event.target.value as DashboardAnalyticsSessionsFilters["device_type"])
+                    }))
+                  }
+                >
+                  <option value="">All devices</option>
+                  <option value="desktop">Desktop</option>
+                  <option value="mobile">Mobile</option>
+                  <option value="tablet">Tablet</option>
+                  <option value="bot">Bot</option>
+                  <option value="other">Other</option>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Bot mode</label>
+                <Select
+                  value={sessionFilterDraft.bot_mode}
+                  onChange={(event) =>
+                    setSessionFilterDraft((prev) => ({
+                      ...prev,
+                      bot_mode: event.target.value as DashboardAnalyticsBotMode
+                    }))
+                  }
+                >
+                  {BOT_MODE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              <div className="space-y-1 xl:col-span-2">
+                <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Referrer / Source Contains
+                </label>
+                <Input
+                  placeholder="google.com"
+                  value={sessionFilterDraft.referrer_contains}
+                  onChange={(event) =>
+                    setSessionFilterDraft((prev) => ({
+                      ...prev,
+                      referrer_contains: event.target.value
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Min Page Views
+                </label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={sessionFilterDraft.min_page_views}
+                  onChange={(event) =>
+                    setSessionFilterDraft((prev) => ({
+                      ...prev,
+                      min_page_views: normalizeNumberInput(event.target.value)
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Min Duration (sec)
+                </label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={sessionFilterDraft.min_duration_seconds}
+                  onChange={(event) =>
+                    setSessionFilterDraft((prev) => ({
+                      ...prev,
+                      min_duration_seconds: normalizeNumberInput(event.target.value)
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Button onClick={applySessionFilters} disabled={sessionsLoading}>
+                Apply Filters
+              </Button>
+              <Button variant="outline" onClick={clearSessionFilters} disabled={sessionsLoading}>
+                Clear
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => void exportSessionsCsv()}
+                disabled={sessionsCsvBusy || sessionsLoading || !selectedAnalyticsDate}
+              >
+                <Download className="h-4 w-4" />
+                {sessionsCsvBusy ? "Exporting..." : "Export CSV"}
+              </Button>
+              <span className="text-muted-foreground text-xs">{appliedFilterLabel}</span>
+            </div>
+
+            <SessionSummaryCards data={sessionsData} />
+
+            {sessionsError ? (
+              <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
+                {sessionsError}
+              </div>
+            ) : null}
+
+            <DataTable>
+              <Table className="min-w-[1320px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[240px]">Session</TableHead>
+                    <TableHead className="w-[240px]">Visitor</TableHead>
+                    <TableHead className="w-[220px]">First Seen</TableHead>
+                    <TableHead className="w-[220px]">Last Seen</TableHead>
+                    <TableHead className="w-[130px]">Duration</TableHead>
+                    <TableHead className="w-[110px]">Page Views</TableHead>
+                    <TableHead className="w-[120px]">Device</TableHead>
+                    <TableHead className="w-[90px]">Bot</TableHead>
+                    <TableHead className="w-[120px]">Entry Path</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sessionsLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-muted-foreground">
+                        Loading session data...
+                      </TableCell>
+                    </TableRow>
+                  ) : (sessionsData?.sessions.items.length ?? 0) === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-muted-foreground">
+                        No sessions matched this filter set.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    sessionsData?.sessions.items.map((session) => (
+                      <TableRow
+                        key={session.id}
+                        className="cursor-pointer"
+                        tabIndex={0}
+                        onClick={() => openSessionDetail(session)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            openSessionDetail(session);
+                          }
+                        }}
+                      >
+                        <TableCell className="max-w-[240px] truncate font-medium" title={session.session_id}>
+                          {session.session_id}
+                        </TableCell>
+                        <TableCell className="max-w-[240px] truncate" title={session.visitor_id}>
+                          {session.visitor_id}
+                        </TableCell>
+                        <TableCell
+                          className="max-w-[220px] truncate"
+                          title={formatDateTime(session.first_seen_at)}
+                        >
+                          {formatDateTime(session.first_seen_at)}
+                        </TableCell>
+                        <TableCell
+                          className="max-w-[220px] truncate"
+                          title={formatDateTime(session.last_seen_at)}
+                        >
+                          {formatDateTime(session.last_seen_at)}
+                        </TableCell>
+                        <TableCell>{formatDuration(session.session_duration_seconds)}</TableCell>
+                        <TableCell>{session.page_views}</TableCell>
+                        <TableCell className="capitalize">{session.device_type}</TableCell>
+                        <TableCell>{session.is_bot ? "Yes" : "No"}</TableCell>
+                        <TableCell className="max-w-48 truncate" title={session.entry_path ?? "-"}>
+                          {session.entry_path ?? "-"}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </DataTable>
+
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">
+                {sessionsPagination
+                  ? `Page ${sessionsPagination.current_page} of ${sessionsPagination.last_page} (${sessionsPagination.total} total sessions)`
+                  : "No session pagination data"}
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={sessionsLoading || !sessionsPagination || sessionsPagination.current_page <= 1}
+                  onClick={() => setSessionsPage((prev) => Math.max(1, prev - 1))}
+                >
+                  Previous
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={
+                    sessionsLoading ||
+                    !sessionsPagination ||
+                    sessionsPagination.current_page >= sessionsPagination.last_page
+                  }
+                  onClick={() =>
+                    setSessionsPage((prev) =>
+                      Math.min(sessionsPagination?.last_page ?? 1, prev + 1)
+                    )
+                  }
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <ModalFooter>
+            <Button variant="outline" onClick={() => setSessionsModalOpen(false)}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal open={sessionDetailOpen} onOpenChange={setSessionDetailOpen}>
+        <ModalContent className="w-[min(96vw,1120px)] max-w-none max-h-[90vh] overflow-y-auto overflow-x-hidden">
+          <ModalHeader>
+            <ModalTitle>Session Detail {selectedSession ? `#${selectedSession.session_id}` : ""}</ModalTitle>
+            <ModalDescription>Detailed page views for the selected session.</ModalDescription>
+          </ModalHeader>
+
+          {selectedSession ? (
+            <div className="space-y-4">
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="rounded-md border bg-muted/20 p-3 text-sm">
+                  <p className="text-muted-foreground text-xs uppercase tracking-wide">Visitor</p>
+                  <p className="mt-1 font-medium">{selectedSession.visitor_id}</p>
+                </div>
+                <div className="rounded-md border bg-muted/20 p-3 text-sm">
+                  <p className="text-muted-foreground text-xs uppercase tracking-wide">Duration</p>
+                  <p className="mt-1 font-medium">{formatDuration(selectedSession.session_duration_seconds)}</p>
+                </div>
+                <div className="rounded-md border bg-muted/20 p-3 text-sm">
+                  <p className="text-muted-foreground text-xs uppercase tracking-wide">Date Window</p>
+                  <p className="mt-1 font-medium">{selectedAnalyticsDate ?? "-"}</p>
+                </div>
+              </div>
+
+              {sessionPageViewsError ? (
+                <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
+                  {sessionPageViewsError}
+                </div>
+              ) : null}
+
+              <DataTable>
+                <Table className="min-w-[1120px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[220px]">Visited At</TableHead>
+                      <TableHead className="w-[180px]">Route</TableHead>
+                      <TableHead className="w-[120px]">Event</TableHead>
+                      <TableHead className="w-[260px]">Referrer</TableHead>
+                      <TableHead className="w-[120px]">Browser</TableHead>
+                      <TableHead className="w-[120px]">OS</TableHead>
+                      <TableHead className="w-[120px]">IP</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sessionPageViewsLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-muted-foreground">
+                          Loading page views...
+                        </TableCell>
+                      </TableRow>
+                    ) : (sessionPageViewsData?.page_views.items.length ?? 0) === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-muted-foreground">
+                          No page views found for this session.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      sessionPageViewsData?.page_views.items.map((pageView) => (
+                        <TableRow key={pageView.id}>
+                          <TableCell title={formatDateTime(pageView.visited_at)} className="max-w-[220px] truncate">
+                            {formatDateTime(pageView.visited_at)}
+                          </TableCell>
+                          <TableCell className="max-w-52 truncate">{pageView.route_path ?? "-"}</TableCell>
+                          <TableCell>{pageView.event_type ?? "-"}</TableCell>
+                          <TableCell className="max-w-72 truncate">{pageView.referrer ?? "-"}</TableCell>
+                          <TableCell>{pageView.browser_name ?? "-"}</TableCell>
+                          <TableCell>{pageView.os_name ?? "-"}</TableCell>
+                          <TableCell>{pageView.ip_address ?? "-"}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </DataTable>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  {pageViewsPagination
+                    ? `Page ${pageViewsPagination.current_page} of ${pageViewsPagination.last_page} (${pageViewsPagination.total} total page views)`
+                    : "No page-view pagination data"}
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={
+                      sessionPageViewsLoading ||
+                      !pageViewsPagination ||
+                      pageViewsPagination.current_page <= 1
+                    }
+                    onClick={() => setSessionPageViewsPage((prev) => Math.max(1, prev - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={
+                      sessionPageViewsLoading ||
+                      !pageViewsPagination ||
+                      pageViewsPagination.current_page >= pageViewsPagination.last_page
+                    }
+                    onClick={() =>
+                      setSessionPageViewsPage((prev) =>
+                        Math.min(pageViewsPagination?.last_page ?? 1, prev + 1)
+                      )
+                    }
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-sm">No session selected.</p>
+          )}
+
+          <ModalFooter>
+            <Button variant="outline" onClick={() => setSessionDetailOpen(false)}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

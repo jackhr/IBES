@@ -2,6 +2,9 @@ import axios, { AxiosError } from "axios";
 import type {
   AddOn,
   DashboardAnalytics,
+  DashboardAnalyticsSessionPageViewsResponse,
+  DashboardAnalyticsSessionsResponse,
+  DashboardAnalyticsSessionsFilters,
   DashboardAnalyticsRange,
   AdminUser,
   DashboardSummary,
@@ -92,6 +95,41 @@ export async function getDashboardAnalytics(range: DashboardAnalyticsRange = "90
       range
     }
   });
+
+  return response.data.data;
+}
+
+export async function getDashboardAnalyticsSessions(
+  date: string,
+  params?: Partial<DashboardAnalyticsSessionsFilters> & {
+    per_page?: number;
+    page?: number;
+  }
+): Promise<DashboardAnalyticsSessionsResponse> {
+  const response = await api.get<ApiEnvelope<DashboardAnalyticsSessionsResponse>>(
+    `/dashboard/analytics/${date}/sessions`,
+    {
+      params
+    }
+  );
+
+  return response.data.data;
+}
+
+export async function getDashboardAnalyticsSessionPageViews(
+  sessionId: number,
+  params?: {
+    date?: string;
+    per_page?: number;
+    page?: number;
+  }
+): Promise<DashboardAnalyticsSessionPageViewsResponse> {
+  const response = await api.get<ApiEnvelope<DashboardAnalyticsSessionPageViewsResponse>>(
+    `/dashboard/analytics/sessions/${sessionId}/page-views`,
+    {
+      params
+    }
+  );
 
   return response.data.data;
 }

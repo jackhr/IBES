@@ -18,6 +18,9 @@ Route::prefix('admin')->group(function (): void {
 
         Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
         Route::get('/dashboard/analytics', [DashboardController::class, 'analytics']);
+        Route::get('/dashboard/analytics/{date}/sessions', [DashboardController::class, 'analyticsSessions'])
+            ->where('date', '\d{4}-\d{2}-\d{2}');
+        Route::get('/dashboard/analytics/sessions/{visitorSession}/page-views', [DashboardController::class, 'analyticsSessionPageViews']);
 
         Route::get('/vehicles', [VehicleController::class, 'index']);
         Route::post('/vehicles', [VehicleController::class, 'store']);

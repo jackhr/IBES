@@ -9,7 +9,12 @@ type DataTableProps = {
 
 export default function DataTable({ children, className }: DataTableProps) {
   return (
-    <div className={cn("w-full max-w-full overflow-hidden rounded-lg border bg-card", className)}>
+    <div
+      className={cn(
+        "w-full max-w-full overflow-x-auto overflow-y-hidden rounded-lg border bg-card",
+        className
+      )}
+    >
       {children}
     </div>
   );

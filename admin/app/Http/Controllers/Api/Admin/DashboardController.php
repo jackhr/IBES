@@ -8,6 +8,7 @@ use App\Models\OrderRequest;
 use App\Models\TaxiRequest;
 use App\Models\Vehicle;
 use App\Models\VehicleDiscount;
+use App\Models\VisitorSession;
 use App\Services\AdminAnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -44,6 +45,41 @@ class DashboardController extends Controller
         return response()->json([
             'success' => true,
             'data' => $this->analyticsService->build($range),
+        ]);
+    }
+
+    public function analyticsSessions(Request $request, string $date): JsonResponse
+    {
+        $request->merge(['date' => $date]);
+
+        $validated = $request->validate([
+            'date' => ['required', 'date_format:Y-m-d'],
+            'device_type' => ['nullable', 'in:desktop,mobile,tablet,bot,other'],
+            'bot_mode' => ['nullable', 'in:exclude,include,only'],
+            'referrer_contains' => ['nullable', 'string', 'max:255'],
+            'min_page_views' => ['nullable', 'integer', 'min:0', 'max:10000'],
+            'min_duration_seconds' => ['nullable', 'integer', 'min:0', 'max:86400'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:500'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->analyticsService->buildDailySessions((string) $validated['date'], $validated),
+        ]);
+    }
+
+    public function analyticsSessionPageViews(Request $request, VisitorSession $visitorSession): JsonResponse
+    {
+        $validated = $request->validate([
+            'date' => ['nullable', 'date_format:Y-m-d'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:500'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->analyticsService->buildSessionPageViews($visitorSession, $validated),
         ]);
     }
 }
