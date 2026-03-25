@@ -95,6 +95,8 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
   );
   const [orderRequestsPage, setOrderRequestsPage] = useState(1);
   const [taxiRequestsPage, setTaxiRequestsPage] = useState(1);
+  const [orderDetailOpen, setOrderDetailOpen] = useState(false);
+  const [selectedOrderRequest, setSelectedOrderRequest] = useState<OrderRequest | null>(null);
   const [taxiDetailOpen, setTaxiDetailOpen] = useState(false);
   const [selectedTaxiRequest, setSelectedTaxiRequest] = useState<TaxiRequest | null>(null);
 
@@ -459,6 +461,11 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
     setTaxiDetailOpen(true);
   };
 
+  const openOrderRequestDetail = (order: OrderRequest) => {
+    setSelectedOrderRequest(order);
+    setOrderDetailOpen(true);
+  };
+
   const formatPaginationRange = (meta: PaginationMeta) => {
     if (meta.total === 0) {
       return "0 of 0";
@@ -663,6 +670,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                 <OrderRequestsPage
                   orders={orders}
                   busy={busy}
+                  onOpenDetail={openOrderRequestDetail}
                   onToggleStatus={(order) => void toggleOrderStatusHandler(order)}
                   paginationLabel={formatPaginationRange(orderRequestsMeta)}
                   currentPage={orderRequestsMeta.current_page}
@@ -1020,6 +1028,127 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
             </div>
           </div>
         </FormModal>
+
+        <Modal
+          open={orderDetailOpen}
+          onOpenChange={(open) => {
+            setOrderDetailOpen(open);
+
+            if (!open) {
+              setSelectedOrderRequest(null);
+            }
+          }}
+        >
+          <ModalContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <ModalHeader>
+              <ModalTitle>Order Request #{selectedOrderRequest?.id ?? "-"}</ModalTitle>
+              <ModalDescription>Full details from the reservation request.</ModalDescription>
+            </ModalHeader>
+
+            {selectedOrderRequest ? (
+              <div className="space-y-4 text-sm">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Reservation Key</p>
+                    <p>{selectedOrderRequest.key}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Status</p>
+                    <p>{selectedOrderRequest.confirmed ? "Confirmed" : "Pending"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Customer</p>
+                    <p>
+                      {selectedOrderRequest.contact_info
+                        ? `${selectedOrderRequest.contact_info.first_name} ${selectedOrderRequest.contact_info.last_name}`
+                        : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Email</p>
+                    <p>{selectedOrderRequest.contact_info?.email ?? "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Phone</p>
+                    <p>{selectedOrderRequest.contact_info?.phone ?? "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Vehicle</p>
+                    <p>{selectedOrderRequest.vehicle?.name ?? "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Pick Up</p>
+                    <p>{selectedOrderRequest.pick_up}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Drop Off</p>
+                    <p>{selectedOrderRequest.drop_off}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Pick Up Location</p>
+                    <p>{selectedOrderRequest.pick_up_location}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Drop Off Location</p>
+                    <p>{selectedOrderRequest.drop_off_location}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Days</p>
+                    <p>{selectedOrderRequest.days}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Subtotal</p>
+                    <p>${selectedOrderRequest.sub_total.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Created</p>
+                    <p>{selectedOrderRequest.created_at ?? "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs font-semibold uppercase">Updated</p>
+                    <p>{selectedOrderRequest.updated_at ?? "-"}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase">Add-Ons</p>
+                  {selectedOrderRequest.add_ons.length === 0 ? (
+                    <p className="text-muted-foreground">No add-ons selected.</p>
+                  ) : (
+                    <div className="overflow-x-auto rounded-md border">
+                      <table className="w-full min-w-[480px] text-left text-sm">
+                        <thead className="bg-muted/30">
+                          <tr>
+                            <th className="px-3 py-2 font-medium">Name</th>
+                            <th className="px-3 py-2 font-medium">Quantity</th>
+                            <th className="px-3 py-2 font-medium">Cost</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedOrderRequest.add_ons.map((item) => (
+                            <tr key={item.id} className="border-t">
+                              <td className="px-3 py-2">{item.add_on?.name ?? "-"}</td>
+                              <td className="px-3 py-2">{item.quantity}</td>
+                              <td className="px-3 py-2">
+                                {typeof item.add_on?.cost === "number" ? `$${item.add_on.cost.toFixed(2)}` : "-"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+
+            <ModalFooter>
+              <Button type="button" variant="outline" onClick={() => setOrderDetailOpen(false)}>
+                Close
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
 
         <Modal
           open={taxiDetailOpen}

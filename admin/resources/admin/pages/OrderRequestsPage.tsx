@@ -7,6 +7,7 @@ import type { OrderRequest } from "../types";
 type OrderRequestsPageProps = {
   orders: OrderRequest[];
   busy: boolean;
+  onOpenDetail: (order: OrderRequest) => void;
   onToggleStatus: (order: OrderRequest) => void;
   paginationLabel: string;
   currentPage: number;
@@ -20,6 +21,7 @@ type OrderRequestsPageProps = {
 export default function OrderRequestsPage({
   orders,
   busy,
+  onOpenDetail,
   onToggleStatus,
   paginationLabel,
   currentPage,
@@ -51,7 +53,19 @@ export default function OrderRequestsPage({
             </TableHeader>
             <TableBody>
               {orders.map((order) => (
-                <TableRow key={order.id}>
+                <TableRow
+                  key={order.id}
+                  role="button"
+                  tabIndex={0}
+                  className="cursor-pointer"
+                  onClick={() => onOpenDetail(order)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      onOpenDetail(order);
+                    }
+                  }}
+                >
                   <TableCell>{order.id}</TableCell>
                   <TableCell>
                     {order.contact_info ? `${order.contact_info.first_name} ${order.contact_info.last_name}` : "-"}
@@ -66,7 +80,10 @@ export default function OrderRequestsPage({
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => onToggleStatus(order)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onToggleStatus(order);
+                        }}
                         disabled={busy}
                       >
                         Mark {order.confirmed ? "Pending" : "Confirmed"}
