@@ -190,7 +190,7 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
           </Tabs>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="h-[320px] w-full">
+          <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartRows} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
                 <defs>
