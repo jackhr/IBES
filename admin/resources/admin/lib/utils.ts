@@ -26,7 +26,24 @@ export const readCachedResource = <TResource,>(cacheKey: string): TResource | nu
       return null;
     }
 
-    const cached = JSON.parse(rawValue) as CachedResourceEnvelope<TResource>;
+    const parsed = JSON.parse(rawValue) as unknown;
+
+    if (typeof parsed !== "object" || parsed === null) {
+      window.localStorage.removeItem(cacheKey);
+      return null;
+    }
+
+    if (!("value" in parsed) || !("expiresAt" in parsed)) {
+      window.localStorage.removeItem(cacheKey);
+      return null;
+    }
+
+    const cached = parsed as CachedResourceEnvelope<TResource>;
+
+    if (typeof cached.expiresAt !== "number" || !Number.isFinite(cached.expiresAt)) {
+      window.localStorage.removeItem(cacheKey);
+      return null;
+    }
 
     if (Date.now() >= cached.expiresAt) {
       window.localStorage.removeItem(cacheKey);
@@ -35,6 +52,7 @@ export const readCachedResource = <TResource,>(cacheKey: string): TResource | nu
 
     return cached.value;
   } catch {
+    window.localStorage.removeItem(cacheKey);
     return null;
   }
 };
