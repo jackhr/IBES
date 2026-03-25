@@ -87,6 +87,17 @@ type PaginationMeta = {
   total: number;
 };
 
+type LoadResourceOptions = {
+  cacheKey?: string;
+  readFromCache?: boolean;
+  writeToCache?: boolean;
+};
+
+type CachedResourceEnvelope<TResource> = {
+  value: TResource;
+  expiresAt: number;
+};
+
 const sectionTabs: DashboardTabItem<Section>[] = [
   { value: "overview", label: "Overview", icon: LayoutGrid },
   { value: "vehicles", label: "Vehicles", icon: CarFront },
@@ -139,6 +150,12 @@ const initialConfirmState: ConfirmDialogState = {
 };
 const ORDER_REQUESTS_PER_PAGE = 20;
 const TAXI_REQUESTS_PER_PAGE = 20;
+const RESOURCE_CACHE_TTL_MS = 60 * 1000;
+const RESOURCE_CACHE_KEYS = {
+  vehicles: "ibes_admin_cache_vehicles",
+  addOns: "ibes_admin_cache_add_ons",
+  discounts: "ibes_admin_cache_discounts"
+} as const;
 
 const initialPaginationMeta = (perPage: number): PaginationMeta => ({
   current_page: 1,
@@ -146,6 +163,47 @@ const initialPaginationMeta = (perPage: number): PaginationMeta => ({
   per_page: perPage,
   total: 0
 });
+
+const readCachedResource = <TResource,>(cacheKey: string): TResource | null => {
+  if (typeof window === "undefined" || !window.localStorage) {
+    return null;
+  }
+
+  try {
+    const rawValue = window.localStorage.getItem(cacheKey);
+
+    if (!rawValue) {
+      return null;
+    }
+
+    const cached = JSON.parse(rawValue) as CachedResourceEnvelope<TResource>;
+
+    if (Date.now() >= cached.expiresAt) {
+      window.localStorage.removeItem(cacheKey);
+      return null;
+    }
+
+    return cached.value;
+  } catch {
+    return null;
+  }
+};
+
+const writeCachedResource = <TResource,>(cacheKey: string, value: TResource) => {
+  if (typeof window === "undefined" || !window.localStorage) {
+    return;
+  }
+
+  try {
+    const payload: CachedResourceEnvelope<TResource> = {
+      value,
+      expiresAt: Date.now() + RESOURCE_CACHE_TTL_MS
+    };
+    window.localStorage.setItem(cacheKey, JSON.stringify(payload));
+  } catch {
+    // Ignore storage quota/privacy mode errors.
+  }
+};
 
 export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
   const [section, setSection] = useState<Section>("overview");
@@ -224,6 +282,9 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
       setTaxiRequests(taxiRes.items);
       setOrderRequestsMeta(ordersRes.meta);
       setTaxiRequestsMeta(taxiRes.meta);
+      writeCachedResource(RESOURCE_CACHE_KEYS.vehicles, vehiclesRes);
+      writeCachedResource(RESOURCE_CACHE_KEYS.addOns, addOnsRes);
+      writeCachedResource(RESOURCE_CACHE_KEYS.discounts, discountsRes);
     } catch (loadError) {
       if (axios.isAxiosError(loadError) && loadError.response?.status === 401) {
         setError("Your admin session expired. Please sign in again.");
@@ -239,14 +300,33 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
 
   const loadResource = async <TResource,>(
     apiGetter: () => Promise<TResource>,
-    onSuccess: (data: TResource) => void
+    onSuccess: (data: TResource) => void,
+    options?: LoadResourceOptions
   ) => {
     setBusy(true);
     setError(null);
 
+    const shouldReadFromCache = options?.readFromCache ?? false;
+    const shouldWriteToCache = options?.writeToCache ?? Boolean(options?.cacheKey);
+    const cacheKey = options?.cacheKey;
+
+    if (shouldReadFromCache && cacheKey) {
+      const cached = readCachedResource<TResource>(cacheKey);
+      
+      if (cached !== null) {
+        onSuccess(cached);
+        setBusy(false);
+        return;
+      }
+    }
+
     try {
       const data = await apiGetter();
       onSuccess(data);
+
+      if (cacheKey && shouldWriteToCache) {
+        writeCachedResource(cacheKey, data);
+      }
     } catch (loadError) {
       if (axios.isAxiosError(loadError) && loadError.response?.status === 401) {
         setError("Your admin session expired. Please sign in again.");
@@ -537,16 +617,25 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
       case "vehicles":
         void loadResource(getVehicles, (data) => {
           setVehicles(data);
+        }, {
+          cacheKey: RESOURCE_CACHE_KEYS.vehicles,
+          readFromCache: true
         });
         break;
       case "addons":
         void loadResource(getAddOns, (data) => {
           setAddOns(data);
+        }, {
+          cacheKey: RESOURCE_CACHE_KEYS.addOns,
+          readFromCache: true
         });
         break;
       case "discounts":
         void loadResource(getVehicleDiscounts, (data) => {
           setDiscounts(data);
+        }, {
+          cacheKey: RESOURCE_CACHE_KEYS.discounts,
+          readFromCache: true
         });
         break;
       case "orders":
