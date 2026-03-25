@@ -1,15 +1,6 @@
 import axios from "axios";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import {
-  CarFront,
-  CarTaxiFront,
-  ClipboardList,
-  LayoutGrid,
-  LogOut,
-  RefreshCw,
-  Tags,
-  BadgePercent
-} from "lucide-react";
+import { LogOut, RefreshCw } from "lucide-react";
 import {
   createAddOn,
   createVehicle,
@@ -32,16 +23,20 @@ import {
 } from "../lib/api";
 import type {
   AddOn,
-  AdminUser,
   DashboardAnalytics,
   DashboardAnalyticsRange,
   DashboardSummary,
   OrderRequest,
   TaxiRequest,
   Vehicle,
-  VehicleDiscount
+  VehicleDiscount,
+  DashboardPageProps,
+  Section,
+  ConfirmDialogState,
+  PaginationMeta,
+  LoadResourceOptions
 } from "../types";
-import DashboardTabs, { type DashboardTabItem } from "../components/dashboard/DashboardTabs";
+import DashboardTabs from "../components/dashboard/DashboardTabs";
 import FormModal from "../components/dashboard/FormModal";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
@@ -65,145 +60,17 @@ import AddOnsPage from "./AddOnsPage";
 import DiscountsPage from "./DiscountsPage";
 import OrderRequestsPage from "./OrderRequestsPage";
 import TaxiRequestsPage from "./TaxiRequestsPage";
-
-type DashboardPageProps = {
-  user: AdminUser;
-  onLogout: () => Promise<void>;
-};
-
-type Section = "overview" | "vehicles" | "addons" | "discounts" | "orders" | "taxi";
-
-type ConfirmDialogState = {
-  open: boolean;
-  title: string;
-  description: string;
-  action: (() => Promise<void>) | null;
-};
-
-type PaginationMeta = {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-};
-
-type LoadResourceOptions = {
-  cacheKey?: string;
-  readFromCache?: boolean;
-  writeToCache?: boolean;
-};
-
-type CachedResourceEnvelope<TResource> = {
-  value: TResource;
-  expiresAt: number;
-};
-
-const sectionTabs: DashboardTabItem<Section>[] = [
-  { value: "overview", label: "Overview", icon: LayoutGrid },
-  { value: "vehicles", label: "Vehicles", icon: CarFront },
-  { value: "addons", label: "Add-Ons", icon: Tags },
-  { value: "discounts", label: "Discounts", icon: BadgePercent },
-  { value: "orders", label: "Orders", icon: ClipboardList },
-  { value: "taxi", label: "Taxi", icon: CarTaxiFront }
-];
-
-const vehicleTemplate: Partial<Vehicle> = {
-  name: "",
-  type: "suv",
-  slug: "",
-  showing: true,
-  landing_order: null,
-  base_price_XCD: 0,
-  base_price_USD: 0,
-  insurance: 0,
-  times_requested: 0,
-  people: 4,
-  bags: 2,
-  doors: 4,
-  four_wd: false,
-  ac: true,
-  manual: false,
-  year: new Date().getFullYear(),
-  taxi: false
-};
-
-const addOnTemplate: Partial<AddOn> = {
-  name: "",
-  cost: 0,
-  description: "",
-  abbr: "",
-  fixed_price: false
-};
-
-const discountTemplate: Partial<VehicleDiscount> = {
-  vehicle_id: 0,
-  days: 4,
-  price_USD: 0,
-  price_XCD: 0
-};
-
-const initialConfirmState: ConfirmDialogState = {
-  open: false,
-  title: "",
-  description: "",
-  action: null
-};
-const ORDER_REQUESTS_PER_PAGE = 20;
-const TAXI_REQUESTS_PER_PAGE = 20;
-const RESOURCE_CACHE_TTL_MS = 60 * 1000;
-const RESOURCE_CACHE_KEYS = {
-  vehicles: "ibes_admin_cache_vehicles",
-  addOns: "ibes_admin_cache_add_ons",
-  discounts: "ibes_admin_cache_discounts"
-} as const;
-
-const initialPaginationMeta = (perPage: number): PaginationMeta => ({
-  current_page: 1,
-  last_page: 1,
-  per_page: perPage,
-  total: 0
-});
-
-const readCachedResource = <TResource,>(cacheKey: string): TResource | null => {
-  if (typeof window === "undefined" || !window.localStorage) {
-    return null;
-  }
-
-  try {
-    const rawValue = window.localStorage.getItem(cacheKey);
-
-    if (!rawValue) {
-      return null;
-    }
-
-    const cached = JSON.parse(rawValue) as CachedResourceEnvelope<TResource>;
-
-    if (Date.now() >= cached.expiresAt) {
-      window.localStorage.removeItem(cacheKey);
-      return null;
-    }
-
-    return cached.value;
-  } catch {
-    return null;
-  }
-};
-
-const writeCachedResource = <TResource,>(cacheKey: string, value: TResource) => {
-  if (typeof window === "undefined" || !window.localStorage) {
-    return;
-  }
-
-  try {
-    const payload: CachedResourceEnvelope<TResource> = {
-      value,
-      expiresAt: Date.now() + RESOURCE_CACHE_TTL_MS
-    };
-    window.localStorage.setItem(cacheKey, JSON.stringify(payload));
-  } catch {
-    // Ignore storage quota/privacy mode errors.
-  }
-};
+import {
+  addOnTemplate,
+  discountTemplate,
+  initialConfirmState,
+  ORDER_REQUESTS_PER_PAGE,
+  RESOURCE_CACHE_KEYS,
+  sectionTabs,
+  TAXI_REQUESTS_PER_PAGE,
+  vehicleTemplate
+} from "../consts";
+import { initialPaginationMeta, readCachedResource, writeCachedResource } from "../lib/utils";
 
 export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
   const [section, setSection] = useState<Section>("overview");
@@ -312,7 +179,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
 
     if (shouldReadFromCache && cacheKey) {
       const cached = readCachedResource<TResource>(cacheKey);
-      
+
       if (cached !== null) {
         onSuccess(cached);
         setBusy(false);

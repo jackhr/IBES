@@ -142,3 +142,35 @@ export type TaxiRequest = {
   special_requirements: string | null;
   created_at: string;
 };
+
+export type DashboardPageProps = {
+  user: AdminUser;
+  onLogout: () => Promise<void>;
+};
+
+export type Section = "overview" | "vehicles" | "addons" | "discounts" | "orders" | "taxi";
+
+export type ConfirmDialogState = {
+  open: boolean;
+  title: string;
+  description: string;
+  action: (() => Promise<void>) | null;
+};
+
+export type PaginationMeta = {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
+
+export type LoadResourceOptions = {
+  cacheKey?: string;
+  readFromCache?: boolean;
+  writeToCache?: boolean;
+};
+
+export type CachedResourceEnvelope<TResource> = {
+  value: TResource;
+  expiresAt: number;
+};
