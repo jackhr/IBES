@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
+import path from 'node:path';
 
 export default defineConfig({
     plugins: [
@@ -12,6 +13,11 @@ export default defineConfig({
         react(),
         tailwindcss(),
     ],
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'resources/admin'),
+        },
+    },
     server: {
         watch: {
             ignored: ['**/storage/framework/views/**'],

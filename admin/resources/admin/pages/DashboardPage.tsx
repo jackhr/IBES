@@ -55,7 +55,14 @@ import {
 } from "../components/ui/modal";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Select } from "../components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "../components/ui/select";
+import { Skeleton } from "../components/ui/skeleton";
 import { Tabs, TabsContent } from "../components/ui/tabs";
 import { Textarea } from "../components/ui/textarea";
 import {
@@ -595,30 +602,7 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
         break;
     }
   }, [analyticsRange, onLogout, onUserChange, orderRequestsPage, section, taxiRequestsPage]);
-
-  if (!summary) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-muted/40 p-6">
-        <Card className="w-full max-w-lg">
-          <CardHeader>
-            <CardTitle>IBES Admin Dashboard</CardTitle>
-            <CardDescription>Load the latest data to begin.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {error ? (
-              <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
-                {error}
-              </div>
-            ) : null}
-            <Button onClick={() => void loadAll()} disabled={busy}>
-              <RefreshCw className="h-4 w-4" />
-              {busy ? "Loading..." : "Load Dashboard"}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const showInitialSkeleton = summary === null;
 
   return (
     <div className="min-h-screen bg-muted/35 p-4 md:p-6">
@@ -674,106 +658,139 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
                 <CardDescription>Current totals from the live booking database.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p>{summary.vehicles_total} vehicles</p>
-                <p>{summary.add_ons_total} add-ons</p>
-                <p>{summary.vehicle_discounts_total} discount rows</p>
-                <p>{summary.order_requests_total} order requests</p>
-                <p>{summary.taxi_requests_total} taxi requests</p>
+                {summary ? (
+                  <>
+                    <p>{summary.vehicles_total} vehicles</p>
+                    <p>{summary.add_ons_total} add-ons</p>
+                    <p>{summary.vehicle_discounts_total} discount rows</p>
+                    <p>{summary.order_requests_total} order requests</p>
+                    <p>{summary.taxi_requests_total} taxi requests</p>
+                  </>
+                ) : (
+                  <>
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-26" />
+                    <Skeleton className="h-4 w-30" />
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-28" />
+                  </>
+                )}
               </CardContent>
             </Card>
           </aside>
 
           <div className="min-w-0 space-y-6">
-            <Suspense
-              fallback={
-                <Card className="border-border/70 shadow-sm">
-                  <CardContent className="py-8 text-sm text-muted-foreground">Loading section...</CardContent>
-                </Card>
-              }
-            >
-              <TabsContent value="overview" className="space-y-4">
-                <OverviewPage
-                  summary={summary}
-                  analytics={analytics}
-                  analyticsRange={analyticsRange}
-                  busy={busy}
-                  onAnalyticsRangeChange={setAnalyticsRange}
-                />
-              </TabsContent>
+            {showInitialSkeleton ? (
+              <Card className="border-border/70 shadow-sm">
+                <CardContent className="space-y-6 py-6">
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <Skeleton className="h-30 w-full" />
+                    <Skeleton className="h-30 w-full" />
+                    <Skeleton className="h-30 w-full" />
+                    <Skeleton className="h-30 w-full" />
+                  </div>
+                  <Skeleton className="h-74 w-full" />
+                  <div className="space-y-3">
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Suspense
+                fallback={
+                  <Card className="border-border/70 shadow-sm">
+                    <CardContent className="py-8 text-sm text-muted-foreground">Loading section...</CardContent>
+                  </Card>
+                }
+              >
+                <TabsContent value="overview" className="space-y-4">
+                  <OverviewPage
+                    summary={summary}
+                    analytics={analytics}
+                    analyticsRange={analyticsRange}
+                    busy={busy}
+                    onAnalyticsRangeChange={setAnalyticsRange}
+                  />
+                </TabsContent>
 
-              <TabsContent value="vehicles" className="space-y-4">
-                <VehiclesPage
-                  vehicles={sortedVehicles}
-                  busy={busy}
-                  onCreate={openVehicleCreateModal}
-                  onEdit={openVehicleEditModal}
-                />
-              </TabsContent>
+                <TabsContent value="vehicles" className="space-y-4">
+                  <VehiclesPage
+                    vehicles={sortedVehicles}
+                    busy={busy}
+                    onCreate={openVehicleCreateModal}
+                    onEdit={openVehicleEditModal}
+                  />
+                </TabsContent>
 
-              <TabsContent value="addons" className="space-y-4">
-                <AddOnsPage
-                  addOns={addOns}
-                  busy={busy}
-                  onCreate={openAddOnCreateModal}
-                  onEdit={openAddOnEditModal}
-                />
-              </TabsContent>
+                <TabsContent value="addons" className="space-y-4">
+                  <AddOnsPage
+                    addOns={addOns}
+                    busy={busy}
+                    onCreate={openAddOnCreateModal}
+                    onEdit={openAddOnEditModal}
+                  />
+                </TabsContent>
 
-              <TabsContent value="discounts" className="space-y-4">
-                <DiscountsPage
-                  discounts={discounts}
-                  busy={busy}
-                  onCreate={openDiscountCreateModal}
-                  onEdit={openDiscountEditModal}
-                />
-              </TabsContent>
+                <TabsContent value="discounts" className="space-y-4">
+                  <DiscountsPage
+                    discounts={discounts}
+                    busy={busy}
+                    onCreate={openDiscountCreateModal}
+                    onEdit={openDiscountEditModal}
+                  />
+                </TabsContent>
 
-              <TabsContent value="orders" className="space-y-4">
-                <OrderRequestsPage
-                  orders={orders}
-                  busy={busy}
-                  onOpenDetail={openOrderRequestDetail}
-                  onToggleStatus={(order) => void toggleOrderStatusHandler(order)}
-                  paginationLabel={formatPaginationRange(orderRequestsMeta)}
-                  currentPage={orderRequestsMeta.current_page}
-                  lastPage={orderRequestsMeta.last_page}
-                  canGoPrevious={orderRequestsMeta.current_page > 1}
-                  canGoNext={orderRequestsMeta.current_page < orderRequestsMeta.last_page}
-                  onPreviousPage={() => setOrderRequestsPage((prev) => Math.max(1, prev - 1))}
-                  onNextPage={() =>
-                    setOrderRequestsPage((prev) => Math.min(Math.max(1, orderRequestsMeta.last_page), prev + 1))
-                  }
-                />
-              </TabsContent>
+                <TabsContent value="orders" className="space-y-4">
+                  <OrderRequestsPage
+                    orders={orders}
+                    busy={busy}
+                    onOpenDetail={openOrderRequestDetail}
+                    onToggleStatus={(order) => void toggleOrderStatusHandler(order)}
+                    paginationLabel={formatPaginationRange(orderRequestsMeta)}
+                    currentPage={orderRequestsMeta.current_page}
+                    lastPage={orderRequestsMeta.last_page}
+                    canGoPrevious={orderRequestsMeta.current_page > 1}
+                    canGoNext={orderRequestsMeta.current_page < orderRequestsMeta.last_page}
+                    onPreviousPage={() => setOrderRequestsPage((prev) => Math.max(1, prev - 1))}
+                    onNextPage={() =>
+                      setOrderRequestsPage((prev) => Math.min(Math.max(1, orderRequestsMeta.last_page), prev + 1))
+                    }
+                  />
+                </TabsContent>
 
-              <TabsContent value="taxi" className="space-y-4">
-                <TaxiRequestsPage
-                  taxiRequests={taxiRequests}
-                  busy={busy}
-                  onOpenDetail={openTaxiRequestDetail}
-                  paginationLabel={formatPaginationRange(taxiRequestsMeta)}
-                  currentPage={taxiRequestsMeta.current_page}
-                  lastPage={taxiRequestsMeta.last_page}
-                  canGoPrevious={taxiRequestsMeta.current_page > 1}
-                  canGoNext={taxiRequestsMeta.current_page < taxiRequestsMeta.last_page}
-                  onPreviousPage={() => setTaxiRequestsPage((prev) => Math.max(1, prev - 1))}
-                  onNextPage={() =>
-                    setTaxiRequestsPage((prev) => Math.min(Math.max(1, taxiRequestsMeta.last_page), prev + 1))
-                  }
-                />
-              </TabsContent>
+                <TabsContent value="taxi" className="space-y-4">
+                  <TaxiRequestsPage
+                    taxiRequests={taxiRequests}
+                    busy={busy}
+                    onOpenDetail={openTaxiRequestDetail}
+                    paginationLabel={formatPaginationRange(taxiRequestsMeta)}
+                    currentPage={taxiRequestsMeta.current_page}
+                    lastPage={taxiRequestsMeta.last_page}
+                    canGoPrevious={taxiRequestsMeta.current_page > 1}
+                    canGoNext={taxiRequestsMeta.current_page < taxiRequestsMeta.last_page}
+                    onPreviousPage={() => setTaxiRequestsPage((prev) => Math.max(1, prev - 1))}
+                    onNextPage={() =>
+                      setTaxiRequestsPage((prev) => Math.min(Math.max(1, taxiRequestsMeta.last_page), prev + 1))
+                    }
+                  />
+                </TabsContent>
 
-              <TabsContent value="settings" className="space-y-4">
-                <SettingsPage
-                  user={user}
-                  accountSettings={accountSettings}
-                  busy={busy}
-                  onRefreshAccount={refreshAccountSettings}
-                  onUpdateProfile={updateAccountProfileHandler}
-                  onUpdatePassword={updateAccountPasswordHandler}
-                />
-              </TabsContent>
-            </Suspense>
+                <TabsContent value="settings" className="space-y-4">
+                  <SettingsPage
+                    user={user}
+                    accountSettings={accountSettings}
+                    busy={busy}
+                    onRefreshAccount={refreshAccountSettings}
+                    onUpdateProfile={updateAccountProfileHandler}
+                    onUpdatePassword={updateAccountPasswordHandler}
+                  />
+                </TabsContent>
+              </Suspense>
+            )}
           </div>
         </Tabs>
 
@@ -923,35 +940,45 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
             <label className="flex items-center gap-2 text-sm font-medium">
               <Checkbox
                 checked={Boolean(vehicleDraft.showing)}
-                onChange={(event) => setVehicleDraft((prev) => ({ ...prev, showing: event.target.checked }))}
+                onCheckedChange={(checked) =>
+                  setVehicleDraft((prev) => ({ ...prev, showing: checked === true }))
+                }
               />
               Showing
             </label>
             <label className="flex items-center gap-2 text-sm font-medium">
               <Checkbox
                 checked={Boolean(vehicleDraft.ac)}
-                onChange={(event) => setVehicleDraft((prev) => ({ ...prev, ac: event.target.checked }))}
+                onCheckedChange={(checked) =>
+                  setVehicleDraft((prev) => ({ ...prev, ac: checked === true }))
+                }
               />
               A/C
             </label>
             <label className="flex items-center gap-2 text-sm font-medium">
               <Checkbox
                 checked={Boolean(vehicleDraft.manual)}
-                onChange={(event) => setVehicleDraft((prev) => ({ ...prev, manual: event.target.checked }))}
+                onCheckedChange={(checked) =>
+                  setVehicleDraft((prev) => ({ ...prev, manual: checked === true }))
+                }
               />
               Manual
             </label>
             <label className="flex items-center gap-2 text-sm font-medium">
               <Checkbox
                 checked={Boolean(vehicleDraft.four_wd)}
-                onChange={(event) => setVehicleDraft((prev) => ({ ...prev, four_wd: event.target.checked }))}
+                onCheckedChange={(checked) =>
+                  setVehicleDraft((prev) => ({ ...prev, four_wd: checked === true }))
+                }
               />
               4WD
             </label>
             <label className="flex items-center gap-2 text-sm font-medium">
               <Checkbox
                 checked={Boolean(vehicleDraft.taxi)}
-                onChange={(event) => setVehicleDraft((prev) => ({ ...prev, taxi: event.target.checked }))}
+                onCheckedChange={(checked) =>
+                  setVehicleDraft((prev) => ({ ...prev, taxi: checked === true }))
+                }
               />
               Taxi Enabled
             </label>
@@ -1014,7 +1041,9 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
             <label className="flex items-end gap-2 text-sm font-medium">
               <Checkbox
                 checked={Boolean(addOnDraft.fixed_price)}
-                onChange={(event) => setAddOnDraft((prev) => ({ ...prev, fixed_price: event.target.checked }))}
+                onCheckedChange={(checked) =>
+                  setAddOnDraft((prev) => ({ ...prev, fixed_price: checked === true }))
+                }
               />
               Fixed price
             </label>
@@ -1036,22 +1065,25 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="discount-vehicle">Vehicle</Label>
               <Select
-                id="discount-vehicle"
-                value={discountDraft.vehicle_id ?? 0}
-                onChange={(event) =>
+                value={String(discountDraft.vehicle_id ?? 0)}
+                onValueChange={(value) =>
                   setDiscountDraft((prev) => ({
                     ...prev,
-                    vehicle_id: Number(event.target.value)
+                    vehicle_id: Number(value)
                   }))
                 }
-                required
               >
-                <option value={0}>Select vehicle...</option>
-                {vehicles.map((vehicle) => (
-                  <option key={vehicle.id} value={vehicle.id}>
-                    {vehicle.name}
-                  </option>
-                ))}
+                <SelectTrigger id="discount-vehicle" className="w-full">
+                  <SelectValue placeholder="Select vehicle..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Select vehicle...</SelectItem>
+                  {vehicles.map((vehicle) => (
+                    <SelectItem key={vehicle.id} value={String(vehicle.id)}>
+                      {vehicle.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
@@ -1189,7 +1221,7 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
                     <p className="text-muted-foreground">No add-ons selected.</p>
                   ) : (
                     <div className="overflow-x-auto rounded-md border">
-                      <table className="w-full min-w-[480px] text-left text-sm">
+                      <table className="w-full min-w-120 text-left text-sm">
                         <thead className="bg-muted/30">
                           <tr>
                             <th className="px-3 py-2 font-medium">Name</th>

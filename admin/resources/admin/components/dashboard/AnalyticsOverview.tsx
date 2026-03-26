@@ -46,7 +46,13 @@ import {
   ModalHeader,
   ModalTitle
 } from "../ui/modal";
-import { Select } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "../ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import DataTable from "./DataTable";
@@ -667,20 +673,28 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
               <div className="space-y-1">
                 <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Device</label>
                 <Select
-                  value={sessionFilterDraft.device_type ?? ""}
-                  onChange={(event) =>
+                  value={sessionFilterDraft.device_type ?? "all"}
+                  onValueChange={(value) =>
                     setSessionFilterDraft((prev) => ({
                       ...prev,
-                      device_type: event.target.value === "" ? null : (event.target.value as DashboardAnalyticsSessionsFilters["device_type"])
+                      device_type:
+                        value === "all"
+                          ? null
+                          : (value as DashboardAnalyticsSessionsFilters["device_type"])
                     }))
                   }
                 >
-                  <option value="">All devices</option>
-                  <option value="desktop">Desktop</option>
-                  <option value="mobile">Mobile</option>
-                  <option value="tablet">Tablet</option>
-                  <option value="bot">Bot</option>
-                  <option value="other">Other</option>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All devices" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All devices</SelectItem>
+                    <SelectItem value="desktop">Desktop</SelectItem>
+                    <SelectItem value="mobile">Mobile</SelectItem>
+                    <SelectItem value="tablet">Tablet</SelectItem>
+                    <SelectItem value="bot">Bot</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
 
@@ -688,18 +702,23 @@ export default function AnalyticsOverview({ analytics, range, busy, onRangeChang
                 <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Bot mode</label>
                 <Select
                   value={sessionFilterDraft.bot_mode}
-                  onChange={(event) =>
+                  onValueChange={(value) =>
                     setSessionFilterDraft((prev) => ({
                       ...prev,
-                      bot_mode: event.target.value as DashboardAnalyticsBotMode
+                      bot_mode: value as DashboardAnalyticsBotMode
                     }))
                   }
                 >
-                  {BOT_MODE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BOT_MODE_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
 
