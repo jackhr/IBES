@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import {
   adminLogin,
@@ -38,7 +38,7 @@ export default function App() {
     void bootstrap();
   }, []);
 
-  const handleLogin = async (username: string, password: string) => {
+  const handleLogin = useCallback(async (username: string, password: string) => {
     setAuthBusy(true);
 
     try {
@@ -50,9 +50,9 @@ export default function App() {
     } finally {
       setAuthBusy(false);
     }
-  };
+  }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     setAuthBusy(true);
 
     try {
@@ -64,7 +64,7 @@ export default function App() {
       setUser(null);
       setAuthBusy(false);
     }
-  };
+  }, []);
 
   if (checking) {
     return (
