@@ -640,6 +640,7 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
         <Tabs
           value={section}
           onValueChange={(value) => setSection(value as Section)}
+          orientation="vertical"
           className="grid gap-6 lg:grid-cols-[260px_1fr]"
         >
           <aside className="space-y-4">
