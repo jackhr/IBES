@@ -2,6 +2,7 @@ import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import DataTable from "../components/dashboard/DataTable";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { formatDateTimeDisplay } from "../lib/utils";
 import type { OrderRequest } from "../types";
 
 type OrderRequestsPageProps = {
@@ -42,9 +43,10 @@ export default function OrderRequestsPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Vehicle</TableHead>
+                <TableHead>Pick Up</TableHead>
+                <TableHead>Drop Off</TableHead>
                 <TableHead>Days</TableHead>
                 <TableHead>Subtotal</TableHead>
                 <TableHead>Status</TableHead>
@@ -66,11 +68,12 @@ export default function OrderRequestsPage({
                     }
                   }}
                 >
-                  <TableCell>{order.id}</TableCell>
                   <TableCell>
                     {order.contact_info ? `${order.contact_info.first_name} ${order.contact_info.last_name}` : "-"}
                   </TableCell>
                   <TableCell>{order.vehicle?.name ?? "-"}</TableCell>
+                  <TableCell>{formatDateTimeDisplay(order.pick_up)}</TableCell>
+                  <TableCell>{formatDateTimeDisplay(order.drop_off)}</TableCell>
                   <TableCell>{order.days}</TableCell>
                   <TableCell>${order.sub_total.toFixed(2)}</TableCell>
                   <TableCell>{order.confirmed ? "Confirmed" : "Pending"}</TableCell>

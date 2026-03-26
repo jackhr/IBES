@@ -31,7 +31,6 @@ export default function VehiclesPage({ vehicles, busy, onCreate, onEdit }: Vehic
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>USD</TableHead>
@@ -43,7 +42,6 @@ export default function VehiclesPage({ vehicles, busy, onCreate, onEdit }: Vehic
             <TableBody>
               {vehicles.map((vehicle) => (
                 <TableRow key={vehicle.id}>
-                  <TableCell>{vehicle.id}</TableCell>
                   <TableCell>{vehicle.name}</TableCell>
                   <TableCell>{vehicle.type}</TableCell>
                   <TableCell>${vehicle.base_price_USD}</TableCell>

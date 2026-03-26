@@ -31,7 +31,6 @@ export default function DiscountsPage({ discounts, busy, onCreate, onEdit }: Dis
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
                 <TableHead>Vehicle</TableHead>
                 <TableHead>Days</TableHead>
                 <TableHead>USD</TableHead>
@@ -42,7 +41,6 @@ export default function DiscountsPage({ discounts, busy, onCreate, onEdit }: Dis
             <TableBody>
               {discounts.map((discount) => (
                 <TableRow key={discount.id}>
-                  <TableCell>{discount.id}</TableCell>
                   <TableCell>{discount.vehicle?.name ?? `#${discount.vehicle_id}`}</TableCell>
                   <TableCell>{discount.days}</TableCell>
                   <TableCell>${discount.price_USD}</TableCell>

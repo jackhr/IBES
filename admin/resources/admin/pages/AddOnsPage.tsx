@@ -31,7 +31,6 @@ export default function AddOnsPage({ addOns, busy, onCreate, onEdit }: AddOnsPag
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Abbr</TableHead>
                 <TableHead>Cost</TableHead>
@@ -42,7 +41,6 @@ export default function AddOnsPage({ addOns, busy, onCreate, onEdit }: AddOnsPag
             <TableBody>
               {addOns.map((addOn) => (
                 <TableRow key={addOn.id}>
-                  <TableCell>{addOn.id}</TableCell>
                   <TableCell>{addOn.name}</TableCell>
                   <TableCell>{addOn.abbr}</TableCell>
                   <TableCell>{addOn.cost ?? "-"}</TableCell>
