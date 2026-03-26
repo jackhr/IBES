@@ -95,6 +95,7 @@ class AuthController extends Controller
         return [
             'id' => $admin->id,
             'username' => $admin->username,
+            'email' => $admin->email,
             'role' => $admin->role,
             'active' => (bool) $admin->active,
             'last_login_at' => $admin->last_login_at,

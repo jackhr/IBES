@@ -8,6 +8,7 @@ import {
   deleteAddOn,
   deleteVehicle,
   deleteVehicleDiscount,
+  getAccountSettings,
   getDashboardAnalytics,
   getAddOns,
   getApiErrorMessage,
@@ -16,6 +17,8 @@ import {
   getTaxiRequests,
   getVehicleDiscounts,
   getVehicles,
+  updateAccountPassword,
+  updateAccountProfile,
   updateAddOn,
   updateOrderStatus,
   updateVehicle,
@@ -23,6 +26,7 @@ import {
 } from "../lib/api";
 import type {
   AddOn,
+  AccountSettings,
   DashboardAnalytics,
   DashboardAnalyticsRange,
   DashboardSummary,
@@ -77,8 +81,9 @@ const AddOnsPage = lazy(() => import("./AddOnsPage"));
 const DiscountsPage = lazy(() => import("./DiscountsPage"));
 const OrderRequestsPage = lazy(() => import("./OrderRequestsPage"));
 const TaxiRequestsPage = lazy(() => import("./TaxiRequestsPage"));
+const SettingsPage = lazy(() => import("./SettingsPage"));
 
-export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
+export default function DashboardPage({ user, onLogout, onUserChange }: DashboardPageProps) {
   const [section, setSection] = useState<Section>("overview");
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -92,6 +97,7 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
   const [discounts, setDiscounts] = useState<VehicleDiscount[]>([]);
   const [orders, setOrders] = useState<OrderRequest[]>([]);
   const [taxiRequests, setTaxiRequests] = useState<TaxiRequest[]>([]);
+  const [accountSettings, setAccountSettings] = useState<AccountSettings | null>(null);
   const [orderRequestsMeta, setOrderRequestsMeta] = useState<PaginationMeta>(
     initialPaginationMeta(ORDER_REQUESTS_PER_PAGE)
   );
@@ -471,6 +477,51 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
     setOrderDetailOpen(true);
   };
 
+  const refreshAccountSettings = () => {
+    void loadResource(getAccountSettings, (data) => {
+      setAccountSettings(data);
+      onUserChange(data.user);
+    });
+  };
+
+  const updateAccountProfileHandler = async (payload: { username: string; email: string | null }) => {
+    await withFeedback(async () => {
+      const updatedUser = await updateAccountProfile(payload);
+
+      onUserChange(updatedUser);
+      setAccountSettings((previous) => {
+        if (!previous) {
+          return {
+            user: updatedUser,
+            session: {
+              token_created_at: null,
+              token_last_used_at: null,
+              token_expires_at: null
+            }
+          };
+        }
+
+        return {
+          ...previous,
+          user: updatedUser
+        };
+      });
+    }, "Account profile updated.");
+  };
+
+  const updateAccountPasswordHandler = async (payload: {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
+  }) => {
+    await withFeedback(async () => {
+      await updateAccountPassword(payload);
+      const latestAccount = await getAccountSettings();
+      setAccountSettings(latestAccount);
+      onUserChange(latestAccount.user);
+    }, "Password updated.");
+  };
+
   const formatPaginationRange = (meta: PaginationMeta) => {
     if (meta.total === 0) {
       return "0 of 0";
@@ -536,8 +587,14 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
           }
         );
         break;
+      case "settings":
+        void loadResource(getAccountSettings, (data) => {
+          setAccountSettings(data);
+          onUserChange(data.user);
+        });
+        break;
     }
-  }, [analyticsRange, onLogout, orderRequestsPage, section, taxiRequestsPage]);
+  }, [analyticsRange, onLogout, onUserChange, orderRequestsPage, section, taxiRequestsPage]);
 
   if (!summary) {
     return (
@@ -703,6 +760,17 @@ export default function DashboardPage({ user, onLogout }: DashboardPageProps) {
                   onNextPage={() =>
                     setTaxiRequestsPage((prev) => Math.min(Math.max(1, taxiRequestsMeta.last_page), prev + 1))
                   }
+                />
+              </TabsContent>
+
+              <TabsContent value="settings" className="space-y-4">
+                <SettingsPage
+                  user={user}
+                  accountSettings={accountSettings}
+                  busy={busy}
+                  onRefreshAccount={refreshAccountSettings}
+                  onUpdateProfile={updateAccountProfileHandler}
+                  onUpdatePassword={updateAccountPasswordHandler}
                 />
               </TabsContent>
             </Suspense>

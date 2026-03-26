@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import type {
   AddOn,
+  AccountSettings,
   DashboardAnalytics,
   DashboardAnalyticsSessionPageViewsResponse,
   DashboardAnalyticsSessionsResponse,
@@ -78,6 +79,27 @@ export async function adminLogin(username: string, password: string): Promise<{ 
 export async function adminMe(): Promise<AdminUser> {
   const response = await api.get<ApiEnvelope<{ user: AdminUser }>>("/me");
   return response.data.data.user;
+}
+
+export async function getAccountSettings(): Promise<AccountSettings> {
+  const response = await api.get<ApiEnvelope<AccountSettings>>("/settings/account");
+  return response.data.data;
+}
+
+export async function updateAccountProfile(payload: {
+  username: string;
+  email: string | null;
+}): Promise<AdminUser> {
+  const response = await api.put<ApiEnvelope<{ user: AdminUser }>>("/settings/account/profile", payload);
+  return response.data.data.user;
+}
+
+export async function updateAccountPassword(payload: {
+  current_password: string;
+  password: string;
+  password_confirmation: string;
+}): Promise<void> {
+  await api.put("/settings/account/password", payload);
 }
 
 export async function adminLogout(): Promise<void> {

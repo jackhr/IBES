@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\AddOnController;
+use App\Http\Controllers\Api\Admin\AccountSettingsController;
 use App\Http\Controllers\Api\Admin\AuthController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\OrderRequestController;
@@ -15,6 +16,9 @@ Route::prefix('admin')->group(function (): void {
     Route::middleware('admin.token')->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
+        Route::get('/settings/account', [AccountSettingsController::class, 'show']);
+        Route::put('/settings/account/profile', [AccountSettingsController::class, 'updateProfile']);
+        Route::put('/settings/account/password', [AccountSettingsController::class, 'updatePassword']);
 
         Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
         Route::get('/dashboard/analytics', [DashboardController::class, 'analytics']);

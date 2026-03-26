@@ -1,4 +1,12 @@
-import { BadgePercent, CarFront, CarTaxiFront, ClipboardList, LayoutGrid, Tags } from "lucide-react";
+import {
+  BadgePercent,
+  CarFront,
+  CarTaxiFront,
+  ClipboardList,
+  LayoutGrid,
+  Settings,
+  Tags
+} from "lucide-react";
 import { type DashboardTabItem } from "./components/dashboard/DashboardTabs";
 import { AddOn, ConfirmDialogState, Section, Vehicle, VehicleDiscount } from "./types";
 
@@ -8,7 +16,8 @@ export const sectionTabs: DashboardTabItem<Section>[] = [
   { value: "addons", label: "Add-Ons", icon: Tags },
   { value: "discounts", label: "Discounts", icon: BadgePercent },
   { value: "orders", label: "Orders", icon: ClipboardList },
-  { value: "taxi", label: "Taxi", icon: CarTaxiFront }
+  { value: "taxi", label: "Taxi", icon: CarTaxiFront },
+  { value: "settings", label: "Settings", icon: Settings }
 ];
 
 export const vehicleTemplate: Partial<Vehicle> = {

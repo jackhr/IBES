@@ -1,9 +1,19 @@
 export type AdminUser = {
   id: number;
   username: string;
+  email: string | null;
   role: string;
   active: boolean;
   last_login_at: string | null;
+};
+
+export type AccountSettings = {
+  user: AdminUser;
+  session: {
+    token_created_at: string | null;
+    token_last_used_at: string | null;
+    token_expires_at: string | null;
+  };
 };
 
 export type DashboardSummary = {
@@ -224,9 +234,10 @@ export type TaxiRequest = {
 export type DashboardPageProps = {
   user: AdminUser;
   onLogout: () => Promise<void>;
+  onUserChange: (user: AdminUser) => void;
 };
 
-export type Section = "overview" | "vehicles" | "addons" | "discounts" | "orders" | "taxi";
+export type Section = "overview" | "vehicles" | "addons" | "discounts" | "orders" | "taxi" | "settings";
 
 export type ConfirmDialogState = {
   open: boolean;
