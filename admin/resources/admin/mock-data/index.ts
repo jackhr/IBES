@@ -212,6 +212,8 @@ const toBoolean = (value: number | boolean | null | undefined): boolean => {
   return value === true || value === 1;
 };
 
+const VEHICLE_IMAGE_PREFIX = "/gallery/";
+
 const rawAddOnsData = rawAddOns as RawAddOn[];
 const rawAdminApiTokensData = rawAdminApiTokens as RawAdminApiToken[];
 const rawAdminUsersData = rawAdminUsers as RawAdminUser[];
@@ -258,7 +260,7 @@ export const mockVehicles: Vehicle[] = rawVehiclesData.map((row) => {
     manual: toBoolean(row.manual),
     year: row.year,
     taxi: toBoolean(row.taxi),
-    image_url: `/assets/images/cars/${row.slug}.png`
+    image_url: `${VEHICLE_IMAGE_PREFIX}${row.slug}.avif`
   };
 });
 

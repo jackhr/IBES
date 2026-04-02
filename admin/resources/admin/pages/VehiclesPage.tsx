@@ -31,6 +31,7 @@ export default function VehiclesPage({ vehicles, busy, onCreate, onEdit }: Vehic
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-24">Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>USD</TableHead>
@@ -42,6 +43,14 @@ export default function VehiclesPage({ vehicles, busy, onCreate, onEdit }: Vehic
             <TableBody>
               {vehicles.map((vehicle) => (
                 <TableRow key={vehicle.id}>
+                  <TableCell>
+                    <img
+                      src={vehicle.image_url}
+                      alt={`${vehicle.name} thumbnail`}
+                      className="h-12 w-20 rounded-md border object-cover"
+                      loading="lazy"
+                    />
+                  </TableCell>
                   <TableCell>{vehicle.name}</TableCell>
                   <TableCell>{vehicle.type}</TableCell>
                   <TableCell>${vehicle.base_price_USD}</TableCell>

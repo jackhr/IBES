@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 
 class VehicleController extends Controller
 {
+    private const VEHICLE_IMAGE_PREFIX = '/gallery/';
+
     public function index(): JsonResponse
     {
         $vehicles = Vehicle::query()
@@ -123,7 +125,7 @@ class VehicleController extends Controller
             'manual' => (bool) $vehicle->manual,
             'year' => (int) $vehicle->year,
             'taxi' => (bool) $vehicle->taxi,
-            'image_url' => '/assets/images/vehicles/'.$vehicle->slug.'.avif',
+            'image_url' => self::VEHICLE_IMAGE_PREFIX.$vehicle->slug.'.avif',
         ];
     }
 }
