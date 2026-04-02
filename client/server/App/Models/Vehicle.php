@@ -24,7 +24,8 @@ final class Vehicle
         public readonly bool $ac,
         public readonly bool $manual,
         public readonly int $year,
-        public readonly bool $taxi
+        public readonly bool $taxi,
+        public readonly ?string $imageFilename
     ) {
     }
 
@@ -49,7 +50,8 @@ final class Vehicle
             ((int) ($row['ac'] ?? 0)) === 1,
             ((int) ($row['manual'] ?? 0)) === 1,
             (int) ($row['year'] ?? 0),
-            ((int) ($row['taxi'] ?? 0)) === 1
+            ((int) ($row['taxi'] ?? 0)) === 1,
+            self::nullableString($row['image_filename'] ?? null)
         );
     }
 
@@ -75,8 +77,17 @@ final class Vehicle
             'manual' => $this->manual,
             'year' => $this->year,
             'taxi' => $this->taxi,
-            'imgSrc' => '/assets/images/vehicles/' . $this->slug . '.avif',
+            'imgSrc' => self::imagePath($this->imageFilename, $this->slug),
         ];
+    }
+
+    /** @param array<string, mixed> $row */
+    public static function imagePathFromRow(array $row): string
+    {
+        return self::imagePath(
+            self::nullableString($row['image_filename'] ?? null),
+            trim((string) ($row['slug'] ?? ''))
+        );
     }
 
     private static function nullableInt(mixed $value): ?int
@@ -86,5 +97,23 @@ final class Vehicle
         }
 
         return (int) $value;
+    }
+
+    private static function nullableString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $string = trim((string) $value);
+
+        return $string !== '' ? $string : null;
+    }
+
+    private static function imagePath(?string $imageFilename, string $slug): string
+    {
+        $filename = $imageFilename ?? ($slug !== '' ? $slug . '.avif' : 'vehicle.avif');
+
+        return '/gallery/' . ltrim($filename, '/');
     }
 }

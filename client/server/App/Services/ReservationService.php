@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Core\Session;
+use App\Models\Vehicle;
 use App\Repositories\AddOnRepository;
 use App\Repositories\VehicleRepository;
 use App\Support\ReservationMath;
@@ -106,7 +107,7 @@ final class ReservationService
             throw new InvalidArgumentException('Vehicle not found.');
         }
 
-        $vehicle['imgSrc'] = '/assets/images/vehicles/' . ($vehicle['slug'] ?? '') . '.avif';
+        $vehicle['imgSrc'] = Vehicle::imagePathFromRow($vehicle);
 
         $reservation = Session::getReservation() ?? [];
         $reservation['vehicle'] = $vehicle;

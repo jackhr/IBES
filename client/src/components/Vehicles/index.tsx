@@ -71,7 +71,7 @@ export default function Vehicles({ vehicles, vehiclesError }: VehiclesProps) {
             </div>
           </div>
           <div className="bottom">
-            <img loading="lazy" src={`/assets/images/vehicles/${vehicle.slug}.avif`} alt={`${vehicle.name} thumbnail`} />
+            <img loading="lazy" src={vehicle.imgSrc} alt={`${vehicle.name} thumbnail`} />
           </div>
           {/* {vehicle.discountDays && vehicle.discountDays > 0 ? (
             <div className="discount-text">{`${vehicle.discountDays}+ days are discounted`}</div>

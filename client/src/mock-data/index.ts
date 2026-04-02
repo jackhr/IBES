@@ -177,6 +177,7 @@ type RawVehicle = {
   name: string;
   type: string;
   slug: string;
+  image_filename?: string | null;
   showing: number | boolean;
   landing_order: number | null;
   base_price_XCD: number;
@@ -225,6 +226,7 @@ const rawVehicleDiscountsData = rawVehicleDiscounts as RawVehicleDiscount[];
 const rawVisitorSessionsData = rawVisitorSessions as RawVisitorSession[];
 const rawVisitorPageViewsData = rawVisitorPageViews as RawVisitorPageView[];
 const rawSummaryData = rawSummary as RawSummary;
+const VEHICLE_IMAGE_PREFIX = "/gallery/";
 
 const addOnIdsByOrderRequestId = rawOrderRequestAddOnsData.reduce<Map<number, number[]>>((accumulator, row) => {
   const current = accumulator.get(row.order_request_id) ?? [];
@@ -324,7 +326,7 @@ export const mockVehicles: Vehicle[] = rawVehiclesData.map((row) => {
     manual: toBoolean(row.manual),
     year: row.year,
     taxi: toBoolean(row.taxi),
-    imgSrc: `/assets/images/cars/${row.slug}.png`,
+    imgSrc: `${VEHICLE_IMAGE_PREFIX}${row.image_filename ?? `${row.slug}.avif`}`,
     discountDays: maxDiscountDaysByVehicleId.get(row.id) ?? null
   };
 });
