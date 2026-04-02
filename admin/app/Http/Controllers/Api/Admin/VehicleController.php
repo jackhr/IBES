@@ -341,7 +341,7 @@ class VehicleController extends Controller
 
         return match ($extension) {
             'jpeg' => 'jpg',
-            'avif', 'jpg', 'png', 'webp', 'gif', 'bmp' => $extension,
+            'avif', 'jpg', 'png', 'webp' => $extension,
             default => null,
         };
     }
@@ -438,8 +438,6 @@ class VehicleController extends Controller
                 IMAGETYPE_JPEG => 'jpg',
                 IMAGETYPE_PNG => 'png',
                 IMAGETYPE_WEBP => 'webp',
-                IMAGETYPE_GIF => 'gif',
-                IMAGETYPE_BMP => 'bmp',
                 default => null,
             };
         }
@@ -454,8 +452,6 @@ class VehicleController extends Controller
                 'image/jpeg', 'image/pjpeg' => 'jpg',
                 'image/png', 'image/x-png' => 'png',
                 'image/webp' => 'webp',
-                'image/gif' => 'gif',
-                'image/bmp', 'image/x-ms-bmp', 'image/x-bmp' => 'bmp',
                 default => null,
             };
         }
@@ -465,8 +461,6 @@ class VehicleController extends Controller
             'jpg', 'jpeg' => 'jpg',
             'png' => 'png',
             'webp' => 'webp',
-            'gif' => 'gif',
-            'bmp' => 'bmp',
             default => null,
         };
     }
