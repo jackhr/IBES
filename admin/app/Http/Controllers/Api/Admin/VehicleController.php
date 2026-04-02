@@ -321,7 +321,7 @@ class VehicleController extends Controller
     private function detectedImageExtension(UploadedFile $image): ?string
     {
         $path = $image->getRealPath();
-        $type = $path !== false ? @\exif_imagetype($path) : false;
+        $type = $this->detectedImageType($path);
 
         if ($type !== false) {
             return match ($type) {
@@ -335,6 +335,22 @@ class VehicleController extends Controller
             };
         }
 
+        $mimeType = ($path !== false && \class_exists(\finfo::class))
+            ? (new \finfo(FILEINFO_MIME_TYPE))->file($path)
+            : false;
+
+        if (is_string($mimeType) && $mimeType !== '') {
+            return match (strtolower($mimeType)) {
+                'image/avif', 'image/heif' => 'avif',
+                'image/jpeg', 'image/pjpeg' => 'jpg',
+                'image/png', 'image/x-png' => 'png',
+                'image/webp' => 'webp',
+                'image/gif' => 'gif',
+                'image/bmp', 'image/x-ms-bmp', 'image/x-bmp' => 'bmp',
+                default => null,
+            };
+        }
+
         return match (strtolower($image->getClientOriginalExtension())) {
             'avif' => 'avif',
             'jpg', 'jpeg' => 'jpg',
@@ -344,6 +360,26 @@ class VehicleController extends Controller
             'bmp' => 'bmp',
             default => null,
         };
+    }
+
+    private function detectedImageType(string|false $path): int|false
+    {
+        if ($path === false || ! is_file($path)) {
+            return false;
+        }
+
+        if (\function_exists('exif_imagetype')) {
+            $type = @\exif_imagetype($path);
+
+            if ($type !== false) {
+                return $type;
+            }
+        }
+
+        $imageInfo = @\getimagesize($path);
+        $type = is_array($imageInfo) ? ($imageInfo[2] ?? false) : false;
+
+        return is_int($type) ? $type : false;
     }
 
     private function assertImageUploadSucceeded(): void
