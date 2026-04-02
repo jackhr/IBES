@@ -1,8 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /api/
-Disallow: /server/
-Disallow: /node_modules/
-Disallow: /.env
-
-Sitemap: https://www.ibescarrental.com/sitemap.xml

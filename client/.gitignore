@@ -1,6 +1,9 @@
 .env
 node_modules/
-dist/
+vendor/
+database/*.sqlite
+public/build/
 npm-debug.log*
 *.log
 /mock-data
+/.phpunit.result.cache
