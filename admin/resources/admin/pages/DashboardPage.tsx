@@ -852,13 +852,11 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
                 id="vehicle-image"
                 ref={vehicleImageInputRef}
                 type="file"
-                accept=".avif,image/avif"
+                accept=".avif,.jpg,.jpeg,.png,.webp,image/avif,image/jpeg,image/png,image/webp"
                 className="sr-only"
                 onChange={handleVehicleImageChange}
               />
-              <p className="text-muted-foreground text-xs mt-1">
-                Accepted file type: AVIF. Max size: 1MB. Optimal dimensions: 640x480px. For best results, use images with a 4:3 aspect ratio and ensure the vehicle is centered and occupies most of the frame.
-              </p>
+              <p className="text-muted-foreground text-xs mt-1">Accepted file types: JPG, PNG, WebP, and AVIF. Max size: 10MB.</p>
               {vehicleDraft.image ? (
                 <p className="text-muted-foreground text-xs">Selected file: {vehicleDraft.image.name}</p>
               ) : null}

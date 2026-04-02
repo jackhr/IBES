@@ -15,6 +15,7 @@ class Vehicle extends Model
         'name',
         'type',
         'slug',
+        'image_filename',
         'showing',
         'landing_order',
         'base_price_XCD',
