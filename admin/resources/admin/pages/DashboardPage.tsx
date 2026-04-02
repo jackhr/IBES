@@ -857,9 +857,7 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
                 onChange={handleVehicleImageChange}
               />
               <p className="text-muted-foreground text-xs mt-1">
-                Accepted file types: JPG, PNG, WebP, and AVIF. Files are saved in{" "}
-                <span className="font-medium">/gallery</span> using the vehicle name slug and current file type. If
-                you replace the image, the previous file for that vehicle is removed. Max size: 10MB.
+                Accepted file types: JPG, PNG, WebP, and AVIF. Max size: 10MB.
               </p>
               {vehicleDraft.image ? (
                 <p className="text-muted-foreground text-xs">Selected file: {vehicleDraft.image.name}</p>
