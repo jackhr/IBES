@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ChangeEvent, FormEvent, Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { LogOut, RefreshCw } from "lucide-react";
 import {
   createAddOn,
@@ -117,6 +117,7 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
   const [vehicleEditingId, setVehicleEditingId] = useState<number | null>(null);
   const [vehicleDraft, setVehicleDraft] = useState<VehicleDraft>(vehicleTemplate);
   const [vehicleImagePreviewUrl, setVehicleImagePreviewUrl] = useState<string | null>(null);
+  const vehicleImageInputRef = useRef<HTMLInputElement | null>(null);
 
   const [addOnModalOpen, setAddOnModalOpen] = useState(false);
   const [addOnModalMode, setAddOnModalMode] = useState<"create" | "edit">("create");
@@ -295,6 +296,12 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
       ...prev,
       image: file
     }));
+
+    event.target.value = "";
+  };
+
+  const openVehicleImagePicker = () => {
+    vehicleImageInputRef.current?.click();
   };
 
   const submitVehicleModal = async (event: FormEvent<HTMLFormElement>) => {
@@ -302,6 +309,11 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
 
     if (vehicleModalMode === "edit" && vehicleEditingId === null) {
       setError("Vehicle edit context is missing.");
+      return;
+    }
+
+    if (vehicleModalMode === "create" && !(vehicleDraft.image instanceof File)) {
+      setError("Please upload a vehicle image.");
       return;
     }
 
@@ -813,10 +825,9 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
           dangerActionLabel={vehicleModalMode === "edit" ? "Delete Vehicle" : undefined}
           onDangerAction={vehicleModalMode === "edit" ? requestVehicleDeleteFromModal : undefined}
         >
-          <div className="grid gap-4 md:grid-cols-[8rem,1fr] md:items-start">
+          <div className="space-y-2">
             <div className="space-y-2">
-              <Label>{vehicleModalMode === "create" ? "Preview" : "Current Image"}</Label>
-              <div className="bg-muted/40 flex h-24 w-32 items-center justify-center overflow-hidden rounded-md border">
+              <div className="group bg-muted/40 relative flex h-48 w-64 items-center justify-center overflow-hidden rounded-xl border m-auto">
                 {vehicleModalImageSrc ? (
                   <img
                     src={vehicleModalImageSrc}
@@ -826,21 +837,27 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
                 ) : (
                   <span className="text-muted-foreground px-3 text-center text-xs">No image selected</span>
                 )}
+                <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10 group-focus-within:bg-black/10" />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="pointer-events-none absolute top-3 right-3 opacity-0 shadow-sm transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"
+                  onClick={openVehicleImagePicker}
+                >
+                  {vehicleModalImageSrc ? "Change" : "Upload"}
+                </Button>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="vehicle-image">{vehicleModalMode === "create" ? "Upload Image" : "Replace Image"}</Label>
-              <Input
+              <input
                 id="vehicle-image"
+                ref={vehicleImageInputRef}
                 type="file"
                 accept=".avif,image/avif"
-                required={vehicleModalMode === "create"}
+                className="sr-only"
                 onChange={handleVehicleImageChange}
               />
-              <p className="text-muted-foreground text-xs">
-                Upload an AVIF file. It will be stored as{" "}
-                <span className="font-medium">{vehicleDraft.slug || "vehicle-slug"}.avif</span> in `/gallery`.
+              <p className="text-muted-foreground text-xs mt-1">
+                Accepted file type: AVIF. Max size: 1MB. Optimal dimensions: 640x480px. For best results, use images with a 4:3 aspect ratio and ensure the vehicle is centered and occupies most of the frame.
               </p>
               {vehicleDraft.image ? (
                 <p className="text-muted-foreground text-xs">Selected file: {vehicleDraft.image.name}</p>
