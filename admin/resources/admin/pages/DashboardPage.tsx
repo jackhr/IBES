@@ -805,7 +805,7 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
         <FormModal
           open={vehicleModalOpen}
           onOpenChange={setVehicleModalOpen}
-          title={vehicleModalMode === "create" ? "Add Vehicle" : "Edit Vehicle"}
+          title={vehicleModalMode === "create" ? "Add Vehicle" : vehicleDraft.name?.trim() || "Edit Vehicle"}
           description="Set pricing, specs, and visibility for this vehicle."
           onSubmit={(event) => void submitVehicleModal(event)}
           submitLabel={vehicleModalMode === "create" ? "Create Vehicle" : "Save Changes"}

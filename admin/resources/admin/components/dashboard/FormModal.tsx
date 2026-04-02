@@ -42,14 +42,16 @@ export default function FormModal({
 }: FormModalProps) {
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent>
-        <ModalHeader>
+      <ModalContent className="max-h-[90vh] overflow-hidden p-0">
+        <ModalHeader className="shrink-0 border-b px-6 py-4 pr-12">
           <ModalTitle>{title}</ModalTitle>
           {description ? <ModalDescription>{description}</ModalDescription> : null}
         </ModalHeader>
-        <form className="space-y-4" onSubmit={onSubmit}>
-          {children}
-          <ModalFooter>
+        <form className="flex min-h-0 flex-1 flex-col" onSubmit={onSubmit}>
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            <div className="space-y-4">{children}</div>
+          </div>
+          <ModalFooter className="shrink-0 border-t bg-card px-6 py-4">
             {onDangerAction && dangerActionLabel ? (
               <Button
                 type="button"
