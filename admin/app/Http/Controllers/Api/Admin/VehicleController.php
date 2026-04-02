@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class VehicleController extends Controller
@@ -32,6 +33,7 @@ class VehicleController extends Controller
     public function store(Request $request): JsonResponse
     {
         $payload = $this->validateVehicle($request);
+        $payload['slug'] = $this->resolveVehicleSlug($payload['name']);
 
         return DB::transaction(function () use ($payload, $request): JsonResponse {
             $vehicle = Vehicle::query()->create($payload);
@@ -50,6 +52,10 @@ class VehicleController extends Controller
         $originalSlug = $vehicle->slug;
         $originalImageFilename = $vehicle->image_filename;
         $payload = $this->validateVehicle($request, true);
+
+        if (array_key_exists('name', $payload)) {
+            $payload['slug'] = $this->resolveVehicleSlug($payload['name'], $vehicle);
+        }
 
         return DB::transaction(function () use ($request, $vehicle, $payload, $originalSlug, $originalImageFilename): JsonResponse {
             $vehicle->fill($payload);
@@ -96,7 +102,6 @@ class VehicleController extends Controller
         $validated = $request->validate([
             'name' => [$required, 'string', 'min:2', 'max:60'],
             'type' => [$required, 'string', 'min:2', 'max:30'],
-            'slug' => [$required, 'string', 'min:2', 'max:99', 'regex:/^[a-z0-9][a-z0-9_-]*$/'],
             'showing' => [$optional, 'boolean'],
             'landing_order' => [$optional, 'nullable', 'integer', 'min:1', 'max:999999'],
             'base_price_XCD' => [$required, 'numeric', 'min:0'],
@@ -166,34 +171,120 @@ class VehicleController extends Controller
         $this->ensureGalleryExists();
 
         if ($image !== null) {
-            $filename = $this->storeUploadedImage($vehicle, $image);
+            $this->replaceVehicleImage($vehicle, $image, $originalSlug, $originalImageFilename);
 
-            $vehicle->forceFill([
-                'image_filename' => $filename,
-            ])->saveQuietly();
+            return;
+        }
 
-            if ($originalImageFilename !== null && $originalImageFilename !== $filename) {
+        if ($originalSlug === $vehicle->slug) {
+            return;
+        }
+
+        if ($originalImageFilename !== null) {
+            $this->renameCustomImageToMatchSlug($vehicle, $originalImageFilename);
+
+            return;
+        }
+
+        $this->promoteLegacyImageToCurrentSlug($vehicle, $originalSlug);
+    }
+
+    private function replaceVehicleImage(
+        Vehicle $vehicle,
+        UploadedFile $image,
+        string $originalSlug,
+        ?string $originalImageFilename
+    ): void {
+        $sourcePath = $image->getRealPath();
+        $extension = $this->detectedImageExtension($image);
+
+        if ($sourcePath === false || ! is_file($sourcePath) || $extension === null) {
+            throw ValidationException::withMessages([
+                'image' => ['Image format is unsupported or the file is corrupted.'],
+            ]);
+        }
+
+        $filename = $this->slugImageFilename($vehicle->slug, $extension);
+
+        if (! File::copy($sourcePath, $this->storedImagePath($filename))) {
+            throw ValidationException::withMessages([
+                'image' => ['Image could not be saved.'],
+            ]);
+        }
+
+        $vehicle->forceFill([
+            'image_filename' => $filename,
+        ])->saveQuietly();
+
+        if ($originalImageFilename !== null) {
+            if ($originalImageFilename !== $filename) {
                 $this->deleteCustomImageIfUnused($originalImageFilename, $vehicle->id);
             }
 
             return;
         }
 
-        if ($vehicle->image_filename !== null || $originalSlug === $vehicle->slug) {
+        $this->deleteLegacyImageIfUnused($originalSlug, $vehicle->id, $filename);
+    }
+
+    private function renameCustomImageToMatchSlug(Vehicle $vehicle, string $originalImageFilename): void
+    {
+        $extension = $this->filenameExtension($originalImageFilename);
+
+        if ($extension === null) {
             return;
         }
 
-        $legacyPath = $this->legacyImagePath($originalSlug);
+        $newFilename = $this->slugImageFilename($vehicle->slug, $extension);
 
-        if (! File::exists($legacyPath)) {
+        if ($newFilename === $originalImageFilename) {
             return;
         }
 
-        $filename = $this->generateStoredImageFilename($vehicle->slug, 'avif');
-        File::copy($legacyPath, $this->storedImagePath($filename));
+        $originalPath = $this->storedImagePath($originalImageFilename);
+
+        if (! File::exists($originalPath)) {
+            return;
+        }
+
+        $newPath = $this->storedImagePath($newFilename);
+
+        if ($this->customImageInUseByOthers($originalImageFilename, $vehicle->id)) {
+            File::copy($originalPath, $newPath);
+        } else {
+            File::move($originalPath, $newPath);
+        }
 
         $vehicle->forceFill([
-            'image_filename' => $filename,
+            'image_filename' => $newFilename,
+        ])->saveQuietly();
+    }
+
+    private function promoteLegacyImageToCurrentSlug(Vehicle $vehicle, string $originalSlug): void
+    {
+        $oldFilename = $this->legacyImageFilename($originalSlug);
+        $newFilename = $this->legacyImageFilename($vehicle->slug);
+
+        if ($oldFilename === $newFilename) {
+            return;
+        }
+
+        $oldPath = $this->storedImagePath($oldFilename);
+
+        if (! File::exists($oldPath)) {
+            return;
+        }
+
+        $newPath = $this->storedImagePath($newFilename);
+
+        if ($this->legacyImageInUseByOthers($originalSlug, $vehicle->id)) {
+            File::copy($oldPath, $newPath);
+        } else {
+            File::move($oldPath, $newPath);
+        }
+
+        $vehicle->forceFill([
+            'image_filename' => $newFilename,
         ])->saveQuietly();
     }
 
@@ -234,80 +325,74 @@ class VehicleController extends Controller
         return $this->galleryPath().DIRECTORY_SEPARATOR.$filename;
     }
 
-    private function legacyImagePath(string $slug): string
-    {
-        return $this->storedImagePath($this->legacyImageFilename($slug));
-    }
-
     private function legacyImageFilename(string $slug): string
     {
         return $slug.'.avif';
     }
 
-    private function storeUploadedImage(Vehicle $vehicle, UploadedFile $image): string
+    private function slugImageFilename(string $slug, string $extension): string
     {
-        $sourcePath = $image->getRealPath();
-        $extension = $this->detectedImageExtension($image);
-
-        if ($sourcePath === false || ! is_file($sourcePath) || $extension === null) {
-            throw ValidationException::withMessages([
-                'image' => ['Image format is unsupported or the file is corrupted.'],
-            ]);
-        }
-
-        $filename = $this->generateStoredImageFilename($vehicle->slug, $extension);
-
-        if (! File::copy($sourcePath, $this->storedImagePath($filename))) {
-            throw ValidationException::withMessages([
-                'image' => ['Image could not be saved.'],
-            ]);
-        }
-
-        return $filename;
+        return $slug.'.'.strtolower($extension);
     }
 
-    private function generateStoredImageFilename(string $slug, string $extension): string
+    private function filenameExtension(string $filename): ?string
     {
-        $base = strtolower($slug);
-        $base = (string) preg_replace('/[^a-z0-9_-]+/', '-', $base);
-        $base = trim($base, '-_');
+        $extension = strtolower((string) pathinfo($filename, PATHINFO_EXTENSION));
 
-        if ($base === '') {
-            $base = 'vehicle';
-        }
+        return match ($extension) {
+            'jpeg' => 'jpg',
+            'avif', 'jpg', 'png', 'webp', 'gif', 'bmp' => $extension,
+            default => null,
+        };
+    }
 
-        $normalizedExtension = strtolower($extension);
+    private function resolveVehicleSlug(string $name, ?Vehicle $vehicle = null): string
+    {
+        $baseSlug = $this->slugFromName($name);
 
-        for ($attempt = 0; $attempt < 10; $attempt++) {
-            $filename = sprintf('%s-%s.%s', $base, bin2hex(random_bytes(6)), $normalizedExtension);
+        for ($suffix = 1; $suffix <= 999; $suffix++) {
+            $candidate = $suffix === 1 ? $baseSlug : $baseSlug.'-'.$suffix;
+            $query = Vehicle::query()->where('slug', $candidate);
 
-            if (
-                ! File::exists($this->storedImagePath($filename))
-                && ! Vehicle::query()->where('image_filename', $filename)->exists()
-            ) {
-                return $filename;
+            if ($vehicle !== null) {
+                $query->where('id', '!=', $vehicle->id);
+            }
+
+            if (! $query->exists()) {
+                return $candidate;
             }
         }
 
         throw ValidationException::withMessages([
-            'image' => ['Image could not be saved. Please try again.'],
+            'name' => ['Unable to generate a unique slug for this vehicle.'],
         ]);
+    }
+
+    private function slugFromName(string $name): string
+    {
+        $slug = Str::of($name)->ascii()->lower()->toString();
+        $slug = (string) preg_replace('/\s+/', '_', $slug);
+        $slug = (string) preg_replace('/[^a-z0-9_-]+/', '', $slug);
+        $slug = (string) preg_replace('/_{2,}/', '_', $slug);
+        $slug = (string) preg_replace('/-{2,}/', '-', $slug);
+        $slug = trim($slug, '_-');
+
+        return $slug !== '' ? $slug : 'vehicle';
+    }
+
+    private function customImageInUseByOthers(string $filename, int $vehicleId): bool
+    {
+        return Vehicle::query()
+            ->where('image_filename', $filename)
+            ->where('id', '!=', $vehicleId)
+            ->exists();
     }
 
     private function deleteCustomImageIfUnused(?string $filename, int $vehicleId): void
     {
         $filename = trim((string) $filename);
 
-        if ($filename === '') {
-            return;
-        }
-
-        $stillInUse = Vehicle::query()
-            ->where('image_filename', $filename)
-            ->where('id', '!=', $vehicleId)
-            ->exists();
-
-        if ($stillInUse) {
+        if ($filename === '' || $this->customImageInUseByOthers($filename, $vehicleId)) {
             return;
         }
 
@@ -315,6 +400,30 @@ class VehicleController extends Controller
 
         if (File::exists($path)) {
             File::delete($path);
+        }
+    }
+
+    private function legacyImageInUseByOthers(string $slug, int $vehicleId): bool
+    {
+        return Vehicle::query()
+            ->where('slug', $slug)
+            ->where('id', '!=', $vehicleId)
+            ->whereNull('image_filename')
+            ->exists();
+    }
+
+    private function deleteLegacyImageIfUnused(string $slug, int $vehicleId, string $replacementFilename): void
+    {
+        $legacyFilename = $this->legacyImageFilename($slug);
+
+        if ($legacyFilename === $replacementFilename || $this->legacyImageInUseByOthers($slug, $vehicleId)) {
+            return;
+        }
+
+        $legacyPath = $this->storedImagePath($legacyFilename);
+
+        if (File::exists($legacyPath)) {
+            File::delete($legacyPath);
         }
     }
 

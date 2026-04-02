@@ -40,29 +40,38 @@ class VehicleImageUploadTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_create_vehicle_preserves_uploaded_png_extension_and_uses_a_generated_filename(): void
+    public function test_create_vehicle_generates_slug_and_filename_from_the_vehicle_name(): void
     {
         $response = $this
             ->withHeaders($this->apiHeaders())
-            ->post('/api/admin/vehicles', array_merge($this->vehiclePayload(), [
+            ->post('/api/admin/vehicles', array_merge($this->vehiclePayload([
+                'name' => 'Sunbird',
+                'slug' => 'ignore-this-slug',
+            ]), [
                 'image' => $this->makeImageUpload('sunbird.png', 'png'),
             ]));
 
-        $vehicle = Vehicle::query()->where('slug', 'sunbird')->firstOrFail();
+        $vehicle = Vehicle::query()->where('name', 'Sunbird')->firstOrFail();
 
         $response
             ->assertCreated()
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.slug', 'sunbird')
-            ->assertJsonPath('data.image_url', '/gallery/'.$vehicle->image_filename);
+            ->assertJsonPath('data.image_url', '/gallery/sunbird.png');
 
-        $this->assertMatchesRegularExpression('/^sunbird-[a-f0-9]{12}\.png$/', (string) $vehicle->image_filename);
-        $this->assertFileExists($this->galleryPath.'/'.$vehicle->image_filename);
-        $this->assertSame('image/png', (new \finfo(FILEINFO_MIME_TYPE))->file($this->galleryPath.'/'.$vehicle->image_filename));
+        $this->assertSame('sunbird', $vehicle->slug);
+        $this->assertSame('sunbird.png', $vehicle->image_filename);
+        $this->assertFileExists($this->galleryPath.'/sunbird.png');
+        $this->assertSame('image/png', (new \finfo(FILEINFO_MIME_TYPE))->file($this->galleryPath.'/sunbird.png'));
     }
 
-    public function test_create_vehicle_accepts_a_webp_upload_and_preserves_the_extension(): void
+    public function test_create_vehicle_uses_a_numeric_slug_suffix_when_the_name_already_exists(): void
     {
+        $this->createVehicle([
+            'name' => 'Sunbird',
+            'slug' => 'sunbird',
+        ]);
+
         if (! function_exists('imagewebp')) {
             $this->markTestSkipped('WebP fixture generation requires imagewebp() in the local PHP build.');
         }
@@ -70,21 +79,23 @@ class VehicleImageUploadTest extends TestCase
         $response = $this
             ->withHeaders($this->apiHeaders())
             ->post('/api/admin/vehicles', array_merge($this->vehiclePayload([
-                'slug' => 'reef-runner',
+                'name' => 'Sunbird',
+                'slug' => 'still-ignored',
             ]), [
-                'image' => $this->makeImageUpload('reef-runner.webp', 'webp'),
+                'image' => $this->makeImageUpload('sunbird.webp', 'webp'),
             ]));
 
-        $vehicle = Vehicle::query()->where('slug', 'reef-runner')->firstOrFail();
+        $vehicle = Vehicle::query()->where('slug', 'sunbird-2')->firstOrFail();
 
         $response
             ->assertCreated()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.image_url', '/gallery/'.$vehicle->image_filename);
+            ->assertJsonPath('data.slug', 'sunbird-2')
+            ->assertJsonPath('data.image_url', '/gallery/sunbird-2.webp');
 
-        $this->assertMatchesRegularExpression('/^reef-runner-[a-f0-9]{12}\.webp$/', (string) $vehicle->image_filename);
-        $this->assertFileExists($this->galleryPath.'/'.$vehicle->image_filename);
-        $this->assertSame('image/webp', (new \finfo(FILEINFO_MIME_TYPE))->file($this->galleryPath.'/'.$vehicle->image_filename));
+        $this->assertSame('sunbird-2.webp', $vehicle->image_filename);
+        $this->assertFileExists($this->galleryPath.'/sunbird-2.webp');
+        $this->assertSame('image/webp', (new \finfo(FILEINFO_MIME_TYPE))->file($this->galleryPath.'/sunbird-2.webp'));
     }
 
     public function test_create_vehicle_accepts_an_avif_upload_and_preserves_the_extension(): void
@@ -95,7 +106,7 @@ class VehicleImageUploadTest extends TestCase
         $response = $this
             ->withHeaders($this->apiHeaders())
             ->post('/api/admin/vehicles', array_merge($this->vehiclePayload([
-                'slug' => 'shoreline',
+                'name' => 'Shoreline',
             ]), [
                 'image' => $upload,
             ]));
@@ -105,24 +116,27 @@ class VehicleImageUploadTest extends TestCase
         $response
             ->assertCreated()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.image_url', '/gallery/'.$vehicle->image_filename);
+            ->assertJsonPath('data.image_url', '/gallery/shoreline.avif');
 
-        $this->assertMatchesRegularExpression('/^shoreline-[a-f0-9]{12}\.avif$/', (string) $vehicle->image_filename);
-        $this->assertFileExists($this->galleryPath.'/'.$vehicle->image_filename);
-        $this->assertSame($uploadContents, (string) File::get($this->galleryPath.'/'.$vehicle->image_filename));
+        $this->assertSame('shoreline.avif', $vehicle->image_filename);
+        $this->assertFileExists($this->galleryPath.'/shoreline.avif');
+        $this->assertSame($uploadContents, (string) File::get($this->galleryPath.'/shoreline.avif'));
     }
 
-    public function test_update_vehicle_can_replace_an_uploaded_image_and_delete_the_old_custom_file(): void
+    public function test_update_vehicle_replaces_the_existing_file_with_the_new_extension(): void
     {
         $vehicle = $this->createVehicle([
-            'image_filename' => 'sunbird-old.png',
+            'name' => 'Sunbird',
+            'slug' => 'sunbird',
+            'image_filename' => 'sunbird.png',
         ]);
-        File::put($this->galleryPath.'/sunbird-old.png', 'old-image');
+        File::put($this->galleryPath.'/sunbird.png', 'old-image');
 
         $response = $this
             ->withHeaders($this->apiHeaders())
             ->post('/api/admin/vehicles/'.$vehicle->id, [
                 '_method' => 'PUT',
+                'name' => 'Sunbird',
                 'image' => $this->makeImageUpload('replacement.jpg', 'jpeg'),
             ]);
 
@@ -131,26 +145,29 @@ class VehicleImageUploadTest extends TestCase
         $response
             ->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.image_url', '/gallery/'.$vehicle->image_filename);
+            ->assertJsonPath('data.slug', 'sunbird')
+            ->assertJsonPath('data.image_url', '/gallery/sunbird.jpg');
 
-        $this->assertMatchesRegularExpression('/^sunbird-[a-f0-9]{12}\.jpg$/', (string) $vehicle->image_filename);
-        $this->assertFileDoesNotExist($this->galleryPath.'/sunbird-old.png');
-        $this->assertFileExists($this->galleryPath.'/'.$vehicle->image_filename);
-        $this->assertSame('image/jpeg', (new \finfo(FILEINFO_MIME_TYPE))->file($this->galleryPath.'/'.$vehicle->image_filename));
+        $this->assertSame('sunbird.jpg', $vehicle->image_filename);
+        $this->assertFileDoesNotExist($this->galleryPath.'/sunbird.png');
+        $this->assertFileExists($this->galleryPath.'/sunbird.jpg');
+        $this->assertSame('image/jpeg', (new \finfo(FILEINFO_MIME_TYPE))->file($this->galleryPath.'/sunbird.jpg'));
     }
 
-    public function test_update_vehicle_with_a_new_slug_copies_the_legacy_slug_image_to_a_generated_filename(): void
+    public function test_update_vehicle_name_renames_the_existing_custom_image_file(): void
     {
         $vehicle = $this->createVehicle([
-            'slug' => 'shared-suv',
+            'name' => 'Sunbird',
+            'slug' => 'sunbird',
+            'image_filename' => 'sunbird.png',
         ]);
-        File::put($this->galleryPath.'/shared-suv.avif', 'shared-image');
+        File::put($this->galleryPath.'/sunbird.png', 'custom-image');
 
         $response = $this
             ->withHeaders($this->apiHeaders())
             ->post('/api/admin/vehicles/'.$vehicle->id, [
                 '_method' => 'PUT',
-                'slug' => 'solo-suv',
+                'name' => 'Ocean Runner',
             ]);
 
         $vehicle->refresh();
@@ -158,21 +175,54 @@ class VehicleImageUploadTest extends TestCase
         $response
             ->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.slug', 'solo-suv')
-            ->assertJsonPath('data.image_url', '/gallery/'.$vehicle->image_filename);
+            ->assertJsonPath('data.slug', 'ocean_runner')
+            ->assertJsonPath('data.image_url', '/gallery/ocean_runner.png');
 
-        $this->assertMatchesRegularExpression('/^solo-suv-[a-f0-9]{12}\.avif$/', (string) $vehicle->image_filename);
-        $this->assertFileExists($this->galleryPath.'/shared-suv.avif');
-        $this->assertFileExists($this->galleryPath.'/'.$vehicle->image_filename);
-        $this->assertSame('shared-image', (string) File::get($this->galleryPath.'/'.$vehicle->image_filename));
+        $this->assertSame('ocean_runner.png', $vehicle->image_filename);
+        $this->assertFileDoesNotExist($this->galleryPath.'/sunbird.png');
+        $this->assertFileExists($this->galleryPath.'/ocean_runner.png');
+        $this->assertSame('custom-image', (string) File::get($this->galleryPath.'/ocean_runner.png'));
+    }
+
+    public function test_update_vehicle_name_promotes_a_shared_legacy_image_without_deleting_the_old_file(): void
+    {
+        $vehicle = $this->createVehicle([
+            'name' => 'Shared SUV',
+            'slug' => 'shared_suv',
+        ]);
+        $this->createVehicle([
+            'name' => 'Shared SUV Two',
+            'slug' => 'shared_suv',
+        ]);
+        File::put($this->galleryPath.'/shared_suv.avif', 'shared-image');
+
+        $response = $this
+            ->withHeaders($this->apiHeaders())
+            ->post('/api/admin/vehicles/'.$vehicle->id, [
+                '_method' => 'PUT',
+                'name' => 'Solo SUV',
+            ]);
+
+        $vehicle->refresh();
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.slug', 'solo_suv')
+            ->assertJsonPath('data.image_url', '/gallery/solo_suv.avif');
+
+        $this->assertSame('solo_suv.avif', $vehicle->image_filename);
+        $this->assertFileExists($this->galleryPath.'/shared_suv.avif');
+        $this->assertFileExists($this->galleryPath.'/solo_suv.avif');
+        $this->assertSame('shared-image', (string) File::get($this->galleryPath.'/solo_suv.avif'));
     }
 
     public function test_destroy_vehicle_deletes_an_unused_custom_image_file(): void
     {
         $vehicle = $this->createVehicle([
-            'image_filename' => 'sunbird-custom.png',
+            'image_filename' => 'sunbird.png',
         ]);
-        File::put($this->galleryPath.'/sunbird-custom.png', 'custom-image');
+        File::put($this->galleryPath.'/sunbird.png', 'custom-image');
 
         $response = $this
             ->withHeaders($this->apiHeaders())
@@ -185,7 +235,7 @@ class VehicleImageUploadTest extends TestCase
         $this->assertDatabaseMissing('vehicles', [
             'id' => $vehicle->id,
         ]);
-        $this->assertFileDoesNotExist($this->galleryPath.'/sunbird-custom.png');
+        $this->assertFileDoesNotExist($this->galleryPath.'/sunbird.png');
     }
 
     /** @return array<string, string> */

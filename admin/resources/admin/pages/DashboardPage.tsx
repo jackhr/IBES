@@ -852,11 +852,15 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
                 id="vehicle-image"
                 ref={vehicleImageInputRef}
                 type="file"
-                accept=".avif,.jpg,.jpeg,.png,.webp,image/avif,image/jpeg,image/png,image/webp"
+                accept=".avif,.jpg,.jpeg,.png,.webp,.gif,.bmp,image/avif,image/jpeg,image/png,image/webp,image/gif,image/bmp"
                 className="sr-only"
                 onChange={handleVehicleImageChange}
               />
-              <p className="text-muted-foreground text-xs mt-1">Accepted file types: JPG, PNG, WebP, and AVIF. Max size: 10MB.</p>
+              <p className="text-muted-foreground text-xs mt-1">
+                Accepted file types: JPG, PNG, WebP, GIF, BMP, and AVIF. Files are saved in{" "}
+                <span className="font-medium">/gallery</span> using the vehicle name slug and current file type. If
+                you replace the image, the previous file for that vehicle is removed. Max size: 10MB.
+              </p>
               {vehicleDraft.image ? (
                 <p className="text-muted-foreground text-xs">Selected file: {vehicleDraft.image.name}</p>
               ) : null}
@@ -872,6 +876,9 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
                 onChange={(event) => setVehicleDraft((prev) => ({ ...prev, name: event.target.value }))}
                 required
               />
+              <p className="text-muted-foreground text-xs">
+                Slug and image filename are generated automatically from the vehicle name.
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="vehicle-type">Type</Label>
@@ -879,15 +886,6 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
                 id="vehicle-type"
                 value={vehicleDraft.type ?? ""}
                 onChange={(event) => setVehicleDraft((prev) => ({ ...prev, type: event.target.value }))}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="vehicle-slug">Slug</Label>
-              <Input
-                id="vehicle-slug"
-                value={vehicleDraft.slug ?? ""}
-                onChange={(event) => setVehicleDraft((prev) => ({ ...prev, slug: event.target.value }))}
                 required
               />
             </div>
