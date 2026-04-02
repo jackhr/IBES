@@ -12,6 +12,7 @@ import type {
   OrderRequest,
   TaxiRequest,
   Vehicle,
+  VehicleDraft,
   VehicleDiscount
 } from "../types";
 
@@ -161,13 +162,68 @@ export async function getVehicles(): Promise<Vehicle[]> {
   return response.data.data;
 }
 
-export async function createVehicle(payload: Partial<Vehicle>): Promise<Vehicle> {
-  const response = await api.post<ApiEnvelope<Vehicle>>("/vehicles", payload);
+function appendVehicleField(formData: FormData, key: string, value: unknown): void {
+  if (value === undefined || key === "id" || key === "image_url") {
+    return;
+  }
+
+  if (value === null) {
+    formData.append(key, "");
+    return;
+  }
+
+  if (typeof value === "boolean") {
+    formData.append(key, value ? "1" : "0");
+    return;
+  }
+
+  if (typeof value === "number") {
+    formData.append(key, String(value));
+    return;
+  }
+
+  formData.append(key, String(value));
+}
+
+function toVehicleFormData(payload: VehicleDraft, methodOverride?: "PUT"): FormData {
+  const formData = new FormData();
+
+  Object.entries(payload).forEach(([key, value]) => {
+    if (key === "image") {
+      if (value instanceof File) {
+        formData.append("image", value);
+      }
+
+      return;
+    }
+
+    appendVehicleField(formData, key, value);
+  });
+
+  if (methodOverride) {
+    formData.append("_method", methodOverride);
+  }
+
+  return formData;
+}
+
+export async function createVehicle(payload: VehicleDraft): Promise<Vehicle> {
+  const response = await api.post<ApiEnvelope<Vehicle>>("/vehicles", toVehicleFormData(payload), {
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  });
+
   return response.data.data;
 }
 
-export async function updateVehicle(id: number, payload: Partial<Vehicle>): Promise<Vehicle> {
-  const response = await api.put<ApiEnvelope<Vehicle>>(`/vehicles/${id}`, payload);
+export async function updateVehicle(id: number, payload: VehicleDraft): Promise<Vehicle> {
+  const response = await api.post<ApiEnvelope<Vehicle>>(`/vehicles/${id}`, toVehicleFormData(payload, "PUT"), {
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  });
+
   return response.data.data;
 }
 

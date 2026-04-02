@@ -163,6 +163,10 @@ export type Vehicle = {
   image_url: string;
 };
 
+export type VehicleDraft = Partial<Vehicle> & {
+  image: File | null;
+};
+
 export type AddOn = {
   id: number;
   name: string;

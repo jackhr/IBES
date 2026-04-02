@@ -7,11 +7,11 @@ use App\Models\Vehicle;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 
 class VehicleController extends Controller
 {
-    private const VEHICLE_IMAGE_PREFIX = '/gallery/';
-
     public function index(): JsonResponse
     {
         $vehicles = Vehicle::query()
@@ -32,6 +32,7 @@ class VehicleController extends Controller
         $payload = $this->validateVehicle($request);
 
         $vehicle = Vehicle::query()->create($payload);
+        $this->syncVehicleImage($vehicle, $vehicle->slug, $request->file('image'));
 
         return response()->json([
             'success' => true,
@@ -42,10 +43,12 @@ class VehicleController extends Controller
 
     public function update(Request $request, Vehicle $vehicle): JsonResponse
     {
+        $originalSlug = $vehicle->slug;
         $payload = $this->validateVehicle($request, true);
 
         $vehicle->fill($payload);
         $vehicle->save();
+        $this->syncVehicleImage($vehicle, $originalSlug, $request->file('image'));
 
         return response()->json([
             'success' => true,
@@ -94,6 +97,7 @@ class VehicleController extends Controller
             'manual' => [$optional, 'boolean'],
             'year' => [$required, 'integer', 'min:1990', 'max:2100'],
             'taxi' => [$optional, 'boolean'],
+            'image' => [$partial ? 'sometimes' : 'nullable', 'file', 'mimetypes:image/avif', 'max:10240'],
         ]);
 
         if (array_key_exists('four_wd', $validated)) {
@@ -125,7 +129,67 @@ class VehicleController extends Controller
             'manual' => (bool) $vehicle->manual,
             'year' => (int) $vehicle->year,
             'taxi' => (bool) $vehicle->taxi,
-            'image_url' => self::VEHICLE_IMAGE_PREFIX.$vehicle->slug.'.avif',
+            'image_url' => $this->imageUrl($vehicle->slug),
         ];
+    }
+
+    private function syncVehicleImage(Vehicle $vehicle, string $originalSlug, ?UploadedFile $image): void
+    {
+        $galleryPath = $this->galleryPath();
+
+        if (! File::exists($galleryPath)) {
+            File::makeDirectory($galleryPath, 0755, true);
+        }
+
+        $targetPath = $this->imagePath($vehicle->slug);
+        $originalPath = $this->imagePath($originalSlug);
+        $slugChanged = $originalSlug !== $vehicle->slug;
+        $originalSlugInUseByOthers = $slugChanged && Vehicle::query()
+            ->where('slug', $originalSlug)
+            ->where('id', '!=', $vehicle->id)
+            ->exists();
+
+        if ($image !== null) {
+            $image->move($galleryPath, $this->imageFilename($vehicle->slug));
+
+            if ($slugChanged && ! $originalSlugInUseByOthers && $originalPath !== $targetPath && File::exists($originalPath)) {
+                File::delete($originalPath);
+            }
+
+            return;
+        }
+
+        if (! $slugChanged || ! File::exists($originalPath) || File::exists($targetPath)) {
+            return;
+        }
+
+        if ($originalSlugInUseByOthers) {
+            File::copy($originalPath, $targetPath);
+            return;
+        }
+
+        File::move($originalPath, $targetPath);
+    }
+
+    private function imageUrl(string $slug): string
+    {
+        $prefix = rtrim((string) config('admin.vehicle_image_url_prefix', '/gallery/'), '/');
+
+        return $prefix.'/'.$this->imageFilename($slug);
+    }
+
+    private function galleryPath(): string
+    {
+        return rtrim((string) config('admin.vehicle_gallery_path', public_path('gallery')), DIRECTORY_SEPARATOR);
+    }
+
+    private function imagePath(string $slug): string
+    {
+        return $this->galleryPath().DIRECTORY_SEPARATOR.$this->imageFilename($slug);
+    }
+
+    private function imageFilename(string $slug): string
+    {
+        return $slug.'.avif';
     }
 }

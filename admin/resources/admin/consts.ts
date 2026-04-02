@@ -8,7 +8,7 @@ import {
   Tags
 } from "lucide-react";
 import { type DashboardTabItem } from "./components/dashboard/DashboardTabs";
-import { AddOn, ConfirmDialogState, Section, Vehicle, VehicleDiscount } from "./types";
+import { AddOn, ConfirmDialogState, Section, VehicleDiscount, VehicleDraft } from "./types";
 
 export const sectionTabs: DashboardTabItem<Section>[] = [
   { value: "overview", label: "Overview", icon: LayoutGrid },
@@ -20,7 +20,7 @@ export const sectionTabs: DashboardTabItem<Section>[] = [
   { value: "settings", label: "Settings", icon: Settings }
 ];
 
-export const vehicleTemplate: Partial<Vehicle> = {
+export const vehicleTemplate: VehicleDraft = {
   name: "",
   type: "suv",
   slug: "",
@@ -37,7 +37,8 @@ export const vehicleTemplate: Partial<Vehicle> = {
   ac: true,
   manual: false,
   year: new Date().getFullYear(),
-  taxi: false
+  taxi: false,
+  image: null
 };
 
 export const addOnTemplate: Partial<AddOn> = {

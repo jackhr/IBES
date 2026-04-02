@@ -1,5 +1,5 @@
 import axios from "axios";
-import { FormEvent, Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { LogOut, RefreshCw } from "lucide-react";
 import {
   createAddOn,
@@ -33,6 +33,7 @@ import type {
   OrderRequest,
   TaxiRequest,
   Vehicle,
+  VehicleDraft,
   VehicleDiscount,
   DashboardPageProps,
   Section,
@@ -114,7 +115,8 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
   const [vehicleModalMode, setVehicleModalMode] = useState<"create" | "edit">("create");
   const [vehicleEditingId, setVehicleEditingId] = useState<number | null>(null);
-  const [vehicleDraft, setVehicleDraft] = useState<Partial<Vehicle>>(vehicleTemplate);
+  const [vehicleDraft, setVehicleDraft] = useState<VehicleDraft>(vehicleTemplate);
+  const [vehicleImagePreviewUrl, setVehicleImagePreviewUrl] = useState<string | null>(null);
 
   const [addOnModalOpen, setAddOnModalOpen] = useState(false);
   const [addOnModalMode, setAddOnModalMode] = useState<"create" | "edit">("create");
@@ -138,6 +140,18 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
       ),
     [vehicles]
   );
+
+  useEffect(() => {
+    if (!(vehicleDraft.image instanceof File)) {
+      setVehicleImagePreviewUrl(null);
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(vehicleDraft.image);
+    setVehicleImagePreviewUrl(previewUrl);
+
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [vehicleDraft.image]);
 
   const loadAll = async () => {
     setBusy(true);
@@ -270,8 +284,17 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
   const openVehicleEditModal = (vehicle: Vehicle) => {
     setVehicleModalMode("edit");
     setVehicleEditingId(vehicle.id);
-    setVehicleDraft({ ...vehicle });
+    setVehicleDraft({ ...vehicle, image: null });
     setVehicleModalOpen(true);
+  };
+
+  const handleVehicleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+
+    setVehicleDraft((prev) => ({
+      ...prev,
+      image: file
+    }));
   };
 
   const submitVehicleModal = async (event: FormEvent<HTMLFormElement>) => {
@@ -324,6 +347,8 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
     setVehicleModalOpen(false);
     requestVehicleDelete(vehicle);
   };
+
+  const vehicleModalImageSrc = vehicleImagePreviewUrl ?? vehicleDraft.image_url ?? null;
 
   const openAddOnCreateModal = () => {
     setAddOnModalMode("create");
@@ -788,6 +813,41 @@ export default function DashboardPage({ user, onLogout, onUserChange }: Dashboar
           dangerActionLabel={vehicleModalMode === "edit" ? "Delete Vehicle" : undefined}
           onDangerAction={vehicleModalMode === "edit" ? requestVehicleDeleteFromModal : undefined}
         >
+          <div className="grid gap-4 md:grid-cols-[8rem,1fr] md:items-start">
+            <div className="space-y-2">
+              <Label>{vehicleModalMode === "create" ? "Preview" : "Current Image"}</Label>
+              <div className="bg-muted/40 flex h-24 w-32 items-center justify-center overflow-hidden rounded-md border">
+                {vehicleModalImageSrc ? (
+                  <img
+                    src={vehicleModalImageSrc}
+                    alt={`${vehicleDraft.name || "Vehicle"} preview`}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-muted-foreground px-3 text-center text-xs">No image selected</span>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="vehicle-image">{vehicleModalMode === "create" ? "Upload Image" : "Replace Image"}</Label>
+              <Input
+                id="vehicle-image"
+                type="file"
+                accept=".avif,image/avif"
+                required={vehicleModalMode === "create"}
+                onChange={handleVehicleImageChange}
+              />
+              <p className="text-muted-foreground text-xs">
+                Upload an AVIF file. It will be stored as{" "}
+                <span className="font-medium">{vehicleDraft.slug || "vehicle-slug"}.avif</span> in `/gallery`.
+              </p>
+              {vehicleDraft.image ? (
+                <p className="text-muted-foreground text-xs">Selected file: {vehicleDraft.image.name}</p>
+              ) : null}
+            </div>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="vehicle-name">Name</Label>

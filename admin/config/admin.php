@@ -20,4 +20,6 @@ return [
         FILTER_VALIDATE_BOOL,
         FILTER_NULL_ON_FAILURE
     ) ?? true,
+    'vehicle_image_url_prefix' => (string) env('ADMIN_VEHICLE_IMAGE_URL_PREFIX', '/gallery/'),
+    'vehicle_gallery_path' => (string) env('ADMIN_VEHICLE_GALLERY_PATH', public_path('gallery')),
 ];
